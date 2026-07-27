@@ -695,8 +695,10 @@ function showCelebration(name) {
   celebrationSound();
   launchConfetti();
   confettiTimers = [
-    setTimeout(launchConfetti, 900),
-    setTimeout(launchConfetti, 1800)
+    setTimeout(launchConfetti, 360),
+    setTimeout(launchConfetti, 760),
+    setTimeout(launchConfetti, 1240),
+    setTimeout(launchConfetti, 1760)
   ];
 
   celebrationTimer = setTimeout(stopCelebration, celebrationDurationMs);
@@ -724,21 +726,34 @@ function stopCelebration() {
 
 function launchConfetti() {
   const confettiColors = ["#7c3aed", "#f59e0b", "#22c55e", "#06b6d4", "#ef4444", "#ec4899"];
+  const bursts = Array.from({ length: 7 }, () => ({
+    left: 12 + Math.random() * 76,
+    top: 16 + Math.random() * 58
+  }));
 
-  for (let i = 0; i < 120; i++) {
-    const piece = document.createElement("span");
-    piece.className = "confetti";
-    piece.style.left = `${12 + Math.random() * 76}vw`;
-    piece.style.top = `${16 + Math.random() * 68}vh`;
-    piece.style.background = confettiColors[i % confettiColors.length];
-    piece.style.setProperty("--duration", `${1.3 + Math.random() * 1.4}s`);
-    piece.style.setProperty("--x-shift", `${(Math.random() - 0.5) * 520}px`);
-    piece.style.setProperty("--y-shift", `${(Math.random() - 0.5) * 420}px`);
-    piece.style.setProperty("--spin", `${360 + Math.random() * 1080}deg`);
-    piece.style.animationDelay = `${Math.random() * 0.2}s`;
-    document.body.appendChild(piece);
-    piece.addEventListener("animationend", () => piece.remove(), { once: true });
-  }
+  bursts.forEach((burst, burstIndex) => {
+    const piecesCount = 42 + Math.floor(Math.random() * 20);
+
+    for (let i = 0; i < piecesCount; i++) {
+      const piece = document.createElement("span");
+      const angle = (Math.PI * 2 * i) / piecesCount + (Math.random() - 0.5) * 0.55;
+      const distance = 90 + Math.random() * 260;
+      const xShift = Math.cos(angle) * distance;
+      const yShift = Math.sin(angle) * distance;
+
+      piece.className = "confetti";
+      piece.style.left = `${burst.left}vw`;
+      piece.style.top = `${burst.top}vh`;
+      piece.style.background = confettiColors[(i + burstIndex) % confettiColors.length];
+      piece.style.setProperty("--duration", `${1.15 + Math.random() * 0.9}s`);
+      piece.style.setProperty("--x-shift", `${xShift}px`);
+      piece.style.setProperty("--y-shift", `${yShift}px`);
+      piece.style.setProperty("--spin", `${540 + Math.random() * 1260}deg`);
+      piece.style.animationDelay = `${Math.random() * 0.12}s`;
+      document.body.appendChild(piece);
+      piece.addEventListener("animationend", () => piece.remove(), { once: true });
+    }
+  });
 }
 
 function addName(name) {

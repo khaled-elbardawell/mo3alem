@@ -1748,17 +1748,28 @@ label.tool-btn:focus-within {
 
 @keyframes confetti-burst {
   0% {
-    transform: translate3d(0, 0, 0) scale(0.4) rotate(0deg);
+    transform: translate3d(0, 0, 0) scale(0.35) rotate(0deg);
     opacity: 0;
   }
 
-  12% {
+  10% {
+    opacity: 1;
+  }
+
+  72% {
+    transform: translate3d(var(--x-shift), var(--y-shift), 0) scale(1.02)
+      rotate(var(--spin));
     opacity: 1;
   }
 
   to {
-    transform: translate3d(var(--x-shift), var(--y-shift), 0) scale(0.9)
-      rotate(var(--spin));
+    transform: translate3d(
+        calc(var(--x-shift) * 1.08),
+        calc(var(--y-shift) * 1.08),
+        0
+      )
+      scale(0.72)
+      rotate(calc(var(--spin) + 220deg));
     opacity: 0;
   }
 }
