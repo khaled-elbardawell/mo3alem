@@ -179,6 +179,10 @@ a {
   gap: 12px;
 }
 
+.h-banner {
+  width: 60%;
+}
+
 .btn,
 .tool-btn,
 .icon-btn,
@@ -335,7 +339,6 @@ label.tool-btn:focus-within {
 }
 
 .ad-link--side {
-  height: 540px;
   border: 1px solid var(--line);
   background: #fff;
 }
@@ -1449,10 +1452,10 @@ label.tool-btn:focus-within {
 
 .footer {
   padding: 24px;
-  color: #667085;
+  margin-top: 50px;
   text-align: center;
   font-weight: 700;
-  border-top: 1px solid rgba(230, 228, 238, 0.8);
+  border-top: 1px solid rgba(255, 255, 255, 0.18);
 }
 
 .back-to-top {
