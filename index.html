@@ -3,7 +3,8 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>نرد | عجلة اختيار الأسماء</title>
+    <link rel="icon" href="./assets/icon.png" sizes="32x32" />
+    <title>نرد | عجلة الحظ</title>
     <meta
       name="description"
       content="عجلة اختيار أسماء عربية متجاوبة تدعم آلاف الأسماء مع وضع الحفظ والقوائم الكبيرة."
@@ -157,7 +158,13 @@
             لف تلقائي بعد 5 ثواني
           </label>
 
-          <div class="result-card" id="resultCard" role="status" aria-live="polite" hidden>
+          <div
+            class="result-card"
+            id="resultCard"
+            role="status"
+            aria-live="polite"
+            hidden
+          >
             <span>النتيجة</span>
             <strong id="resultName">—</strong>
           </div>
@@ -165,7 +172,12 @@
 
         <aside class="panel names-panel">
           <div class="mode-tabs" aria-label="وضع الاستخدام" role="group">
-            <button class="active" type="button" data-mode="guest" aria-pressed="true">
+            <button
+              class="active"
+              type="button"
+              data-mode="guest"
+              aria-pressed="true"
+            >
               <i class="fa-regular fa-user"></i>
               وضع الضيف
             </button>
@@ -256,7 +268,11 @@
             >
               <div class="virtual-spacer" id="virtualSpacer"></div>
               <div class="virtual-items" id="virtualItems"></div>
-              <div class="empty-state empty-state--names" id="emptyNames" hidden>
+              <div
+                class="empty-state empty-state--names"
+                id="emptyNames"
+                hidden
+              >
                 <span><i class="fa-solid fa-list-check"></i></span>
                 <strong>لا توجد أسماء حالياً</strong>
                 <p>أضف اسماً أو استورد ملف أسماء لبدء استخدام العجلة.</p>
@@ -289,7 +305,11 @@
             <div class="results-head">
               <strong id="winnersTitle">الفائزون بالترتيب (0)</strong>
               <div class="results-head__actions">
-                <button class="tool-btn" type="button" id="restoreAllResultsBtn">
+                <button
+                  class="tool-btn"
+                  type="button"
+                  id="restoreAllResultsBtn"
+                >
                   <i class="fa-solid fa-rotate-left"></i>
                   إرجاع الكل
                 </button>
@@ -300,7 +320,11 @@
               </div>
             </div>
             <ol class="winners-list" id="winnersList"></ol>
-            <div class="empty-state empty-results" id="emptyResults" role="status">
+            <div
+              class="empty-state empty-results"
+              id="emptyResults"
+              role="status"
+            >
               <span><i class="fa-regular fa-clock"></i></span>
               <strong>لا توجد نتائج بعد</strong>
               <p>لف العجلة لإضافة أول فائز إلى القائمة.</p>
