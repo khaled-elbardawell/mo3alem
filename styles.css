@@ -17,6 +17,8 @@
   --section-gap-md: 62px;
   --focus-ring: 0 0 0 4px rgba(124, 58, 237, 0.16);
   --control-gap: 12px;
+  --motion-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --motion-slow: 700ms;
 }
 
 * {
@@ -383,6 +385,19 @@ label.tool-btn:focus-within {
   aspect-ratio: 1;
 }
 
+.wheel-wrap::before {
+  content: "";
+  position: absolute;
+  inset: 9%;
+  z-index: -1;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle, rgba(124, 58, 237, 0.18), transparent 62%);
+  filter: blur(10px);
+  opacity: 0.55;
+  animation: wheel-halo 4.8s ease-in-out infinite;
+}
+
 .wheel-wrap.is-few {
   --wheel-size: min(100%, 570px);
 }
@@ -459,6 +474,7 @@ label.tool-btn:focus-within {
   );
   border-radius: 999px;
   filter: drop-shadow(0 8px 16px rgba(239, 68, 68, 0.35));
+  animation: pointer-pulse 1.8s ease-in-out infinite;
 }
 
 .wheel-actions {
@@ -484,6 +500,27 @@ label.tool-btn:focus-within {
   font-size: 18px;
   justify-self: stretch;
   position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.spin-btn > * {
+  position: relative;
+  z-index: 1;
+}
+
+.spin-btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(115%);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.34),
+    transparent
+  );
+  animation: button-sheen 3.2s ease-in-out infinite;
 }
 
 .spin-btn.is-loading i,
@@ -1160,6 +1197,7 @@ label.tool-btn:focus-within {
 .save-mode__art {
   position: relative;
   height: 170px;
+  animation: soft-float 5.2s ease-in-out infinite;
 }
 
 .save-screen {
@@ -1201,6 +1239,7 @@ label.tool-btn:focus-within {
   color: var(--primary);
   font-size: 30px;
   box-shadow: 0 18px 30px rgba(76, 29, 149, 0.13);
+  animation: lock-pulse 2.8s ease-in-out infinite;
 }
 
 .save-mode__content {
@@ -1350,6 +1389,13 @@ label.tool-btn:focus-within {
   grid-row: span 2;
   font-size: 35px;
   color: #f59e0b;
+  transition: transform 0.25s ease;
+}
+
+.use-card:hover span,
+.step-card:hover .step-icon,
+.stat-card:hover .stat-icon {
+  transform: scale(1.08) rotate(-4deg);
 }
 
 .use-card h3 {
@@ -1407,6 +1453,10 @@ label.tool-btn:focus-within {
   transform: rotate(180deg);
 }
 
+.faq-list details.is-closing summary::after {
+  transform: rotate(0);
+}
+
 .faq-list p {
   margin: 0;
   padding: 0 18px 18px;
@@ -1415,6 +1465,10 @@ label.tool-btn:focus-within {
   line-height: 1.8;
   direction: rtl;
   text-align: right;
+}
+
+.faq-list details[open] p {
+  animation: faq-open 0.28s ease both;
 }
 
 .final-cta {
@@ -1456,6 +1510,28 @@ label.tool-btn:focus-within {
   text-align: center;
   font-weight: 700;
   border-top: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.reveal-on-scroll {
+  opacity: 1;
+  transform: none;
+}
+
+.animate-ready .reveal-on-scroll {
+  opacity: 0;
+  transform: translateY(24px) scale(0.985);
+  transition:
+    opacity var(--motion-slow) var(--motion-ease),
+    transform var(--motion-slow) var(--motion-ease),
+    box-shadow 0.25s ease,
+    border-color 0.25s ease;
+  transition-delay: var(--reveal-delay, 0ms);
+  will-change: opacity, transform;
+}
+
+.animate-ready .reveal-on-scroll.is-visible {
+  opacity: 1;
+  transform: none;
 }
 
 .back-to-top {
@@ -1683,6 +1759,70 @@ label.tool-btn:focus-within {
 @keyframes spin-control {
   to {
     transform: rotate(360deg);
+  }
+}
+
+@keyframes wheel-halo {
+  0%,
+  100% {
+    transform: scale(0.96);
+    opacity: 0.36;
+  }
+  50% {
+    transform: scale(1.08);
+    opacity: 0.7;
+  }
+}
+
+@keyframes pointer-pulse {
+  0%,
+  100% {
+    filter: drop-shadow(0 8px 16px rgba(239, 68, 68, 0.32));
+  }
+  50% {
+    filter: drop-shadow(0 10px 22px rgba(239, 68, 68, 0.52));
+  }
+}
+
+@keyframes button-sheen {
+  0%,
+  46% {
+    transform: translateX(115%);
+  }
+  70%,
+  100% {
+    transform: translateX(-115%);
+  }
+}
+
+@keyframes soft-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes lock-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+@keyframes faq-open {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
@@ -2008,7 +2148,14 @@ label.tool-btn:focus-within {
   *,
   *::before,
   *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
     scroll-behavior: auto !important;
+  }
+
+  .animate-ready .reveal-on-scroll {
+    opacity: 1;
+    transform: none;
   }
 }

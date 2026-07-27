@@ -818,10 +818,97 @@ function setupFaqKeyboard() {
   });
 }
 
+function setupFaqToggleAnimations() {
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  faqSummaries.forEach((summary) => {
+    const details = summary.parentElement;
+    const content = details?.querySelector("p");
+
+    if (!details || !content) return;
+
+    summary.addEventListener("click", (event) => {
+      if (reduceMotion) return;
+
+      event.preventDefault();
+      details.classList.remove("is-closing");
+
+      if (details.open) {
+        details.classList.add("is-closing");
+        content.animate([
+          { height: `${content.scrollHeight}px`, opacity: 1, transform: "translateY(0)" },
+          { height: "0px", opacity: 0, transform: "translateY(-6px)" }
+        ], {
+          duration: 240,
+          easing: "ease"
+        }).finished.finally(() => {
+          details.open = false;
+          details.classList.remove("is-closing");
+          content.style.height = "";
+        });
+        return;
+      }
+
+      details.open = true;
+      content.animate([
+        { height: "0px", opacity: 0, transform: "translateY(-6px)" },
+        { height: `${content.scrollHeight}px`, opacity: 1, transform: "translateY(0)" }
+      ], {
+        duration: 280,
+        easing: "ease"
+      }).finished.finally(() => {
+        content.style.height = "";
+      });
+    });
+  });
+}
+
 function isInteractiveElement(element) {
   return Boolean(element?.closest?.(
     "a, button, input, select, textarea, summary, [role='tab'], [contenteditable='true']"
   ));
+}
+
+function setupScrollAnimations() {
+  const animatedElements = document.querySelectorAll([
+    ".ad-link",
+    ".wheel-stage",
+    ".names-panel",
+    ".stats-section h2",
+    ".stat-card",
+    ".section-heading",
+    ".step-card",
+    ".save-mode",
+    ".use-card",
+    ".faq-list details"
+  ].join(", "));
+
+  if (!animatedElements.length) return;
+
+  document.documentElement.classList.add("animate-ready");
+
+  animatedElements.forEach((element, index) => {
+    element.classList.add("reveal-on-scroll");
+    element.style.setProperty("--reveal-delay", `${Math.min(index % 6, 5) * 70}ms`);
+  });
+
+  if (!("IntersectionObserver" in window)) {
+    animatedElements.forEach((element) => element.classList.add("is-visible"));
+    return;
+  }
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (!entry.isIntersecting) return;
+      entry.target.classList.add("is-visible");
+      observer.unobserve(entry.target);
+    });
+  }, {
+    threshold: 0.16,
+    rootMargin: "0px 0px -8% 0px"
+  });
+
+  animatedElements.forEach((element) => observer.observe(element));
 }
 
 function getHeaderOffset() {
@@ -1029,6 +1116,7 @@ modeTabs.forEach((button) => {
 setupButtonGroupKeyboard(panelTabs, (button) => switchTab(button.dataset.tab));
 setupButtonGroupKeyboard(modeTabs, (button) => switchMode(button.dataset.mode));
 setupFaqKeyboard();
+setupFaqToggleAnimations();
 
 mobileMenuBtn.addEventListener("click", () => {
   const isOpen = mobileDrawer.classList.toggle("is-open");
@@ -1054,6 +1142,7 @@ document.addEventListener("keydown", (event) => {
 drawWheel();
 renderVirtualList();
 renderWinners();
+setupScrollAnimations();
 if (location.hash) {
   const target = getHashTarget(location.hash);
   if (target) requestAnimationFrame(() => scrollToTarget(target, "auto"));
