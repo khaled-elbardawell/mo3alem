@@ -1,21 +1,26 @@
 :root {
-  --primary: #6d28d9;
-  --primary-2: #7c3aed;
-  --primary-3: #4c1d95;
-  --primary-soft: #f4efff;
+  --primary: #334155;
+  --primary-2: #475569;
+  --primary-3: #1E293B;
+  --primary-soft: #F1F5F9;
+  --primary-dark: #1E293B;
+  --primary-hover: #475569;
+  --primary-light: #F1F5F9;
+  --primary-border: #CBD5E1;
+  --accent: #0EA5A4;
   --text: #111827;
   --muted: #667085;
-  --line: #e6e4ee;
+  --line: #CBD5E1;
   --card: #ffffff;
   --danger: #ef4444;
   --success: #16a34a;
-  --shadow: 0 18px 50px rgba(76, 29, 149, 0.08);
+  --shadow: 0 18px 50px rgba(30, 41, 59, 0.08);
   --radius: 22px;
   --container: 1320px;
   --header-height: 76px;
   --section-gap: 78px;
   --section-gap-md: 62px;
-  --focus-ring: 0 0 0 4px rgba(124, 58, 237, 0.16);
+  --focus-ring: 0 0 0 4px rgba(51, 65, 85, 0.16);
   --control-gap: 12px;
   --motion-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
   --motion-slow: 700ms;
@@ -46,12 +51,12 @@ body {
   background:
     radial-gradient(
       circle at 18% 8%,
-      rgba(124, 58, 237, 0.08),
+      rgba(51, 65, 85, 0.08),
       transparent 32%
     ),
     radial-gradient(
       circle at 80% 16%,
-      rgba(99, 102, 241, 0.06),
+      rgba(14, 165, 164, 0.05),
       transparent 30%
     ),
     #fff;
@@ -63,8 +68,8 @@ body::before {
   inset: 0;
   pointer-events: none;
   background-image:
-    linear-gradient(rgba(109, 40, 217, 0.035) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(109, 40, 217, 0.035) 1px, transparent 1px);
+    linear-gradient(rgba(51, 65, 85, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(51, 65, 85, 0.035) 1px, transparent 1px);
   background-size: 44px 44px;
   mask-image: linear-gradient(to bottom, #000 0%, transparent 65%);
 }
@@ -125,8 +130,8 @@ a {
   overflow: hidden;
   border: 3px solid #fff;
   box-shadow:
-    0 0 0 1px rgba(109, 40, 217, 0.16),
-    0 8px 20px rgba(109, 40, 217, 0.2);
+    0 0 0 1px rgba(51, 65, 85, 0.16),
+    0 8px 20px rgba(51, 65, 85, 0.2);
   background: conic-gradient(
     #fb923c 0 60deg,
     #22c55e 60deg 120deg,
@@ -247,8 +252,8 @@ label.tool-btn:focus-within {
 
 .btn--primary {
   color: #fff;
-  background: linear-gradient(135deg, var(--primary-2), var(--primary));
-  box-shadow: 0 12px 28px rgba(109, 40, 217, 0.24);
+  background: linear-gradient(135deg, var(--primary-hover), var(--primary-dark));
+  box-shadow: 0 12px 28px rgba(51, 65, 85, 0.24);
 }
 
 .btn--ghost {
@@ -354,7 +359,7 @@ label.tool-btn:focus-within {
 .save-mode {
   background: rgba(255, 255, 255, 0.92);
   border: 1px solid var(--line);
-  box-shadow: 0 8px 30px rgba(40, 18, 84, 0.04);
+  box-shadow: 0 8px 30px rgba(15, 23, 42, 0.04);
 }
 
 .wheel-stage {
@@ -392,7 +397,7 @@ label.tool-btn:focus-within {
   z-index: -1;
   border-radius: 50%;
   background:
-    radial-gradient(circle, rgba(124, 58, 237, 0.18), transparent 62%);
+    radial-gradient(circle, rgba(51, 65, 85, 0.16), transparent 62%);
   filter: blur(10px);
   opacity: 0.55;
   animation: wheel-halo 4.8s ease-in-out infinite;
@@ -444,7 +449,7 @@ label.tool-btn:focus-within {
   transform: translate(-50%, -50%) scale(1.04);
   box-shadow:
     inset 0 0 0 8px #f4f0ff,
-    0 16px 34px rgba(109, 40, 217, 0.24);
+    0 16px 34px rgba(51, 65, 85, 0.24);
 }
 
 .wheel-center:disabled,
@@ -580,11 +585,11 @@ label.tool-btn:focus-within {
 .result-card {
   width: min(100%, 520px);
   padding: 14px 18px;
-  border: 1px solid rgba(109, 40, 217, 0.16);
+  border: 1px solid rgba(51, 65, 85, 0.16);
   border-radius: 16px;
   background: #fff;
   text-align: center;
-  box-shadow: 0 16px 35px rgba(109, 40, 217, 0.08);
+  box-shadow: 0 16px 35px rgba(51, 65, 85, 0.08);
 }
 
 .result-card span {
@@ -633,7 +638,7 @@ label.tool-btn:focus-within {
 .panel-tabs button.active {
   color: var(--primary);
   background: #fff;
-  border-color: #d8c7ff;
+  border-color: #CBD5E1;
   box-shadow: inset 0 -3px 0 var(--primary);
 }
 
@@ -641,7 +646,7 @@ label.tool-btn:focus-within {
   margin: 12px 0 14px;
   padding: 11px 13px;
   border-radius: 14px;
-  color: #4c1d95;
+  color: #1E293B;
   background: var(--primary-soft);
   font-weight: 800;
   font-size: 14px;
@@ -790,7 +795,7 @@ label.tool-btn:focus-within {
   gap: 6px;
   text-align: center;
   color: var(--muted);
-  border: 1px dashed rgba(109, 40, 217, 0.2);
+  border: 1px dashed rgba(51, 65, 85, 0.2);
   border-radius: 16px;
   background: #fbf9ff;
 }
@@ -811,7 +816,7 @@ label.tool-btn:focus-within {
 }
 
 .empty-state strong {
-  color: #32115f;
+  color: #1E293B;
   font-weight: 900;
 }
 
@@ -846,7 +851,7 @@ label.tool-btn:focus-within {
 
 .name-row.is-drop-target {
   background: #f7f2ff;
-  box-shadow: inset 0 0 0 2px rgba(109, 40, 217, 0.16);
+  box-shadow: inset 0 0 0 2px rgba(51, 65, 85, 0.16);
 }
 
 .name-row input {
@@ -886,7 +891,7 @@ label.tool-btn:focus-within {
   border: 1px solid var(--line);
   border-radius: 9px;
   background: #fff;
-  color: #4c1d95;
+  color: #1E293B;
   cursor: pointer;
   font-size: 13px;
   transition:
@@ -898,7 +903,7 @@ label.tool-btn:focus-within {
 
 .name-row__btn:hover:not(:disabled) {
   background: var(--primary-soft);
-  border-color: #d8c7ff;
+  border-color: #CBD5E1;
   transform: translateY(-1px);
 }
 
@@ -977,7 +982,7 @@ label.tool-btn:focus-within {
 }
 
 .results-head strong {
-  color: #171243;
+  color: #1E293B;
   font-weight: 900;
 }
 
@@ -1012,7 +1017,7 @@ label.tool-btn:focus-within {
   height: 34px;
   display: grid;
   place-items: center;
-  border: 1px solid rgba(109, 40, 217, 0.16);
+  border: 1px solid rgba(51, 65, 85, 0.16);
   border-radius: 10px;
   background: #fff;
   color: var(--primary);
@@ -1026,7 +1031,7 @@ label.tool-btn:focus-within {
 .winner-restore-btn:hover:not(:disabled) {
   transform: translateY(-1px);
   background: var(--primary-soft);
-  border-color: #d8c7ff;
+  border-color: #CBD5E1;
 }
 
 .winner-restore-btn:disabled {
@@ -1091,12 +1096,12 @@ label.tool-btn:focus-within {
 }
 
 .stat-card:nth-child(1) .stat-icon {
-  color: #7c3aed;
-  background: #f4efff;
+  color: #475569;
+  background: #F1F5F9;
 }
 
 .stat-card:nth-child(2) .stat-icon {
-  color: #06b6d4;
+  color: var(--accent);
   background: #ecfeff;
 }
 
@@ -1169,7 +1174,7 @@ label.tool-btn:focus-within {
   background: var(--primary);
   border-radius: 50%;
   font-weight: 900;
-  box-shadow: 0 8px 18px rgba(109, 40, 217, 0.24);
+  box-shadow: 0 8px 18px rgba(51, 65, 85, 0.24);
 }
 
 .step-icon {
@@ -1179,11 +1184,11 @@ label.tool-btn:focus-within {
 }
 
 .step-card:nth-child(1) .step-icon {
-  color: #7c3aed;
+  color: #475569;
 }
 
 .step-card:nth-child(2) .step-icon {
-  color: #06b6d4;
+  color: var(--accent);
 }
 
 .step-card:nth-child(3) .step-icon {
@@ -1246,7 +1251,7 @@ label.tool-btn:focus-within {
   border-radius: 18px;
   background: linear-gradient(#f8f5ff, #fff);
   border: 5px solid #fff;
-  box-shadow: 0 20px 35px rgba(76, 29, 149, 0.12);
+  box-shadow: 0 20px 35px rgba(30, 41, 59, 0.12);
 }
 
 .save-screen::before {
@@ -1255,11 +1260,11 @@ label.tool-btn:focus-within {
   inset: 22px;
   border-radius: 9px;
   background:
-    linear-gradient(90deg, #7c3aed 0 12px, transparent 12px 100%) 100% 0 / 100%
+    linear-gradient(90deg, #475569 0 12px, transparent 12px 100%) 100% 0 / 100%
       18px no-repeat,
-    linear-gradient(90deg, #c4b5fd 0 70%, transparent 70%) 100% 32px / 100% 10px
+    linear-gradient(90deg, #CBD5E1 0 70%, transparent 70%) 100% 32px / 100% 10px
       no-repeat,
-    linear-gradient(90deg, #c4b5fd 0 55%, transparent 55%) 100% 58px / 100% 10px
+    linear-gradient(90deg, #CBD5E1 0 55%, transparent 55%) 100% 58px / 100% 10px
       no-repeat;
 }
 
@@ -1272,10 +1277,10 @@ label.tool-btn:focus-within {
   border-radius: 999px;
   display: grid;
   place-items: center;
-  background: linear-gradient(135deg, #ede9fe, #c4b5fd);
+  background: linear-gradient(135deg, #F1F5F9, #CBD5E1);
   color: var(--primary);
   font-size: 30px;
-  box-shadow: 0 18px 30px rgba(76, 29, 149, 0.13);
+  box-shadow: 0 18px 30px rgba(30, 41, 59, 0.13);
   animation: lock-pulse 2.8s ease-in-out infinite;
 }
 
@@ -1302,7 +1307,7 @@ label.tool-btn:focus-within {
   margin: 12px 0 0;
   font-size: clamp(24px, 3vw, 34px);
   font-weight: 900;
-  color: #171243;
+  color: #1E293B;
   line-height: 1.35;
 }
 
@@ -1326,8 +1331,8 @@ label.tool-btn:focus-within {
   display: flex;
   align-items: center;
   gap: 10px;
-  border-block: 1px solid rgba(109, 40, 217, 0.12);
-  color: #32115f;
+  border-block: 1px solid rgba(51, 65, 85, 0.12);
+  color: #1E293B;
   font-weight: 900;
   line-height: 1.4;
 }
@@ -1352,9 +1357,9 @@ label.tool-btn:focus-within {
   gap: 8px;
   padding: 0 14px;
   background: #fff;
-  border: 1px solid rgba(109, 40, 217, 0.15);
+  border: 1px solid rgba(51, 65, 85, 0.15);
   border-radius: 14px;
-  color: #32115f;
+  color: #1E293B;
   font-weight: 900;
 }
 
@@ -1389,7 +1394,7 @@ label.tool-btn:focus-within {
 }
 
 .save-mode__checks li {
-  color: #32115f;
+  color: #1E293B;
   font-weight: 800;
 }
 
@@ -1530,7 +1535,7 @@ label.tool-btn:focus-within {
 
 .final-cta h2 {
   margin: 0;
-  color: #171243;
+  color: #1E293B;
   font-size: clamp(22px, 2.5vw, 30px);
   font-weight: 900;
 }
@@ -1544,8 +1549,10 @@ label.tool-btn:focus-within {
 .footer {
   padding: 24px;
   margin-top: 50px;
+  color: #fff;
   text-align: center;
   font-weight: 700;
+  background: linear-gradient(135deg, var(--primary-hover), var(--primary-dark));
   border-top: 1px solid rgba(255, 255, 255, 0.18);
 }
 
@@ -1580,11 +1587,11 @@ label.tool-btn:focus-within {
   height: 42px;
   display: grid;
   place-items: center;
-  border: 1px solid rgba(109, 40, 217, 0.18);
+  border: 1px solid rgba(51, 65, 85, 0.18);
   border-radius: 12px;
   background: #fff;
   color: var(--primary);
-  box-shadow: 0 14px 34px rgba(76, 29, 149, 0.16);
+  box-shadow: 0 14px 34px rgba(30, 41, 59, 0.16);
   cursor: pointer;
   opacity: 0;
   pointer-events: none;
@@ -1639,8 +1646,8 @@ label.tool-btn:focus-within {
 }
 
 .name-dialog input:focus {
-  border-color: #c4b5fd;
-  box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.1);
+  border-color: #CBD5E1;
+  box-shadow: 0 0 0 4px rgba(51, 65, 85, 0.12);
 }
 
 .dialog-actions {
@@ -1663,7 +1670,7 @@ label.tool-btn:focus-within {
       rgba(245, 158, 11, 0.16),
       transparent 34%
     ),
-    radial-gradient(circle, rgba(109, 40, 217, 0.2), transparent 50%);
+    radial-gradient(circle, rgba(51, 65, 85, 0.2), transparent 50%);
 }
 
 .celebration.is-show {
@@ -1678,8 +1685,8 @@ label.tool-btn:focus-within {
   border-radius: 26px;
   text-align: center;
   background: rgba(255, 255, 255, 0.94);
-  border: 1px solid rgba(109, 40, 217, 0.18);
-  box-shadow: 0 30px 90px rgba(76, 29, 149, 0.25);
+  border: 1px solid rgba(51, 65, 85, 0.18);
+  box-shadow: 0 30px 90px rgba(30, 41, 59, 0.25);
   animation:
     pop 0.42s ease both,
     celebration-float 1.8s ease-in-out 0.42s infinite alternate;
@@ -1693,13 +1700,13 @@ label.tool-btn:focus-within {
   height: 38px;
   display: grid;
   place-items: center;
-  border: 1px solid rgba(109, 40, 217, 0.14);
+  border: 1px solid rgba(51, 65, 85, 0.14);
   border-radius: 50%;
   background: #fff;
-  color: #4c1d95;
+  color: #1E293B;
   cursor: pointer;
   font-size: 18px;
-  box-shadow: 0 10px 24px rgba(76, 29, 149, 0.12);
+  box-shadow: 0 10px 24px rgba(30, 41, 59, 0.12);
 }
 
 .celebration__close:hover {
