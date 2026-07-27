@@ -1089,6 +1089,26 @@ label.tool-btn:focus-within {
   font-weight: 900;
 }
 
+.stat-card:nth-child(1) .stat-icon {
+  color: #7c3aed;
+  background: #f4efff;
+}
+
+.stat-card:nth-child(2) .stat-icon {
+  color: #06b6d4;
+  background: #ecfeff;
+}
+
+.stat-card:nth-child(3) .stat-icon {
+  color: #f59e0b;
+  background: #fffbeb;
+}
+
+.stat-card:nth-child(4) .stat-icon {
+  color: #22c55e;
+  background: #ecfdf5;
+}
+
 .stat-card small {
   color: #344054;
   font-weight: 800;
@@ -1155,6 +1175,22 @@ label.tool-btn:focus-within {
   color: var(--primary);
   font-size: 42px;
   line-height: 1;
+}
+
+.step-card:nth-child(1) .step-icon {
+  color: #7c3aed;
+}
+
+.step-card:nth-child(2) .step-icon {
+  color: #06b6d4;
+}
+
+.step-card:nth-child(3) .step-icon {
+  color: #f59e0b;
+}
+
+.step-card:nth-child(4) .step-icon {
+  color: #22c55e;
 }
 
 .step-card h3,
