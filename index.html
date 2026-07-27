@@ -27,13 +27,13 @@
   <body>
     <header class="site-header">
       <div class="container nav">
-        <a class="brand" href="#" aria-label="نرد">
+        <a class="brand" href="#home" aria-label="نرد">
           <span class="brand__text">نرد</span>
           <span class="brand__wheel" aria-hidden="true"></span>
         </a>
 
         <nav class="nav-links" id="navLinks" aria-label="روابط الموقع">
-          <a class="active" href="#">الرئيسية</a>
+          <a class="active" href="#home">الرئيسية</a>
           <a href="#how">كيف تعمل العجلة؟</a>
           <a href="#uses">الاستخدامات</a>
           <a href="#faq">الأسئلة الشائعة</a>
@@ -62,7 +62,7 @@
       </div>
 
       <div class="mobile-drawer" id="mobileDrawer">
-        <a class="active" href="#">الرئيسية</a>
+        <a class="active" href="#home">الرئيسية</a>
         <a href="#how">كيف تعمل العجلة؟</a>
         <a href="#uses">الاستخدامات</a>
         <a href="#faq">الأسئلة الشائعة</a>
@@ -79,7 +79,7 @@
 
     <main>
       <!-- الإعلان العلوي: الصورة كلها رابط -->
-      <section class="container">
+      <section class="container" id="home">
         <a
           class="ad-link ad-link--top"
           href="https://cmp-tch.com/"
@@ -145,8 +145,9 @@
               class="btn btn--primary spin-btn"
               type="button"
               id="spinBtn"
+              aria-label="لف العجلة واختيار اسم"
             >
-              لف العجلة
+              <span class="spin-btn__text">لف العجلة</span>
               <i class="fa-solid fa-rotate"></i>
             </button>
           </div>
@@ -156,19 +157,19 @@
             لف تلقائي بعد 5 ثواني
           </label>
 
-          <div class="result-card" id="resultCard" hidden>
+          <div class="result-card" id="resultCard" role="status" aria-live="polite" hidden>
             <span>النتيجة</span>
             <strong id="resultName">—</strong>
           </div>
         </section>
 
         <aside class="panel names-panel">
-          <div class="mode-tabs" aria-label="وضع الاستخدام">
-            <button class="active" type="button" data-mode="guest">
+          <div class="mode-tabs" aria-label="وضع الاستخدام" role="group">
+            <button class="active" type="button" data-mode="guest" aria-pressed="true">
               <i class="fa-regular fa-user"></i>
               وضع الضيف
             </button>
-            <button type="button" data-mode="save">
+            <button type="button" data-mode="save" aria-pressed="false">
               <i class="fa-solid fa-lock"></i>
               وضع الحفظ
             </button>
@@ -178,18 +179,40 @@
             وضع الضيف: استخدم العجلة مباشرة بدون حفظ دائم.
           </div>
 
-          <div class="panel-tabs" aria-label="تبويبات اللوحة">
-            <button class="active" type="button" data-tab="data">
+          <div class="panel-tabs" aria-label="تبويبات اللوحة" role="tablist">
+            <button
+              class="active"
+              type="button"
+              data-tab="data"
+              id="dataTab"
+              role="tab"
+              aria-selected="true"
+              aria-controls="dataPage"
+              tabindex="0"
+            >
               <i class="fa-solid fa-list"></i>
-              البيانات
+              <span id="dataTabLabel">البيانات (0)</span>
             </button>
-            <button type="button" data-tab="results">
+            <button
+              type="button"
+              data-tab="results"
+              id="resultsTab"
+              role="tab"
+              aria-selected="false"
+              aria-controls="resultsPage"
+              tabindex="-1"
+            >
               <i class="fa-solid fa-trophy"></i>
-              النتائج
+              <span id="resultsTabLabel">النتائج (0)</span>
             </button>
           </div>
 
-          <div class="tab-page active" id="dataPage">
+          <div
+            class="tab-page active"
+            id="dataPage"
+            role="tabpanel"
+            aria-labelledby="dataTab"
+          >
             <div class="tools-row">
               <button
                 class="tool-btn tool-btn--success"
@@ -215,18 +238,13 @@
               </button>
             </div>
 
-            <div class="count-row">
-              <div class="count-row__main">
-                <strong id="selectedCount">عدد المحدد (0)</strong>
-                <button
-                  class="danger-btn danger-btn--soft"
-                  id="clearSelectedBtn"
-                  type="button"
-                >
-                  <i class="fa-solid fa-trash"></i>
-                  مسح المحدد
-                </button>
-              </div>
+            <div class="count-row list-controls">
+              <span class="list-controls__order" aria-hidden="true"></span>
+              <label class="count-select">
+                <input id="selectAllNames" type="checkbox" />
+                <strong>تحديد الكل</strong>
+              </label>
+              <strong id="selectedCount">عدد المحدد (0)</strong>
             </div>
 
             <div
@@ -234,35 +252,59 @@
               id="virtualList"
               role="listbox"
               aria-label="قائمة الأسماء"
+              aria-live="polite"
             >
               <div class="virtual-spacer" id="virtualSpacer"></div>
               <div class="virtual-items" id="virtualItems"></div>
+              <div class="empty-state empty-state--names" id="emptyNames" hidden>
+                <span><i class="fa-solid fa-list-check"></i></span>
+                <strong>لا توجد أسماء حالياً</strong>
+                <p>أضف اسماً أو استورد ملف أسماء لبدء استخدام العجلة.</p>
+              </div>
             </div>
 
             <div class="panel-footer">
+              <button
+                class="danger-btn danger-btn--soft"
+                id="clearSelectedBtn"
+                type="button"
+              >
+                <i class="fa-solid fa-trash"></i>
+                مسح المحدد
+              </button>
               <button class="danger-btn" id="clearBtn" type="button">
                 <i class="fa-solid fa-trash"></i>
                 مسح الكل
               </button>
-              <label class="count-select">
-                <input id="selectAllNames" type="checkbox" />
-                <strong id="totalCount">عدد الكل (0)</strong>
-              </label>
             </div>
           </div>
 
-          <div class="tab-page" id="resultsPage">
+          <div
+            class="tab-page"
+            id="resultsPage"
+            role="tabpanel"
+            aria-labelledby="resultsTab"
+            hidden
+          >
             <div class="results-head">
-              <strong>الفائزون بالترتيب</strong>
-              <button class="tool-btn" type="button" id="clearResultsBtn">
-                <i class="fa-solid fa-eraser"></i>
-                مسح النتائج
-              </button>
+              <strong id="winnersTitle">الفائزون بالترتيب (0)</strong>
+              <div class="results-head__actions">
+                <button class="tool-btn" type="button" id="restoreAllResultsBtn">
+                  <i class="fa-solid fa-rotate-left"></i>
+                  إرجاع الكل
+                </button>
+                <button class="tool-btn" type="button" id="clearResultsBtn">
+                  <i class="fa-solid fa-eraser"></i>
+                  مسح النتائج
+                </button>
+              </div>
             </div>
             <ol class="winners-list" id="winnersList"></ol>
-            <p class="empty-results" id="emptyResults">
-              لسا ما في نتائج. لف العجلة لإضافة أول فائز.
-            </p>
+            <div class="empty-state empty-results" id="emptyResults" role="status">
+              <span><i class="fa-regular fa-clock"></i></span>
+              <strong>لا توجد نتائج بعد</strong>
+              <p>لف العجلة لإضافة أول فائز إلى القائمة.</p>
+            </div>
           </div>
         </aside>
       </section>
@@ -474,6 +516,16 @@
         <strong id="celebrationName">—</strong>
       </div>
     </div>
+
+    <button
+      class="back-to-top"
+      type="button"
+      id="backToTopBtn"
+      aria-label="الرجوع للأعلى"
+      title="الرجوع للأعلى"
+    >
+      <i class="fa-solid fa-arrow-up"></i>
+    </button>
 
     <script src="./app.js"></script>
   </body>

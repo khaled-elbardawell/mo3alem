@@ -1,7 +1,7 @@
 const canvas = document.getElementById("wheelCanvas");
 const ctx = canvas.getContext("2d");
 
-const totalCountEl = document.getElementById("totalCount");
+const dataTabLabel = document.getElementById("dataTabLabel");
 const selectAllNames = document.getElementById("selectAllNames");
 const selectedCountEl = document.getElementById("selectedCount");
 const virtualList = document.getElementById("virtualList");
@@ -23,6 +23,7 @@ const fullscreenBtn = document.getElementById("fullscreenBtn");
 const soundBtn = document.getElementById("soundBtn");
 const autoSpin = document.getElementById("autoSpin");
 const wheelWrap = document.getElementById("wheelWrap");
+const wheelStage = document.querySelector(".wheel-stage");
 const mobileMenuBtn = document.getElementById("mobileMenuBtn");
 const mobileDrawer = document.getElementById("mobileDrawer");
 const modeTabs = document.querySelectorAll(".mode-tabs button");
@@ -31,12 +32,26 @@ const panelTabs = document.querySelectorAll(".panel-tabs button");
 const dataPage = document.getElementById("dataPage");
 const resultsPage = document.getElementById("resultsPage");
 const winnersList = document.getElementById("winnersList");
+const winnersTitle = document.getElementById("winnersTitle");
+const resultsTabLabel = document.getElementById("resultsTabLabel");
 const emptyResults = document.getElementById("emptyResults");
+const emptyNames = document.getElementById("emptyNames");
 const clearResultsBtn = document.getElementById("clearResultsBtn");
+const restoreAllResultsBtn = document.getElementById("restoreAllResultsBtn");
 const celebration = document.getElementById("celebration");
 const celebrationName = document.getElementById("celebrationName");
 const celebrationCloseBtn = document.getElementById("celebrationCloseBtn");
 const celebrationAudio = new Audio("./assets/voice.m4a");
+const siteHeader = document.querySelector(".site-header");
+const navSectionLinks = document.querySelectorAll(
+  '.nav-links a[href^="#"], .mobile-drawer a[href^="#"]'
+);
+const smoothScrollLinks = document.querySelectorAll(
+  '.brand[href^="#"], .nav-links a[href^="#"], .mobile-drawer a[href^="#"]'
+);
+const backToTopBtn = document.getElementById("backToTopBtn");
+const spinBtnText = spinBtn.querySelector(".spin-btn__text");
+const faqSummaries = document.querySelectorAll(".faq-list summary");
 
 const colors = [
   "#ef4444", "#f97316", "#f59e0b", "#22c55e", "#14b8a6", "#06b6d4",
@@ -77,14 +92,58 @@ function formatNumber(number) {
 }
 
 function updateCounts() {
-  totalCountEl.textContent = `عدد الكل (${formatNumber(names.length)})`;
+  dataTabLabel.textContent = `البيانات (${formatNumber(names.length)})`;
   selectedCountEl.textContent = `عدد المحدد (${formatNumber(selectedIds.size)})`;
-  clearSelectedBtn.disabled = selectedIds.size === 0;
-  selectAllNames.disabled = names.length === 0;
+  clearSelectedBtn.disabled = spinning || selectedIds.size === 0;
+  selectAllNames.disabled = spinning || names.length === 0;
   selectAllNames.checked = names.length > 0 && selectedIds.size === names.length;
   selectAllNames.indeterminate = selectedIds.size > 0 && selectedIds.size < names.length;
 
-  const label = names.length > 2000 ? "يدعم أكثر من 2000 اسم" : `عدد الأسماء ${formatNumber(names.length)}`;
+  updateControlStates();
+}
+
+function setDisabled(elements, disabled) {
+  elements.forEach((element) => {
+    if (element) element.disabled = disabled;
+  });
+}
+
+function updateControlStates() {
+  const hasNames = names.length > 0;
+  const spinDisabled = spinning || !hasNames;
+
+  setDisabled([spinBtn, centerSpinBtn], spinDisabled);
+  setDisabled([clearBtn, shuffleBtn], !hasNames || spinning);
+  setDisabled([clearResultsBtn], winners.length === 0 || spinning);
+  setDisabled([restoreAllResultsBtn], winners.length === 0 || spinning);
+  syncNameRowControls();
+
+  spinBtn.classList.toggle("is-loading", spinning);
+  centerSpinBtn.classList.toggle("is-loading", spinning);
+  wheelStage?.setAttribute("aria-busy", String(spinning));
+
+  if (spinBtnText) {
+    spinBtnText.textContent = spinning ? "جاري اللف..." : "لف العجلة";
+  }
+
+  spinBtn.setAttribute(
+    "aria-label",
+    spinning ? "العجلة تدور الآن" : "لف العجلة واختيار اسم"
+  );
+  centerSpinBtn.setAttribute(
+    "aria-label",
+    spinning ? "العجلة تدور الآن" : "لف العجلة"
+  );
+}
+
+function syncNameRowControls() {
+  virtualItems.querySelectorAll("input, button").forEach((control) => {
+    control.disabled = spinning;
+  });
+
+  virtualItems.querySelectorAll(".name-row").forEach((row) => {
+    row.draggable = !spinning;
+  });
 }
 
 function updateWheelDensityClass() {
@@ -233,12 +292,15 @@ function drawLabels({ center, radius, count, slice, zoom }) {
 
 function renderVirtualList() {
   updateCounts();
+  const isEmpty = names.length === 0;
 
   virtualSpacer.style.height = "0px";
   virtualItems.style.transform = "none";
   virtualItems.replaceChildren();
+  virtualList.classList.toggle("is-empty", isEmpty);
+  emptyNames.hidden = !isEmpty;
 
-  if (names.length === 0) {
+  if (isEmpty) {
     return;
   }
 
@@ -248,7 +310,7 @@ function renderVirtualList() {
     const row = document.createElement("div");
     row.className = "name-row";
     row.setAttribute("role", "option");
-    row.draggable = true;
+    row.draggable = !spinning;
     row.addEventListener("dragstart", (event) => {
       draggedNameIndex = i;
       row.classList.add("is-dragging");
@@ -281,6 +343,7 @@ function renderVirtualList() {
     const checkbox = document.createElement("input");
     checkbox.type = "checkbox";
     checkbox.checked = selectedIds.has(i);
+    checkbox.disabled = spinning;
     checkbox.addEventListener("change", () => {
       if (checkbox.checked) selectedIds.add(i);
       else selectedIds.delete(i);
@@ -295,6 +358,7 @@ function renderVirtualList() {
     actions.className = "name-row__actions";
 
     const deleteBtn = createRowButton("fa-trash", "حذف الاسم", () => deleteName(i), "name-row__btn--danger");
+    deleteBtn.disabled = spinning;
 
     actions.append(deleteBtn);
     row.append(order, checkbox, text, actions);
@@ -328,6 +392,7 @@ function spinWheel() {
   if (spinning || names.length === 0) return;
 
   spinning = true;
+  updateControlStates();
   resultCard.hidden = true;
 
   const selectedIndex = Math.floor(Math.random() * names.length);
@@ -353,6 +418,7 @@ function spinWheel() {
     addWinner(winner, selectedIndex + 1);
     removeWinnerFromNames(selectedIndex, winner);
     showCelebration(winner);
+    updateControlStates();
   }, spinDurationMs);
 }
 
@@ -425,6 +491,11 @@ function updateSelectionAfterDelete(deletedIndex) {
     .map((index) => index > deletedIndex ? index - 1 : index));
 }
 
+function updateSelectionAfterInsert(insertIndex) {
+  selectedIds = new Set([...selectedIds]
+    .map((index) => index >= insertIndex ? index + 1 : index));
+}
+
 function clampVirtualScroll() {
   virtualList.scrollTop = Math.min(
     virtualList.scrollTop,
@@ -432,17 +503,84 @@ function clampVirtualScroll() {
   );
 }
 
+function getRestoreIndex(winner) {
+  const originalIndex = Number.isFinite(winner?.nameNumber) ? winner.nameNumber - 1 : names.length;
+  return Math.min(Math.max(originalIndex, 0), names.length);
+}
+
+function restoreWinnerToNames(winner) {
+  if (!winner?.name) return;
+
+  const restoreIndex = getRestoreIndex(winner);
+  names.splice(restoreIndex, 0, winner.name);
+  updateSelectionAfterInsert(restoreIndex);
+}
+
+function refreshWheelAndNames() {
+  clampVirtualScroll();
+  drawWheel();
+  renderVirtualList();
+}
+
+function restoreWinner(index) {
+  if (spinning || index < 0 || index >= winners.length) return;
+
+  const [winner] = winners.splice(index, 1);
+  restoreWinnerToNames(winner);
+  refreshWheelAndNames();
+  renderWinners();
+}
+
+function restoreAllWinners() {
+  if (spinning || winners.length === 0) return;
+
+  winners
+    .slice()
+    .sort((a, b) => {
+      const aNumber = Number.isFinite(a.nameNumber) ? a.nameNumber : Number.MAX_SAFE_INTEGER;
+      const bNumber = Number.isFinite(b.nameNumber) ? b.nameNumber : Number.MAX_SAFE_INTEGER;
+      return aNumber - bNumber || a.time - b.time;
+    })
+    .forEach(restoreWinnerToNames);
+
+  winners = [];
+  refreshWheelAndNames();
+  renderWinners();
+}
+
 function renderWinners() {
   winnersList.replaceChildren();
-  emptyResults.hidden = winners.length > 0;
+  const isEmpty = winners.length === 0;
+  const winnersCount = formatNumber(winners.length);
+
+  winnersTitle.textContent = `الفائزون بالترتيب (${winnersCount})`;
+  resultsTabLabel.textContent = `النتائج (${winnersCount})`;
+  emptyResults.hidden = !isEmpty;
+  winnersList.hidden = isEmpty;
+  winnersList.classList.toggle("is-empty", isEmpty);
+  updateControlStates();
 
   winners.forEach((winner, index) => {
     const li = document.createElement("li");
     const nameNumber = Number.isFinite(winner.nameNumber) ? winner.nameNumber : index + 1;
-    li.innerHTML = `
+
+    const entry = document.createElement("div");
+    entry.className = "winner-entry";
+    entry.innerHTML = `
       <strong>${formatNumber(nameNumber)}. ${escapeHtml(winner.name)}</strong>
       <span class="winner-time">${formatTime(winner.time)}</span>
     `;
+
+    const restoreBtn = document.createElement("button");
+    restoreBtn.type = "button";
+    restoreBtn.className = "winner-restore-btn";
+    restoreBtn.disabled = spinning;
+    restoreBtn.title = "إرجاع للقائمة";
+    restoreBtn.setAttribute("aria-label", `إرجاع ${winner.name} للقائمة`);
+    restoreBtn.innerHTML = '<i class="fa-solid fa-rotate-left"></i>';
+    restoreBtn.addEventListener("click", () => restoreWinner(index));
+
+    li.append(entry, restoreBtn);
     winnersList.appendChild(li);
   });
 }
@@ -591,22 +729,234 @@ function setAutoSpin(enabled) {
 }
 
 function switchTab(tab) {
-  panelTabs.forEach((button) => button.classList.toggle("active", button.dataset.tab === tab));
-  dataPage.classList.toggle("active", tab === "data");
-  resultsPage.classList.toggle("active", tab === "results");
+  panelTabs.forEach((button) => {
+    const isActive = button.dataset.tab === tab;
+    button.classList.toggle("active", isActive);
+    button.setAttribute("aria-selected", String(isActive));
+    button.tabIndex = isActive ? 0 : -1;
+  });
+
+  const showData = tab === "data";
+  dataPage.classList.toggle("active", showData);
+  dataPage.hidden = !showData;
+  resultsPage.classList.toggle("active", !showData);
+  resultsPage.hidden = showData;
 }
 
 function switchMode(mode) {
-  modeTabs.forEach((button) => button.classList.toggle("active", button.dataset.mode === mode));
+  modeTabs.forEach((button) => {
+    const isActive = button.dataset.mode === mode;
+    button.classList.toggle("active", isActive);
+    button.setAttribute("aria-pressed", String(isActive));
+  });
   modeHint.textContent = mode === "save"
     ? "وضع الحفظ: سجّل الدخول لحفظ القوائم والنتائج والرجوع لها لاحقًا."
     : "وضع الضيف: استخدم العجلة مباشرة بدون حفظ دائم.";
 }
 
+function getKeyboardStep(event) {
+  const rtlStep = document.documentElement.dir === "rtl" ? -1 : 1;
+
+  if (event.key === "ArrowRight") return rtlStep;
+  if (event.key === "ArrowLeft") return -rtlStep;
+  if (event.key === "ArrowDown") return 1;
+  if (event.key === "ArrowUp") return -1;
+  return 0;
+}
+
+function focusIndexedElement(elements, index) {
+  const nextIndex = (index + elements.length) % elements.length;
+  elements[nextIndex]?.focus();
+  return nextIndex;
+}
+
+function setupButtonGroupKeyboard(buttons, activateButton) {
+  const buttonList = Array.from(buttons);
+
+  buttonList.forEach((button, index) => {
+    button.addEventListener("keydown", (event) => {
+      if (event.key === "Home" || event.key === "End") {
+        event.preventDefault();
+        const targetIndex = event.key === "Home" ? 0 : buttonList.length - 1;
+        buttonList[targetIndex].focus();
+        activateButton(buttonList[targetIndex]);
+        return;
+      }
+
+      const step = getKeyboardStep(event);
+      if (!step) return;
+
+      event.preventDefault();
+      const targetIndex = focusIndexedElement(buttonList, index + step);
+      activateButton(buttonList[targetIndex]);
+    });
+  });
+}
+
+function setupFaqKeyboard() {
+  const summaries = Array.from(faqSummaries);
+
+  summaries.forEach((summary, index) => {
+    summary.addEventListener("keydown", (event) => {
+      if (!["ArrowUp", "ArrowDown", "Home", "End"].includes(event.key)) return;
+
+      event.preventDefault();
+
+      if (event.key === "Home") {
+        summaries[0]?.focus();
+        return;
+      }
+
+      if (event.key === "End") {
+        summaries[summaries.length - 1]?.focus();
+        return;
+      }
+
+      const step = event.key === "ArrowDown" ? 1 : -1;
+      focusIndexedElement(summaries, index + step);
+    });
+  });
+}
+
+function isInteractiveElement(element) {
+  return Boolean(element?.closest?.(
+    "a, button, input, select, textarea, summary, [role='tab'], [contenteditable='true']"
+  ));
+}
+
+function getHeaderOffset() {
+  return siteHeader?.getBoundingClientRect().height || 0;
+}
+
+function getAnchorHash(link) {
+  const href = link.getAttribute("href");
+  return href && href.startsWith("#") && href.length > 1 ? href : null;
+}
+
+function getHashTarget(hash) {
+  try {
+    return document.getElementById(decodeURIComponent(hash.slice(1)));
+  } catch (_) {
+    return null;
+  }
+}
+
+function scrollToTarget(target, behavior = "smooth") {
+  const top = target.getBoundingClientRect().top + window.scrollY - getHeaderOffset();
+  window.scrollTo({
+    top: Math.max(0, top),
+    behavior
+  });
+}
+
+function closeMobileDrawer() {
+  mobileDrawer.classList.remove("is-open");
+  mobileMenuBtn.setAttribute("aria-expanded", "false");
+  mobileMenuBtn.innerHTML = '<i class="fa-solid fa-bars"></i>';
+}
+
+function setActiveNav(hash) {
+  navSectionLinks.forEach((link) => {
+    const isActive = getAnchorHash(link) === hash;
+    link.classList.toggle("active", isActive);
+
+    if (isActive) link.setAttribute("aria-current", "page");
+    else link.removeAttribute("aria-current");
+  });
+}
+
+const scrollSpySections = Array.from(new Set(
+  Array.from(navSectionLinks)
+    .map(getAnchorHash)
+    .filter(Boolean)
+)).map((hash) => ({
+  hash,
+  target: getHashTarget(hash)
+})).filter((section) => section.target);
+
+function updateScrollState() {
+  backToTopBtn?.classList.toggle("is-visible", window.scrollY > 360);
+
+  if (clickedScrollHash) {
+    setActiveNav(clickedScrollHash);
+    scheduleClickedScrollRelease();
+    return;
+  }
+
+  const activationLine = getHeaderOffset() + 8;
+  let currentSection = scrollSpySections[0];
+
+  scrollSpySections.forEach((section) => {
+    if (section.target.getBoundingClientRect().top <= activationLine) {
+      currentSection = section;
+    }
+  });
+
+  if (currentSection) setActiveNav(currentSection.hash);
+}
+
+let scrollStateQueued = false;
+let clickedScrollHash = null;
+let clickedScrollTimer = null;
+
+function scheduleClickedScrollRelease() {
+  if (clickedScrollTimer) clearTimeout(clickedScrollTimer);
+
+  clickedScrollTimer = setTimeout(() => {
+    clickedScrollHash = null;
+    updateScrollState();
+  }, 180);
+}
+
+function holdClickedActiveLink(hash) {
+  clickedScrollHash = hash;
+  setActiveNav(hash);
+  scheduleClickedScrollRelease();
+}
+
+function requestScrollStateUpdate() {
+  if (scrollStateQueued) return;
+  scrollStateQueued = true;
+  requestAnimationFrame(() => {
+    updateScrollState();
+    scrollStateQueued = false;
+  });
+}
+
+window.addEventListener("scrollend", () => {
+  clickedScrollHash = null;
+  updateScrollState();
+});
+
+smoothScrollLinks.forEach((link) => {
+  link.addEventListener("click", (event) => {
+    const hash = getAnchorHash(link);
+    const target = hash ? getHashTarget(hash) : null;
+
+    if (!hash || !target) return;
+
+    event.preventDefault();
+    holdClickedActiveLink(hash);
+    closeMobileDrawer();
+    scrollToTarget(target);
+    history.pushState(null, "", hash);
+  });
+});
+
+backToTopBtn?.addEventListener("click", () => {
+  holdClickedActiveLink("#home");
+  window.scrollTo({ top: 0, behavior: "smooth" });
+  history.pushState(null, "", "#home");
+});
+
 spinBtn.addEventListener("click", spinWheel);
 centerSpinBtn.addEventListener("click", spinWheel);
 virtualList.addEventListener("scroll", renderVirtualList);
-window.addEventListener("resize", () => requestAnimationFrame(drawWheel));
+window.addEventListener("resize", () => {
+  requestAnimationFrame(drawWheel);
+  requestScrollStateUpdate();
+});
+window.addEventListener("scroll", requestScrollStateUpdate, { passive: true });
 
 addNameBtn.addEventListener("click", () => {
   if (typeof nameDialog.showModal === "function") {
@@ -648,6 +998,8 @@ clearResultsBtn.addEventListener("click", () => {
   renderWinners();
 });
 
+restoreAllResultsBtn.addEventListener("click", restoreAllWinners);
+
 fullscreenBtn.addEventListener("click", () => {
   const target = document.querySelector(".wheel-stage");
   if (!document.fullscreenElement) target?.requestFullscreen?.();
@@ -674,6 +1026,10 @@ modeTabs.forEach((button) => {
   button.addEventListener("click", () => switchMode(button.dataset.mode));
 });
 
+setupButtonGroupKeyboard(panelTabs, (button) => switchTab(button.dataset.tab));
+setupButtonGroupKeyboard(modeTabs, (button) => switchMode(button.dataset.mode));
+setupFaqKeyboard();
+
 mobileMenuBtn.addEventListener("click", () => {
   const isOpen = mobileDrawer.classList.toggle("is-open");
   mobileMenuBtn.setAttribute("aria-expanded", String(isOpen));
@@ -684,14 +1040,12 @@ mobileMenuBtn.addEventListener("click", () => {
 
 mobileDrawer.querySelectorAll("a").forEach((link) => {
   link.addEventListener("click", () => {
-    mobileDrawer.classList.remove("is-open");
-    mobileMenuBtn.setAttribute("aria-expanded", "false");
-    mobileMenuBtn.innerHTML = '<i class="fa-solid fa-bars"></i>';
+    closeMobileDrawer();
   });
 });
 
 document.addEventListener("keydown", (event) => {
-  if (event.code === "Space" && !["INPUT", "TEXTAREA"].includes(document.activeElement?.tagName)) {
+  if (event.code === "Space" && !isInteractiveElement(document.activeElement)) {
     event.preventDefault();
     spinWheel();
   }
@@ -700,3 +1054,8 @@ document.addEventListener("keydown", (event) => {
 drawWheel();
 renderVirtualList();
 renderWinners();
+if (location.hash) {
+  const target = getHashTarget(location.hash);
+  if (target) requestAnimationFrame(() => scrollToTarget(target, "auto"));
+}
+updateScrollState();
