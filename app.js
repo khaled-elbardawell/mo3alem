@@ -52,6 +52,7 @@ const smoothScrollLinks = document.querySelectorAll(
 const backToTopBtn = document.getElementById("backToTopBtn");
 const spinBtnText = spinBtn.querySelector(".spin-btn__text");
 const faqSummaries = document.querySelectorAll(".faq-list summary");
+const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 const colors = [
   "#ef4444", "#f97316", "#f59e0b", "#22c55e", "#14b8a6", "#06b6d4",
@@ -75,11 +76,15 @@ let autoTimer = null;
 let celebrationTimer = null;
 let confettiTimers = [];
 let draggedNameIndex = null;
+let idleSpinFrame = null;
+let lastIdleSpinTime = null;
 
 const rowHeight = 46;
 const overscan = 8;
 const spinDurationMs = 5100;
 const celebrationDurationMs = 5200;
+const idleSpinSpeedDegPerSecond = 8;
+const wheelSpinTransition = "transform 5s cubic-bezier(0.11, 0.75, 0.13, 1)";
 
 celebrationAudio.preload = "auto";
 
@@ -111,6 +116,9 @@ function setDisabled(elements, disabled) {
 function updateControlStates() {
   const hasNames = names.length > 0;
   const spinDisabled = spinning || !hasNames;
+
+  if (!hasNames) stopIdleSpin();
+  else if (!spinning) startIdleSpin();
 
   setDisabled([spinBtn, centerSpinBtn], spinDisabled);
   setDisabled([clearBtn, shuffleBtn], !hasNames || spinning);
@@ -149,6 +157,49 @@ function syncNameRowControls() {
 function updateWheelDensityClass() {
   wheelWrap.classList.toggle("is-few", names.length > 0 && names.length <= 24);
   wheelWrap.classList.toggle("is-many", names.length >= 500);
+}
+
+function setWheelRotation(degrees, transition = "none") {
+  canvas.style.transition = transition;
+  canvas.style.transform = `rotate(${degrees}deg)`;
+}
+
+function normalizeDegrees(degrees) {
+  return ((degrees % 360) + 360) % 360;
+}
+
+function startIdleSpin() {
+  if (prefersReducedMotion || idleSpinFrame || spinning || names.length === 0) return;
+
+  lastIdleSpinTime = null;
+
+  const tick = (timestamp) => {
+    if (spinning || names.length === 0) {
+      idleSpinFrame = null;
+      lastIdleSpinTime = null;
+      return;
+    }
+
+    if (lastIdleSpinTime !== null) {
+      const elapsedSeconds = (timestamp - lastIdleSpinTime) / 1000;
+      rotation += idleSpinSpeedDegPerSecond * elapsedSeconds;
+      setWheelRotation(rotation);
+    }
+
+    lastIdleSpinTime = timestamp;
+    idleSpinFrame = requestAnimationFrame(tick);
+  };
+
+  idleSpinFrame = requestAnimationFrame(tick);
+}
+
+function stopIdleSpin() {
+  if (idleSpinFrame) {
+    cancelAnimationFrame(idleSpinFrame);
+    idleSpinFrame = null;
+  }
+
+  lastIdleSpinTime = null;
 }
 
 function drawWheel() {
@@ -391,6 +442,7 @@ function setData(newNames) {
 function spinWheel() {
   if (spinning || names.length === 0) return;
 
+  stopIdleSpin();
   spinning = true;
   updateControlStates();
   resultCard.hidden = true;
@@ -401,10 +453,14 @@ function spinWheel() {
   const pointerDeg = 180;
   const selectedMiddleDeg = selectedIndex * sliceDeg + sliceDeg / 2;
   const extraSpins = 6 + Math.floor(Math.random() * 3);
-  const targetRotation = (extraSpins * 360) + pointerDeg - selectedMiddleDeg;
+  const targetDeg = normalizeDegrees(pointerDeg - selectedMiddleDeg);
+  const currentDeg = normalizeDegrees(rotation);
+  const targetRotation = (extraSpins * 360) + normalizeDegrees(targetDeg - currentDeg);
 
+  setWheelRotation(rotation);
+  void canvas.offsetWidth;
   rotation += targetRotation;
-  canvas.style.transform = `rotate(${rotation}deg)`;
+  setWheelRotation(rotation, wheelSpinTransition);
 
   if (!muted) spinTickSound();
 
@@ -419,6 +475,7 @@ function spinWheel() {
     removeWinnerFromNames(selectedIndex, winner);
     showCelebration(winner);
     updateControlStates();
+    startIdleSpin();
   }, spinDurationMs);
 }
 

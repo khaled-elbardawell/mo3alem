@@ -411,6 +411,7 @@ label.tool-btn:focus-within {
   height: 100%;
   display: block;
   transform-origin: center;
+  will-change: transform;
   filter: drop-shadow(0 24px 40px rgba(45, 21, 89, 0.14));
   transition: transform 5s cubic-bezier(0.11, 0.75, 0.13, 1);
 }
