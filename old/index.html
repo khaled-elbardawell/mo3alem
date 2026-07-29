@@ -92,79 +92,6 @@
         </a>
       </section>
 
-      <nav class="container wheel-toolbar" aria-label="أدوات العجلة">
-        <button class="wheel-tool" type="button" id="newWheelBtn">
-          <span class="wheel-tool__icon" aria-hidden="true">
-            <i class="fa-solid fa-plus"></i>
-          </span>
-          <span class="wheel-tool__copy">
-            <strong>عجلة جديدة</strong>
-            <small>بدء عجلة فارغة</small>
-          </span>
-        </button>
-
-        <button class="wheel-tool" type="button" id="addNameBtn">
-          <span class="wheel-tool__icon" aria-hidden="true">
-            <i class="fa-solid fa-user-plus"></i>
-          </span>
-          <span class="wheel-tool__copy">
-            <strong>إضافة اسم</strong>
-            <small>إضافة سريعة</small>
-          </span>
-        </button>
-
-        <button class="wheel-tool" type="button" id="shuffleBtn">
-          <span class="wheel-tool__icon" aria-hidden="true">
-            <i class="fa-solid fa-shuffle"></i>
-          </span>
-          <span class="wheel-tool__copy">
-            <strong>خلط الأسماء</strong>
-            <small>خلط عشوائي</small>
-          </span>
-        </button>
-
-        <label class="wheel-tool" for="importInput" role="button" tabindex="0">
-          <span class="wheel-tool__icon" aria-hidden="true">
-            <i class="fa-solid fa-upload"></i>
-          </span>
-          <span class="wheel-tool__copy">
-            <strong>استيراد أسماء</strong>
-            <small>من ملف أو نص</small>
-          </span>
-        </label>
-        <input
-          class="sr-only"
-          id="importInput"
-          type="file"
-          accept=".txt,.csv"
-        />
-
-        <button class="wheel-tool" type="button" id="toolbarFullscreenBtn">
-          <span class="wheel-tool__icon" aria-hidden="true">
-            <i class="fa-solid fa-expand"></i>
-          </span>
-          <span class="wheel-tool__copy">
-            <strong>تكبير</strong>
-            <small>ملء الشاشة</small>
-          </span>
-        </button>
-
-        <button
-          class="wheel-tool"
-          type="button"
-          id="toolbarSoundBtn"
-          aria-pressed="false"
-        >
-          <span class="wheel-tool__icon" aria-hidden="true">
-            <i class="fa-solid fa-volume-high"></i>
-          </span>
-          <span class="wheel-tool__copy">
-            <strong>كتم الصوت</strong>
-            <small>كتم / تشغيل</small>
-          </span>
-        </button>
-      </nav>
-
       <section class="container app-shell" aria-label="تطبيق العجلة">
         <!-- إعلان جانبي: الصورة كلها رابط -->
         <aside class="side-ad-card">
@@ -199,6 +126,22 @@
           </div>
 
           <div class="wheel-actions">
+            <button
+              class="icon-btn"
+              type="button"
+              id="fullscreenBtn"
+              aria-label="ملء الشاشة"
+            >
+              <i class="fa-solid fa-expand"></i>
+            </button>
+            <button
+              class="icon-btn"
+              type="button"
+              id="soundBtn"
+              aria-label="الصوت"
+            >
+              <i class="fa-solid fa-volume-high"></i>
+            </button>
             <button
               class="btn btn--primary spin-btn"
               type="button"
@@ -282,6 +225,31 @@
             role="tabpanel"
             aria-labelledby="dataTab"
           >
+            <div class="tools-row">
+              <button
+                class="tool-btn tool-btn--success"
+                type="button"
+                id="addNameBtn"
+              >
+                <i class="fa-solid fa-plus"></i>
+                إضافة اسم
+              </button>
+              <label class="tool-btn" for="importInput">
+                <i class="fa-solid fa-upload"></i>
+                استيراد
+              </label>
+              <input
+                class="sr-only"
+                id="importInput"
+                type="file"
+                accept=".txt,.csv"
+              />
+              <button class="tool-btn" type="button" id="shuffleBtn">
+                <i class="fa-solid fa-shuffle"></i>
+                خلط
+              </button>
+            </div>
+
             <div class="count-row list-controls">
               <span class="list-controls__order" aria-hidden="true"></span>
               <label class="count-select">

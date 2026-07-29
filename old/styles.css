@@ -1,26 +1,26 @@
 :root {
-  --primary: #6d28d9;
-  --primary-2: #7c3aed;
-  --primary-3: #4c1d95;
-  --primary-soft: #f4efff;
-  --primary-dark: #5b21b6;
-  --primary-hover: #7c3aed;
-  --primary-light: #f4efff;
-  --primary-border: #ddd0ff;
-  --accent: #06b6d4;
+  --primary: #334155;
+  --primary-2: #475569;
+  --primary-3: #1E293B;
+  --primary-soft: #F1F5F9;
+  --primary-dark: #1E293B;
+  --primary-hover: #475569;
+  --primary-light: #F1F5F9;
+  --primary-border: #CBD5E1;
+  --accent: #0EA5A4;
   --text: #111827;
   --muted: #667085;
-  --line: #e7e2f0;
+  --line: #CBD5E1;
   --card: #ffffff;
   --danger: #ef4444;
   --success: #16a34a;
-  --shadow: 0 18px 50px rgba(76, 29, 149, 0.08);
+  --shadow: 0 18px 50px rgba(30, 41, 59, 0.08);
   --radius: 22px;
   --container: 1320px;
   --header-height: 76px;
   --section-gap: 78px;
   --section-gap-md: 62px;
-  --focus-ring: 0 0 0 4px rgba(124, 58, 237, 0.16);
+  --focus-ring: 0 0 0 4px rgba(51, 65, 85, 0.16);
   --control-gap: 12px;
   --motion-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
   --motion-slow: 700ms;
@@ -51,12 +51,12 @@ body {
   background:
     radial-gradient(
       circle at 18% 8%,
-      rgba(124, 58, 237, 0.08),
+      rgba(51, 65, 85, 0.08),
       transparent 32%
     ),
     radial-gradient(
       circle at 80% 16%,
-      rgba(99, 102, 241, 0.06),
+      rgba(14, 165, 164, 0.05),
       transparent 30%
     ),
     #fff;
@@ -68,8 +68,8 @@ body::before {
   inset: 0;
   pointer-events: none;
   background-image:
-    linear-gradient(rgba(109, 40, 217, 0.035) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(109, 40, 217, 0.035) 1px, transparent 1px);
+    linear-gradient(rgba(51, 65, 85, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(51, 65, 85, 0.035) 1px, transparent 1px);
   background-size: 44px 44px;
   mask-image: linear-gradient(to bottom, #000 0%, transparent 65%);
 }
@@ -130,8 +130,8 @@ a {
   overflow: hidden;
   border: 3px solid #fff;
   box-shadow:
-    0 0 0 1px rgba(109, 40, 217, 0.16),
-    0 8px 20px rgba(109, 40, 217, 0.2);
+    0 0 0 1px rgba(51, 65, 85, 0.16),
+    0 8px 20px rgba(51, 65, 85, 0.2);
   background: conic-gradient(
     #fb923c 0 60deg,
     #22c55e 60deg 120deg,
@@ -187,7 +187,7 @@ a {
 }
 
 .h-banner {
-  width: min(calc(100% - 44px), 1040px);
+  width: 60%;
 }
 
 .btn,
@@ -329,108 +329,8 @@ label.tool-btn:focus-within {
   /* height: 124px; */
 }
 
-.wheel-toolbar {
-  width: min(calc(100% - 44px), 900px);
-  margin-top: 28px;
-  padding: 14px 12px;
-  display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
-  align-items: stretch;
-  border: 1px solid var(--line);
-  border-radius: 18px;
-  background: rgba(255, 255, 255, 0.96);
-  box-shadow:
-    0 14px 38px rgba(76, 29, 149, 0.08),
-    0 2px 8px rgba(15, 23, 42, 0.03);
-  position: relative;
-  z-index: 2;
-}
-
-.wheel-tool {
-  min-width: 0;
-  min-height: 78px;
-  padding: 7px 14px;
-  display: grid;
-  justify-items: center;
-  align-content: center;
-  gap: 7px;
-  border: 0;
-  border-inline-start: 1px solid #ece8f3;
-  border-radius: 0;
-  background: transparent;
-  color: #171243;
-  cursor: pointer;
-  text-align: center;
-  transition:
-    color 0.2s ease,
-    background 0.2s ease,
-    transform 0.2s ease;
-}
-
-.wheel-tool:first-child {
-  border-inline-start: 0;
-}
-
-.wheel-tool:hover,
-.wheel-tool:focus-visible,
-.wheel-tool.is-active {
-  color: var(--primary);
-  background: var(--primary-soft);
-  border-radius: 13px;
-  transform: translateY(-1px);
-  outline: 0;
-}
-
-.wheel-tool:focus-visible {
-  box-shadow: var(--focus-ring);
-}
-
-.wheel-tool:disabled {
-  opacity: 0.48;
-  cursor: not-allowed;
-  transform: none;
-}
-
-.wheel-tool__icon {
-  width: 34px;
-  height: 34px;
-  display: grid;
-  place-items: center;
-  border: 1px solid #e3dcf2;
-  border-radius: 10px;
-  background: #fff;
-  color: var(--primary);
-  font-size: 17px;
-  box-shadow: 0 6px 16px rgba(76, 29, 149, 0.06);
-}
-
-.wheel-tool__copy {
-  min-width: 0;
-  display: grid;
-  gap: 2px;
-}
-
-.wheel-tool strong,
-.wheel-tool small {
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.wheel-tool strong {
-  font-size: 13px;
-  font-weight: 900;
-  white-space: nowrap;
-}
-
-.wheel-tool small {
-  color: var(--muted);
-  font-size: 10px;
-  font-weight: 700;
-  white-space: nowrap;
-}
-
 .app-shell {
-  margin-top: 28px;
+  margin-top: 34px;
   display: grid;
   grid-template-columns: 250px minmax(360px, 1fr) 410px;
   align-items: start;
@@ -586,7 +486,8 @@ label.tool-btn:focus-within {
 .wheel-actions {
   width: min(100%, 520px);
   display: grid;
-  grid-template-columns: minmax(180px, 1fr);
+  grid-template-columns: 48px 48px minmax(180px, 1fr);
+  gap: var(--control-gap);
 }
 
 .icon-btn {
@@ -654,7 +555,7 @@ label.tool-btn:focus-within {
 
 .wheel-stage:fullscreen .wheel-actions {
   width: min(520px, calc(100vw - 32px));
-  grid-template-columns: minmax(160px, 420px);
+  grid-template-columns: 48px 48px minmax(160px, 240px);
   justify-content: center;
 }
 
@@ -737,7 +638,7 @@ label.tool-btn:focus-within {
 .panel-tabs button.active {
   color: var(--primary);
   background: #fff;
-  border-color: #d8c7ff;
+  border-color: #CBD5E1;
   box-shadow: inset 0 -3px 0 var(--primary);
 }
 
@@ -1195,8 +1096,8 @@ label.tool-btn:focus-within {
 }
 
 .stat-card:nth-child(1) .stat-icon {
-  color: #7c3aed;
-  background: #f4efff;
+  color: #475569;
+  background: #F1F5F9;
 }
 
 .stat-card:nth-child(2) .stat-icon {
@@ -1283,7 +1184,7 @@ label.tool-btn:focus-within {
 }
 
 .step-card:nth-child(1) .step-icon {
-  color: #7c3aed;
+  color: #475569;
 }
 
 .step-card:nth-child(2) .step-icon {
@@ -1359,11 +1260,11 @@ label.tool-btn:focus-within {
   inset: 22px;
   border-radius: 9px;
   background:
-    linear-gradient(90deg, #7c3aed 0 12px, transparent 12px 100%) 100% 0 / 100%
+    linear-gradient(90deg, #475569 0 12px, transparent 12px 100%) 100% 0 / 100%
       18px no-repeat,
-    linear-gradient(90deg, #c4b5fd 0 70%, transparent 70%) 100% 32px / 100% 10px
+    linear-gradient(90deg, #CBD5E1 0 70%, transparent 70%) 100% 32px / 100% 10px
       no-repeat,
-    linear-gradient(90deg, #c4b5fd 0 55%, transparent 55%) 100% 58px / 100% 10px
+    linear-gradient(90deg, #CBD5E1 0 55%, transparent 55%) 100% 58px / 100% 10px
       no-repeat;
 }
 
@@ -1376,7 +1277,7 @@ label.tool-btn:focus-within {
   border-radius: 999px;
   display: grid;
   place-items: center;
-  background: linear-gradient(135deg, #ede9fe, #c4b5fd);
+  background: linear-gradient(135deg, #F1F5F9, #CBD5E1);
   color: var(--primary);
   font-size: 30px;
   box-shadow: 0 18px 30px rgba(30, 41, 59, 0.13);
@@ -2064,21 +1965,6 @@ label.tool-btn:focus-within {
     height: auto;
   }
 
-  .wheel-toolbar {
-    width: min(calc(100% - 28px), 720px);
-    margin-top: 20px;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    padding: 10px;
-  }
-
-  .wheel-tool:nth-child(4) {
-    border-inline-start: 0;
-  }
-
-  .wheel-tool:nth-child(-n + 3) {
-    border-bottom: 1px solid #ece8f3;
-  }
-
   .app-shell {
     grid-template-columns: 1fr;
     gap: 24px;
@@ -2148,54 +2034,6 @@ label.tool-btn:focus-within {
     grid-template-columns: 1fr;
   }
 
-  .h-banner {
-    width: min(calc(100% - 28px), 1040px);
-  }
-
-  .wheel-toolbar {
-    grid-template-columns: repeat(6, minmax(0, 1fr));
-    padding: 7px 5px;
-    border-radius: 16px;
-  }
-
-  .wheel-tool {
-    min-height: 64px;
-    padding: 4px 2px;
-    gap: 5px;
-    border-inline-start: 1px solid #ece8f3;
-    border-bottom: 0;
-  }
-
-  .wheel-tool:first-child {
-    border-inline-start: 0;
-  }
-
-  .wheel-tool:not(:first-child) {
-    border-inline-start: 1px solid #ece8f3;
-  }
-
-  .wheel-tool__icon {
-    width: 29px;
-    height: 29px;
-    border-radius: 8px;
-    font-size: 14px;
-  }
-
-  .wheel-tool__copy {
-    gap: 0;
-  }
-
-  .wheel-tool strong {
-    overflow: visible;
-    font-size: clamp(8px, 2.35vw, 10px);
-    line-height: 1.25;
-    white-space: normal;
-  }
-
-  .wheel-tool small {
-    display: none;
-  }
-
   .app-shell {
     margin-top: 22px;
   }
@@ -2217,7 +2055,7 @@ label.tool-btn:focus-within {
   }
 
   .wheel-actions {
-    grid-template-columns: 1fr;
+    grid-template-columns: 44px 44px 1fr;
   }
 
   .icon-btn {

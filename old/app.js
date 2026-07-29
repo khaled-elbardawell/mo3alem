@@ -19,9 +19,8 @@ const importInput = document.getElementById("importInput");
 const clearBtn = document.getElementById("clearBtn");
 const clearSelectedBtn = document.getElementById("clearSelectedBtn");
 const shuffleBtn = document.getElementById("shuffleBtn");
-const newWheelBtn = document.getElementById("newWheelBtn");
-const toolbarFullscreenBtn = document.getElementById("toolbarFullscreenBtn");
-const toolbarSoundBtn = document.getElementById("toolbarSoundBtn");
+const fullscreenBtn = document.getElementById("fullscreenBtn");
+const soundBtn = document.getElementById("soundBtn");
 const autoSpin = document.getElementById("autoSpin");
 const wheelWrap = document.getElementById("wheelWrap");
 const wheelStage = document.querySelector(".wheel-stage");
@@ -123,7 +122,6 @@ function updateControlStates() {
 
   setDisabled([spinBtn, centerSpinBtn], spinDisabled);
   setDisabled([clearBtn, shuffleBtn], !hasNames || spinning);
-  setDisabled([newWheelBtn], spinning);
   setDisabled([clearResultsBtn], winners.length === 0 || spinning);
   setDisabled([restoreAllResultsBtn], winners.length === 0 || spinning);
   syncNameRowControls();
@@ -789,68 +787,6 @@ function clearNames() {
   setData([]);
 }
 
-function startNewWheel() {
-  if (spinning) return;
-
-  const hasCurrentData = names.length > 0 || winners.length > 0;
-  if (
-    hasCurrentData &&
-    !confirm("هل تريد بدء عجلة جديدة؟ سيتم مسح الأسماء والنتائج الحالية.")
-  ) {
-    return;
-  }
-
-  stopCelebration();
-  selectedIds.clear();
-  winners = [];
-  rotation = 0;
-  setWheelRotation(0);
-  resultCard.hidden = true;
-  autoSpin.checked = false;
-  setAutoSpin(false);
-  setData([]);
-  renderWinners();
-  switchTab("data");
-}
-
-function toggleFullscreen() {
-  const target = document.querySelector(".wheel-stage");
-  if (!document.fullscreenElement) target?.requestFullscreen?.();
-  else document.exitFullscreen?.();
-}
-
-function updateSoundControls() {
-  const icon = muted ? "fa-volume-xmark" : "fa-volume-high";
-
-  if (toolbarSoundBtn) {
-    toolbarSoundBtn.querySelector(".wheel-tool__icon").innerHTML =
-      `<i class="fa-solid ${icon}"></i>`;
-    toolbarSoundBtn.querySelector("strong").textContent =
-      muted ? "تشغيل الصوت" : "كتم الصوت";
-    toolbarSoundBtn.setAttribute("aria-pressed", String(muted));
-    toolbarSoundBtn.classList.toggle("is-active", muted);
-  }
-}
-
-function toggleSound() {
-  muted = !muted;
-  if (muted) stopCelebration();
-  updateSoundControls();
-}
-
-function updateFullscreenControls() {
-  const isFullscreen = Boolean(document.fullscreenElement);
-  const icon = isFullscreen ? "fa-compress" : "fa-expand";
-
-  if (toolbarFullscreenBtn) {
-    toolbarFullscreenBtn.querySelector(".wheel-tool__icon").innerHTML =
-      `<i class="fa-solid ${icon}"></i>`;
-    toolbarFullscreenBtn.querySelector("strong").textContent =
-      isFullscreen ? "تصغير" : "تكبير";
-    toolbarFullscreenBtn.classList.toggle("is-active", isFullscreen);
-  }
-}
-
 function setAutoSpin(enabled) {
   if (autoTimer) {
     clearInterval(autoTimer);
@@ -1008,7 +944,6 @@ function isInteractiveElement(element) {
 function setupScrollAnimations() {
   const animatedElements = document.querySelectorAll([
     ".ad-link",
-    ".wheel-toolbar",
     ".wheel-stage",
     ".names-panel",
     ".stats-section h2",
@@ -1209,7 +1144,6 @@ importInput.addEventListener("change", async (event) => {
 clearBtn.addEventListener("click", clearNames);
 clearSelectedBtn.addEventListener("click", deleteSelectedNames);
 shuffleBtn.addEventListener("click", shuffleNames);
-newWheelBtn?.addEventListener("click", startNewWheel);
 
 selectAllNames.addEventListener("change", () => {
   selectedIds = selectAllNames.checked
@@ -1225,19 +1159,19 @@ clearResultsBtn.addEventListener("click", () => {
 
 restoreAllResultsBtn.addEventListener("click", restoreAllWinners);
 
-toolbarFullscreenBtn?.addEventListener("click", toggleFullscreen);
-document.addEventListener("fullscreenchange", updateFullscreenControls);
+fullscreenBtn.addEventListener("click", () => {
+  const target = document.querySelector(".wheel-stage");
+  if (!document.fullscreenElement) target?.requestFullscreen?.();
+  else document.exitFullscreen?.();
+});
 
-toolbarSoundBtn?.addEventListener("click", toggleSound);
-
-document.querySelector('label.wheel-tool[for="importInput"]')?.addEventListener(
-  "keydown",
-  (event) => {
-    if (event.key !== "Enter" && event.key !== " ") return;
-    event.preventDefault();
-    importInput.click();
-  }
-);
+soundBtn.addEventListener("click", () => {
+  muted = !muted;
+  if (muted) stopCelebration();
+  soundBtn.innerHTML = muted
+    ? '<i class="fa-solid fa-volume-xmark"></i>'
+    : '<i class="fa-solid fa-volume-high"></i>';
+});
 
 celebrationCloseBtn.addEventListener("click", stopCelebration);
 
