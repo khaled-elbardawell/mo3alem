@@ -404,13 +404,13 @@ function renderVirtualList() {
     });
 
     const text = document.createElement("span");
-    text.className = "name-row__name";
+    text.className = "name-row__name min-w-0 flex-1 overflow-hidden text-ellipsis whitespace-nowrap font-bold text-[#344054]";
     text.textContent = names[i];
 
     const actions = document.createElement("div");
-    actions.className = "name-row__actions";
+    actions.className = "name-row__actions inline-flex shrink-0 items-center gap-[5px] max-[620px]:gap-[3px]";
 
-    const deleteBtn = createRowButton("fa-trash", "حذف الاسم", () => deleteName(i), "name-row__btn--danger");
+    const deleteBtn = createRowButton("fa-trash", "حذف الاسم", () => deleteName(i));
     deleteBtn.disabled = spinning;
 
     actions.append(deleteBtn);
@@ -421,10 +421,10 @@ function renderVirtualList() {
   virtualItems.appendChild(fragment);
 }
 
-function createRowButton(icon, label, onClick, extraClass = "") {
+function createRowButton(icon, label, onClick) {
   const button = document.createElement("button");
   button.type = "button";
-  button.className = `name-row__btn ${extraClass}`.trim();
+  button.className = "name-row__btn grid h-[30px] w-[30px] cursor-pointer place-items-center rounded-[9px] border border-[#e7e2f0] bg-white text-[13px] text-[#ef4444] transition-[background,border-color,color,transform] duration-200 enabled:hover:-translate-y-px enabled:hover:border-[rgba(239,68,68,0.25)] enabled:hover:bg-[#fff1f2] disabled:cursor-not-allowed disabled:opacity-[0.38] max-[620px]:h-7 max-[620px]:w-7 max-[620px]:rounded-lg max-[620px]:text-xs";
   button.setAttribute("aria-label", label);
   button.title = label;
   button.innerHTML = `<i class="fa-solid ${icon}"></i>`;
@@ -743,7 +743,7 @@ function launchConfetti() {
       const xShift = Math.cos(angle) * distance;
       const yShift = Math.sin(angle) * distance;
 
-      piece.className = "confetti";
+      piece.className = "confetti pointer-events-none fixed z-[109] h-[18px] w-2.5 rounded-[3px] opacity-0 animate-confetti-burst";
       piece.style.left = `${burst.left}vw`;
       piece.style.top = `${burst.top}vh`;
       piece.style.background = confettiColors[(i + burstIndex) % confettiColors.length];

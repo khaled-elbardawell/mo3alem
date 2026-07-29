@@ -107,40 +107,48 @@
         <nav class="wheel-toolbar relative z-[2] mx-auto mt-7 grid w-[min(calc(100%_-_44px),900px)] grid-cols-6 items-stretch rounded-[18px] border border-[#e7e2f0] bg-white/[0.96] px-3 py-3.5 shadow-[0_14px_38px_rgba(76,29,149,0.08),0_2px_8px_rgba(15,23,42,0.03)] max-[900px]:mt-5 max-[900px]:w-[min(calc(100%_-_28px),720px)] max-[900px]:grid-cols-3 max-[900px]:p-2.5 max-[620px]:grid-cols-6 max-[620px]:rounded-2xl max-[620px]:px-[5px] max-[620px]:py-[7px] [&_.wheel-tool]:grid [&_.wheel-tool]:min-h-[78px] [&_.wheel-tool]:min-w-0 [&_.wheel-tool]:cursor-pointer [&_.wheel-tool]:content-center [&_.wheel-tool]:justify-items-center [&_.wheel-tool]:gap-[7px] [&_.wheel-tool]:rounded-none [&_.wheel-tool]:border-0 [&_.wheel-tool]:border-s [&_.wheel-tool]:border-[#ece8f3] [&_.wheel-tool]:bg-transparent [&_.wheel-tool]:px-3.5 [&_.wheel-tool]:py-[7px] [&_.wheel-tool]:text-center [&_.wheel-tool]:text-[#171243] [&_.wheel-tool]:transition-[color,background,transform] [&_.wheel-tool]:duration-200 [&_.wheel-tool:first-child]:border-s-0 [&_.wheel-tool:hover]:-translate-y-px [&_.wheel-tool:hover]:rounded-[13px] [&_.wheel-tool:hover]:bg-[#f4efff] [&_.wheel-tool:hover]:text-[#6d28d9] [&_.wheel-tool:focus-visible]:-translate-y-px [&_.wheel-tool:focus-visible]:rounded-[13px] [&_.wheel-tool:focus-visible]:bg-[#f4efff] [&_.wheel-tool:focus-visible]:text-[#6d28d9] [&_.wheel-tool:focus-visible]:shadow-[0_0_0_4px_rgba(124,58,237,0.16)] [&_.wheel-tool.is-active]:-translate-y-px [&_.wheel-tool.is-active]:rounded-[13px] [&_.wheel-tool.is-active]:bg-[#f4efff] [&_.wheel-tool.is-active]:text-[#6d28d9] [&_.wheel-tool:disabled]:translate-y-0 [&_.wheel-tool:disabled]:cursor-not-allowed [&_.wheel-tool:disabled]:opacity-50 [&_.wheel-tool__icon]:grid [&_.wheel-tool__icon]:h-[34px] [&_.wheel-tool__icon]:w-[34px] [&_.wheel-tool__icon]:place-items-center [&_.wheel-tool__icon]:rounded-[10px] [&_.wheel-tool__icon]:border [&_.wheel-tool__icon]:border-[#e3dcf2] [&_.wheel-tool__icon]:bg-white [&_.wheel-tool__icon]:text-[17px] [&_.wheel-tool__icon]:text-[#6d28d9] [&_.wheel-tool__icon]:shadow-[0_6px_16px_rgba(76,29,149,0.06)] [&_.wheel-tool__copy]:grid [&_.wheel-tool__copy]:min-w-0 [&_.wheel-tool__copy]:gap-0.5 [&_.wheel-tool_strong]:overflow-hidden [&_.wheel-tool_strong]:text-ellipsis [&_.wheel-tool_strong]:whitespace-nowrap [&_.wheel-tool_strong]:text-[13px] [&_.wheel-tool_strong]:font-black [&_.wheel-tool_small]:overflow-hidden [&_.wheel-tool_small]:text-ellipsis [&_.wheel-tool_small]:whitespace-nowrap [&_.wheel-tool_small]:text-[10px] [&_.wheel-tool_small]:font-bold [&_.wheel-tool_small]:text-[#667085] max-[900px]:[&_.wheel-tool:nth-child(4)]:border-s-0 max-[900px]:[&_.wheel-tool:nth-child(-n+3)]:border-b max-[900px]:[&_.wheel-tool:nth-child(-n+3)]:border-[#ece8f3] max-[620px]:[&_.wheel-tool]:min-h-16 max-[620px]:[&_.wheel-tool]:gap-[5px] max-[620px]:[&_.wheel-tool]:border-b-0 max-[620px]:[&_.wheel-tool]:px-0.5 max-[620px]:[&_.wheel-tool]:py-1 max-[620px]:[&_.wheel-tool:not(:first-child)]:border-s max-[620px]:[&_.wheel-tool:not(:first-child)]:border-[#ece8f3] max-[620px]:[&_.wheel-tool:first-child]:border-s-0 max-[620px]:[&_.wheel-tool__icon]:h-[29px] max-[620px]:[&_.wheel-tool__icon]:w-[29px] max-[620px]:[&_.wheel-tool__icon]:rounded-lg max-[620px]:[&_.wheel-tool__icon]:text-sm max-[620px]:[&_.wheel-tool__copy]:gap-0 max-[620px]:[&_.wheel-tool_strong]:overflow-visible max-[620px]:[&_.wheel-tool_strong]:whitespace-normal max-[620px]:[&_.wheel-tool_strong]:text-[clamp(8px,2.35vw,10px)] max-[620px]:[&_.wheel-tool_strong]:leading-tight max-[620px]:[&_.wheel-tool_small]:hidden"
             aria-label="أدوات العجلة">
             <button class="wheel-tool" type="button" id="newWheelBtn">
-                <span class="wheel-tool__icon" aria-hidden="true">
+                <span
+                    class="wheel-tool__icon grid h-[34px] w-[34px] place-items-center rounded-[10px] border border-[#e3dcf2] bg-white text-[17px] text-[#6d28d9] shadow-[0_6px_16px_rgba(76,29,149,0.06)] max-[620px]:h-[29px] max-[620px]:w-[29px] max-[620px]:rounded-lg max-[620px]:text-sm"
+                    aria-hidden="true">
                     <i class="fa-solid fa-plus"></i>
                 </span>
-                <span class="wheel-tool__copy">
+                <span class="wheel-tool__copy grid min-w-0 gap-0.5 max-[620px]:gap-0">
                     <strong>عجلة جديدة</strong>
                     <small>بدء عجلة فارغة</small>
                 </span>
             </button>
 
             <button class="wheel-tool" type="button" id="addNameBtn">
-                <span class="wheel-tool__icon" aria-hidden="true">
+                <span
+                    class="wheel-tool__icon grid h-[34px] w-[34px] place-items-center rounded-[10px] border border-[#e3dcf2] bg-white text-[17px] text-[#6d28d9] shadow-[0_6px_16px_rgba(76,29,149,0.06)] max-[620px]:h-[29px] max-[620px]:w-[29px] max-[620px]:rounded-lg max-[620px]:text-sm"
+                    aria-hidden="true">
                     <i class="fa-solid fa-user-plus"></i>
                 </span>
-                <span class="wheel-tool__copy">
+                <span class="wheel-tool__copy grid min-w-0 gap-0.5 max-[620px]:gap-0">
                     <strong>إضافة اسم</strong>
                     <small>إضافة سريعة</small>
                 </span>
             </button>
 
             <button class="wheel-tool" type="button" id="shuffleBtn">
-                <span class="wheel-tool__icon" aria-hidden="true">
+                <span
+                    class="wheel-tool__icon grid h-[34px] w-[34px] place-items-center rounded-[10px] border border-[#e3dcf2] bg-white text-[17px] text-[#6d28d9] shadow-[0_6px_16px_rgba(76,29,149,0.06)] max-[620px]:h-[29px] max-[620px]:w-[29px] max-[620px]:rounded-lg max-[620px]:text-sm"
+                    aria-hidden="true">
                     <i class="fa-solid fa-shuffle"></i>
                 </span>
-                <span class="wheel-tool__copy">
+                <span class="wheel-tool__copy grid min-w-0 gap-0.5 max-[620px]:gap-0">
                     <strong>خلط الأسماء</strong>
                     <small>خلط عشوائي</small>
                 </span>
             </button>
 
             <label class="wheel-tool" for="importInput" role="button" tabindex="0">
-                <span class="wheel-tool__icon" aria-hidden="true">
+                <span
+                    class="wheel-tool__icon grid h-[34px] w-[34px] place-items-center rounded-[10px] border border-[#e3dcf2] bg-white text-[17px] text-[#6d28d9] shadow-[0_6px_16px_rgba(76,29,149,0.06)] max-[620px]:h-[29px] max-[620px]:w-[29px] max-[620px]:rounded-lg max-[620px]:text-sm"
+                    aria-hidden="true">
                     <i class="fa-solid fa-upload"></i>
                 </span>
-                <span class="wheel-tool__copy">
+                <span class="wheel-tool__copy grid min-w-0 gap-0.5 max-[620px]:gap-0">
                     <strong>استيراد أسماء</strong>
                     <small>من ملف أو نص</small>
                 </span>
@@ -148,20 +156,24 @@
             <input class="sr-only" id="importInput" type="file" accept=".txt,.csv" />
 
             <button class="wheel-tool" type="button" id="toolbarFullscreenBtn">
-                <span class="wheel-tool__icon" aria-hidden="true">
+                <span
+                    class="wheel-tool__icon grid h-[34px] w-[34px] place-items-center rounded-[10px] border border-[#e3dcf2] bg-white text-[17px] text-[#6d28d9] shadow-[0_6px_16px_rgba(76,29,149,0.06)] max-[620px]:h-[29px] max-[620px]:w-[29px] max-[620px]:rounded-lg max-[620px]:text-sm"
+                    aria-hidden="true">
                     <i class="fa-solid fa-expand"></i>
                 </span>
-                <span class="wheel-tool__copy">
+                <span class="wheel-tool__copy grid min-w-0 gap-0.5 max-[620px]:gap-0">
                     <strong>تكبير</strong>
                     <small>ملء الشاشة</small>
                 </span>
             </button>
 
             <button class="wheel-tool" type="button" id="toolbarSoundBtn" aria-pressed="false">
-                <span class="wheel-tool__icon" aria-hidden="true">
+                <span
+                    class="wheel-tool__icon grid h-[34px] w-[34px] place-items-center rounded-[10px] border border-[#e3dcf2] bg-white text-[17px] text-[#6d28d9] shadow-[0_6px_16px_rgba(76,29,149,0.06)] max-[620px]:h-[29px] max-[620px]:w-[29px] max-[620px]:rounded-lg max-[620px]:text-sm"
+                    aria-hidden="true">
                     <i class="fa-solid fa-volume-high"></i>
                 </span>
-                <span class="wheel-tool__copy">
+                <span class="wheel-tool__copy grid min-w-0 gap-0.5 max-[620px]:gap-0">
                     <strong>كتم الصوت</strong>
                     <small>كتم / تشغيل</small>
                 </span>
@@ -567,7 +579,7 @@
         © 2026 نرد - جميع الحقوق محفوظة</footer>
 
     <dialog
-        class="name-dialog rounded-[20px] border-0 p-0 shadow-[0_28px_90px_rgba(17,24,39,0.22)] backdrop:bg-[rgba(17,24,39,0.35)] backdrop:backdrop-blur-[4px]"
+        class="name-dialog fixed inset-0 m-auto rounded-[20px] border-0 p-0 shadow-[0_28px_90px_rgba(17,24,39,0.22)] backdrop:bg-[rgba(17,24,39,0.35)] backdrop:backdrop-blur-[4px]"
         id="nameDialog">
         <form class="w-[min(420px,calc(100vw_-_40px))] p-6" method="dialog">
             <h3 class="mt-0 mb-4 text-2xl">إضافة اسم جديد</h3>
