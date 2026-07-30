@@ -108,4 +108,40 @@ class SavedWheelService
 
         return $savedWheel;
     }
+
+    public function addName(SavedWheel $savedWheel, string $name, int $version): ?SavedWheel
+    {
+        $names = $savedWheel->names;
+
+        if (count($names) >= 2000) {
+            throw ValidationException::withMessages([
+                'name' => 'وصلت القائمة إلى الحد الأقصى وهو 2000 اسم.',
+            ]);
+        }
+
+        $names[] = $name;
+
+        return $this->update($savedWheel, [
+            'names' => $names,
+            'version' => $version,
+        ]);
+    }
+
+    public function removeName(SavedWheel $savedWheel, int $nameIndex, int $version): ?SavedWheel
+    {
+        $names = $savedWheel->names;
+
+        if (! array_key_exists($nameIndex, $names)) {
+            throw ValidationException::withMessages([
+                'name' => 'الاسم المطلوب غير موجود أو حُذف مسبقًا.',
+            ]);
+        }
+
+        array_splice($names, $nameIndex, 1);
+
+        return $this->update($savedWheel, [
+            'names' => $names,
+            'version' => $version,
+        ]);
+    }
 }

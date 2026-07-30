@@ -73,7 +73,7 @@
                             class="absolute top-[calc(100%+10px)] left-0 z-[60] grid min-w-60 gap-1 rounded-2xl border border-[#e7e2f0] bg-white p-2 text-sm font-bold text-[#344054] shadow-[0_20px_55px_rgba(30,41,59,0.16)]">
                             <a class="flex items-center gap-3 rounded-xl px-3.5 py-3 hover:bg-[#f4efff]" href="{{ route('dashboard') }}">
                                 <i class="fa-solid fa-bookmark w-5 text-center text-violet-600"></i>
-                                قوائمي
+                                مسابقاتي وقوائمي
                             </a>
                             <a class="flex items-center gap-3 rounded-xl px-3.5 py-3 hover:bg-[#f4efff]" href="{{ route('profile.edit') }}">
                                 <i class="fa-regular fa-user w-5 text-center text-violet-600"></i>
@@ -131,7 +131,7 @@
                         <div class="mt-2 grid gap-1 rounded-xl border border-violet-100 bg-white p-2 text-sm font-bold text-[#344054]">
                             <a class="flex items-center gap-3 rounded-lg px-3 py-2.5 hover:bg-[#f4efff]" href="{{ route('dashboard') }}">
                                 <i class="fa-solid fa-bookmark w-5 text-center text-violet-600"></i>
-                                قوائمي
+                                مسابقاتي وقوائمي
                             </a>
                             <a class="flex items-center gap-3 rounded-lg px-3 py-2.5 hover:bg-[#f4efff]" href="{{ route('profile.edit') }}">
                                 <i class="fa-regular fa-user w-5 text-center text-violet-600"></i>
@@ -184,8 +184,8 @@
                     <i class="fa-solid fa-plus"></i>
                 </span>
                 <span class="wheel-tool__copy grid min-w-0 gap-0.5 max-[620px]:gap-0">
-                    <strong>عجلة جديدة</strong>
-                    <small>بدء عجلة فارغة</small>
+                    <strong>مسابقة جديدة</strong>
+                    <small>ابدأ من قائمة أسماء</small>
                 </span>
             </button>
 
@@ -359,7 +359,7 @@
                 <div class="mode-hint my-3 mb-3.5 rounded-[14px] bg-[#f4efff] px-[13px] py-[11px] text-sm leading-relaxed font-extrabold text-[#1e293b]"
                     id="modeHint">
                     @auth
-                        وضع الحفظ: أنشئ قائمة جديدة أو حمّل إحدى قوائمك المحفوظة.
+                        وضع الحفظ: ابدأ من «مسابقاتي»، ثم اختر قائمة الأسماء وشاهد سجل النتائج لكل لفة.
                     @else
                         وضع الضيف: استخدم العجلة مباشرة بدون حفظ دائم.
                     @endauth
@@ -390,7 +390,69 @@
                 @auth
                     <section @class([
                         'grid gap-3.5',
-                        'hidden' => filled($wheelConfig['savedWheel']),
+                        'hidden' => filled($wheelConfig['savedWheel']) || filled($wheelConfig['competition']),
+                    ]) id="competitionsBrowser" aria-labelledby="competitionsBrowserTitle">
+                        <div class="flex items-start justify-between gap-3">
+                            <div>
+                                <h3 class="m-0 text-lg font-black text-slate-900" id="competitionsBrowserTitle">مسابقاتي</h3>
+                                <p class="mt-1 text-xs font-bold leading-5 text-slate-500">افتح مسابقة سابقة أو ابدأ مسابقة جديدة بخطوتين.</p>
+                            </div>
+                            <button
+                                class="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-violet-700 px-3.5 text-sm font-black text-white shadow-sm transition hover:bg-violet-800 disabled:cursor-not-allowed disabled:opacity-55"
+                                id="createCompetitionBtn" type="button"
+                                @disabled(! auth()->user()->hasVerifiedEmail())>
+                                <i class="fa-solid fa-plus" aria-hidden="true"></i>
+                                مسابقة جديدة
+                            </button>
+                        </div>
+
+                        <button
+                            class="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-violet-200 bg-violet-50 px-3.5 text-sm font-black text-violet-800 transition hover:border-violet-300 hover:bg-violet-100"
+                            id="manageSavedWheelsBtn" type="button">
+                            <i class="fa-solid fa-address-book" aria-hidden="true"></i>
+                            إدارة قوائم الأسماء
+                        </button>
+
+                        <label class="relative block">
+                            <span class="sr-only">البحث في المسابقات</span>
+                            <i class="fa-solid fa-magnifying-glass pointer-events-none absolute top-1/2 right-3.5 -translate-y-1/2 text-slate-400"
+                                aria-hidden="true"></i>
+                            <input
+                                class="min-h-12 w-full rounded-xl border border-slate-200 bg-white pr-10 pl-3.5 text-sm font-bold text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-violet-400 focus:ring-4 focus:ring-violet-100"
+                                id="competitionsSearch" type="search" maxlength="120" autocomplete="off"
+                                placeholder="ابحث باسم المسابقة…" />
+                        </label>
+
+                        @unless(auth()->user()->hasVerifiedEmail())
+                            <div class="rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm leading-6 text-amber-900">
+                                يمكنك فتح مسابقاتك، ولإنشاء مسابقة أو حفظ تعديلاتك يلزم
+                                <a class="font-black underline" href="{{ route('verification.notice') }}">تفعيل البريد</a>.
+                            </div>
+                        @endunless
+
+                        <p class="m-0 min-h-5 text-xs font-bold text-slate-500" id="competitionsStatus"
+                            role="status" aria-live="polite"></p>
+                        <div class="grid max-h-[410px] gap-2.5 overflow-y-auto pe-1" id="competitionsCards"></div>
+                        <div class="hidden min-h-36 place-items-center rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 text-center"
+                            id="competitionsEmpty">
+                            <div class="grid justify-items-center gap-2 text-slate-500">
+                                <span class="grid h-11 w-11 place-items-center rounded-full bg-violet-100 text-violet-700">
+                                    <i class="fa-solid fa-trophy" aria-hidden="true"></i>
+                                </span>
+                                <strong class="text-sm font-black text-slate-800">لا توجد مسابقات مطابقة</strong>
+                                <span class="text-xs font-bold">ابدأ مسابقة جديدة أو غيّر عبارة البحث.</span>
+                            </div>
+                        </div>
+                        <div class="hidden items-center justify-center gap-2 py-3 text-sm font-black text-violet-700"
+                            id="competitionsLoader" role="status">
+                            <i class="fa-solid fa-spinner animate-spin" aria-hidden="true"></i>
+                            جارٍ تحميل المسابقات…
+                        </div>
+                    </section>
+
+                    <section @class([
+                        'grid gap-3.5',
+                        'hidden' => blank($wheelConfig['savedWheel']),
                     ]) id="savedWheelsBrowser" aria-labelledby="savedWheelsBrowserTitle">
                         <div class="flex items-center justify-between gap-3">
                             <div>
@@ -405,6 +467,13 @@
                                 قائمة جديدة
                             </button>
                         </div>
+
+                        <button
+                            class="inline-flex min-h-10 w-fit items-center justify-center gap-2 rounded-xl border border-violet-200 bg-white px-3 text-sm font-black text-violet-700 transition hover:border-violet-300 hover:bg-violet-50"
+                            id="backToCompetitionsFromListsBtn" type="button">
+                            <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+                            العودة إلى مسابقاتي
+                        </button>
 
                         <label class="relative block">
                             <span class="sr-only">البحث في القوائم المحفوظة</span>
@@ -451,7 +520,7 @@
 
                 <div @class([
                     'wheel-editor',
-                    'hidden' => auth()->check() && blank($wheelConfig['savedWheel']),
+                    'hidden' => auth()->check() && blank($wheelConfig['savedWheel']) && blank($wheelConfig['competition']),
                 ]) id="wheelEditor">
                     @auth
                         <div class="mb-3.5 grid gap-2.5" id="savedWheelEditorHeader">
@@ -459,7 +528,7 @@
                                 class="inline-flex min-h-10 w-fit items-center justify-center gap-2 rounded-xl border border-violet-200 bg-white px-3 text-sm font-black text-violet-700 transition hover:border-violet-300 hover:bg-violet-50 disabled:cursor-wait disabled:opacity-60"
                                 id="backToSavedWheelsBtn" type="button">
                                 <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
-                                العودة إلى قوائمي
+                                <span id="backToWorkspaceLabel">العودة</span>
                             </button>
 
                             <div class="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-x-2 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2.5"
@@ -468,7 +537,7 @@
                                     aria-hidden="true"><i class="fa-solid fa-cloud-arrow-up"></i></span>
                                 <strong class="truncate text-sm font-black text-emerald-900"
                                     id="activeSavedWheelTitle"></strong>
-                                <span class="text-xs font-bold text-emerald-700">يتم حفظ تغييرات الأسماء تلقائيًا</span>
+                                <span class="text-xs font-bold text-emerald-700" id="activeWorkspaceHint">يتم حفظ التغييرات تلقائيًا</span>
                             </div>
 
                             <p class="m-0 min-h-5 text-xs font-bold text-slate-500" id="saveStatus"
@@ -722,7 +791,7 @@
                 <div
                     class="save-mode__actions flex flex-wrap items-center gap-3.5 max-[1180px]:justify-center max-[620px]:grid max-[620px]:justify-items-center">
                     @auth
-                        <a class="btn btn--primary inline-flex min-h-11 items-center justify-center gap-[9px] rounded-xl bg-violet-700 px-5 py-2 font-extrabold text-white!" href="{{ route('dashboard') }}">إدارة قوائمي <i class="fa-solid fa-bookmark"></i></a>
+                        <a class="btn btn--primary inline-flex min-h-11 items-center justify-center gap-[9px] rounded-xl bg-violet-700 px-5 py-2 font-extrabold text-white!" href="{{ route('dashboard') }}">إدارة مسابقاتي وقوائمي <i class="fa-solid fa-bookmark"></i></a>
                     @else
                         <a class="btn btn--primary inline-flex min-h-11 items-center justify-center gap-[9px] rounded-xl bg-violet-700 px-5 py-2 font-extrabold text-white!" href="{{ route('login') }}">سجل دخول لتفعيل وضع الحفظ <i class="fa-solid fa-user"></i></a>
                     @endauth
@@ -853,6 +922,98 @@
     </dialog>
 
     @auth
+        <dialog
+            class="fixed inset-0 m-auto max-h-[calc(100dvh_-_32px)] overflow-y-auto rounded-3xl border-0 p-0 text-right shadow-[0_30px_100px_rgba(17,24,39,0.28)] backdrop:bg-slate-950/45 backdrop:backdrop-blur-[4px]"
+            id="createCompetitionDialog" aria-labelledby="createCompetitionDialogTitle">
+            <form class="w-[min(560px,calc(100vw_-_32px))] p-5 sm:p-6" id="createCompetitionForm">
+                <div class="flex items-start justify-between gap-4">
+                    <div>
+                        <h3 class="m-0 text-xl font-black text-slate-900" id="createCompetitionDialogTitle">مسابقة جديدة</h3>
+                        <p class="mt-1 text-sm font-bold leading-6 text-slate-500">
+                            اكتب اسم المسابقة، ثم اختر قائمة جاهزة أو أنشئ قائمة جديدة.
+                        </p>
+                    </div>
+                    <button class="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-slate-200 text-slate-500 hover:bg-slate-50 hover:text-slate-900"
+                        type="button" data-close-competition-dialog aria-label="إغلاق نافذة إنشاء المسابقة">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+
+                @if(auth()->user()->hasVerifiedEmail())
+                    <div class="mt-5 grid gap-4">
+                        <label class="grid gap-1.5 text-sm font-black text-slate-700">
+                            اسم المسابقة
+                            <input class="min-h-12 rounded-xl border border-slate-200 px-3.5 outline-none focus:border-violet-400 focus:ring-4 focus:ring-violet-100"
+                                id="competitionTitle" maxlength="120" autocomplete="off"
+                                placeholder="مثال: مسابقة حفظ سورة الملك">
+                        </label>
+
+                        <fieldset class="grid gap-3">
+                            <legend class="mb-2 text-sm font-black text-slate-700">قائمة المشاركين</legend>
+                            <div class="grid grid-cols-2 gap-2">
+                                <label class="flex min-h-12 items-center gap-2 rounded-xl border border-violet-200 bg-violet-50 px-3 text-sm font-black text-violet-800">
+                                    <input class="accent-violet-700" type="radio" name="competitionListMode"
+                                        value="existing" checked>
+                                    اختيار قائمة محفوظة
+                                </label>
+                                <label class="flex min-h-12 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-sm font-black text-slate-700">
+                                    <input class="accent-violet-700" type="radio" name="competitionListMode"
+                                        value="new">
+                                    إنشاء قائمة جديدة
+                                </label>
+                            </div>
+                        </fieldset>
+
+                        <div class="grid gap-2.5" id="competitionExistingListPanel">
+                            <label class="relative block">
+                                <span class="sr-only">البحث عن قائمة للمسابقة</span>
+                                <i class="fa-solid fa-magnifying-glass pointer-events-none absolute top-1/2 right-3.5 -translate-y-1/2 text-slate-400"
+                                    aria-hidden="true"></i>
+                                <input class="min-h-11 w-full rounded-xl border border-slate-200 pr-10 pl-3 text-sm font-bold outline-none focus:border-violet-400 focus:ring-4 focus:ring-violet-100"
+                                    id="competitionListSearch" type="search" maxlength="120" autocomplete="off"
+                                    placeholder="ابحث عن قائمة…" />
+                            </label>
+                            <div class="grid max-h-48 gap-2 overflow-y-auto rounded-xl border border-slate-100 bg-slate-50 p-2"
+                                id="competitionListChoices" role="radiogroup" aria-label="القوائم المحفوظة"></div>
+                            <button class="hidden min-h-10 rounded-xl border border-slate-200 bg-white text-sm font-black text-violet-700 hover:bg-violet-50"
+                                id="loadMoreCompetitionListsBtn" type="button">تحميل المزيد</button>
+                            <p class="m-0 text-xs font-bold text-slate-500" id="competitionListsStatus"
+                                role="status" aria-live="polite"></p>
+                        </div>
+
+                        <div class="hidden gap-1.5" id="competitionNewListPanel">
+                            <label class="grid gap-1.5 text-sm font-black text-slate-700">
+                                اسم قائمة المشاركين الجديدة
+                                <input class="min-h-12 rounded-xl border border-slate-200 px-3.5 outline-none focus:border-violet-400 focus:ring-4 focus:ring-violet-100"
+                                    id="competitionNewListTitle" maxlength="120" autocomplete="off"
+                                    placeholder="مثال: طلاب الصف الخامس">
+                            </label>
+                            <p class="m-0 text-xs font-bold leading-5 text-slate-500">
+                                ستُنشأ القائمة فارغة، وبعد فتح المسابقة يمكنك إضافة الأسماء يدويًا أو استيرادها من ملف.
+                            </p>
+                        </div>
+
+                        <p class="m-0 min-h-5 text-xs font-bold text-slate-500" id="createCompetitionStatus"
+                            role="status" aria-live="polite"></p>
+                        <div class="grid grid-cols-2 gap-2.5">
+                            <button class="min-h-11 rounded-xl border border-slate-200 bg-white px-4 font-black text-slate-600 hover:bg-slate-50"
+                                type="button" data-close-competition-dialog>إلغاء</button>
+                            <button class="min-h-11 rounded-xl bg-violet-700 px-4 font-black text-white hover:bg-violet-800 disabled:cursor-wait disabled:opacity-60"
+                                id="confirmCreateCompetitionBtn" type="submit">
+                                إنشاء وفتح المسابقة
+                            </button>
+                        </div>
+                    </div>
+                @else
+                    <div class="mt-5 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm leading-7 text-amber-900">
+                        فعّل بريدك الإلكتروني أولًا لتتمكن من إنشاء المسابقات وحفظها.
+                        <a class="mt-3 flex min-h-11 items-center justify-center rounded-xl bg-amber-600 px-4 font-black text-white!"
+                            href="{{ route('verification.notice') }}">تفعيل البريد</a>
+                    </div>
+                @endif
+            </form>
+        </dialog>
+
         <dialog
             class="fixed inset-0 m-auto max-h-[calc(100dvh_-_32px)] overflow-y-auto rounded-3xl border-0 p-0 text-right shadow-[0_30px_100px_rgba(17,24,39,0.28)] backdrop:bg-slate-950/45 backdrop:backdrop-blur-[4px]"
             id="createSavedWheelDialog" aria-labelledby="createSavedWheelDialogTitle">

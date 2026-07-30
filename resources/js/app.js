@@ -186,6 +186,26 @@ const wheelConfig = JSON.parse(configElement?.dataset.config || "{}");
 const cloudSavePanel = document.getElementById("cloudSavePanel");
 const guestSaveActions = document.getElementById("guestSaveActions");
 const wheelEditor = document.getElementById("wheelEditor");
+const competitionsBrowser = document.getElementById("competitionsBrowser");
+const createCompetitionBtn = document.getElementById("createCompetitionBtn");
+const manageSavedWheelsBtn = document.getElementById("manageSavedWheelsBtn");
+const competitionsSearch = document.getElementById("competitionsSearch");
+const competitionsCards = document.getElementById("competitionsCards");
+const competitionsStatus = document.getElementById("competitionsStatus");
+const competitionsEmpty = document.getElementById("competitionsEmpty");
+const competitionsLoader = document.getElementById("competitionsLoader");
+const createCompetitionDialog = document.getElementById("createCompetitionDialog");
+const createCompetitionForm = document.getElementById("createCompetitionForm");
+const competitionTitle = document.getElementById("competitionTitle");
+const competitionExistingListPanel = document.getElementById("competitionExistingListPanel");
+const competitionNewListPanel = document.getElementById("competitionNewListPanel");
+const competitionListSearch = document.getElementById("competitionListSearch");
+const competitionListChoices = document.getElementById("competitionListChoices");
+const competitionListsStatus = document.getElementById("competitionListsStatus");
+const competitionNewListTitle = document.getElementById("competitionNewListTitle");
+const loadMoreCompetitionListsBtn = document.getElementById("loadMoreCompetitionListsBtn");
+const createCompetitionStatus = document.getElementById("createCompetitionStatus");
+const confirmCreateCompetitionBtn = document.getElementById("confirmCreateCompetitionBtn");
 const savedWheelsBrowser = document.getElementById("savedWheelsBrowser");
 const createSavedWheelBtn = document.getElementById("createSavedWheelBtn");
 const createSavedWheelDialog = document.getElementById("createSavedWheelDialog");
@@ -198,8 +218,11 @@ const savedWheelsStatus = document.getElementById("savedWheelsStatus");
 const savedWheelsEmpty = document.getElementById("savedWheelsEmpty");
 const savedWheelsLoader = document.getElementById("savedWheelsLoader");
 const backToSavedWheelsBtn = document.getElementById("backToSavedWheelsBtn");
+const backToCompetitionsFromListsBtn = document.getElementById("backToCompetitionsFromListsBtn");
+const backToWorkspaceLabel = document.getElementById("backToWorkspaceLabel");
 const savedWheelActiveState = document.getElementById("savedWheelActiveState");
 const activeSavedWheelTitle = document.getElementById("activeSavedWheelTitle");
+const activeWorkspaceHint = document.getElementById("activeWorkspaceHint");
 const savedWheelTitle = document.getElementById("savedWheelTitle");
 const saveStatus = document.getElementById("saveStatus");
 const saveConflict = document.getElementById("saveConflict");
@@ -232,6 +255,7 @@ let draggedNameIndex = null;
 let idleSpinFrame = null;
 let lastIdleSpinTime = null;
 let currentSavedWheel = null;
+let currentCompetition = null;
 let serverConflictWheel = null;
 let autosaveTimer = null;
 let retryTimer = null;
@@ -245,6 +269,18 @@ let savedWheelsLoading = false;
 let savedWheelsSearchTimer = null;
 let savedWheelsAbortController = null;
 let savedWheelsGeneration = 0;
+let competitionsCursor = null;
+let competitionsHasMore = true;
+let competitionsLoading = false;
+let competitionsSearchTimer = null;
+let competitionsAbortController = null;
+let competitionsGeneration = 0;
+let competitionListsCursor = null;
+let competitionListsHasMore = true;
+let competitionListsLoading = false;
+let competitionListsSearchTimer = null;
+let competitionListsAbortController = null;
+let selectedCompetitionListId = null;
 let isHydrating = true;
 let activeMode = wheelConfig.authenticated ? "save" : "guest";
 let importingNames = false;
@@ -274,9 +310,11 @@ function readLocalDraft() {
 }
 
 function serializeResults() {
-  return winners.map((winner) => ({
+  return winners.map((winner, index) => ({
+    round: Number.isFinite(winner.round) ? winner.round : winners.length - index,
     name: winner.name,
-    date: winner.time instanceof Date ? winner.time.toISOString() : winner.date || null
+    date: winner.time instanceof Date ? winner.time.toISOString() : winner.date || new Date().toISOString(),
+    position: Number.isFinite(winner.nameNumber) ? winner.nameNumber : null
   }));
 }
 
@@ -287,7 +325,8 @@ function deserializeResults(results) {
     .filter((result) => result && typeof result.name === "string")
     .map((result, index) => ({
       name: result.name,
-      nameNumber: index + 1,
+      nameNumber: Number.isFinite(Number(result.position)) ? Number(result.position) : index + 1,
+      round: Number.isFinite(Number(result.round)) ? Number(result.round) : results.length - index,
       time: result.date ? new Date(result.date) : new Date()
     }));
 }
@@ -296,9 +335,10 @@ function persistLocalDraft(pending = false) {
   const draft = {
     names,
     results: serializeResults(),
-    title: currentSavedWheel?.title || savedWheelTitle?.value?.trim() || "",
+    title: currentCompetition?.title || currentSavedWheel?.title || savedWheelTitle?.value?.trim() || "",
     savedWheelId: currentSavedWheel?.id || null,
-    version: currentSavedWheel?.version || null,
+    competitionId: currentCompetition?.id || null,
+    version: currentCompetition?.version || currentSavedWheel?.version || null,
     pending,
     updatedAt: new Date().toISOString()
   };
@@ -326,8 +366,17 @@ function hydrateState(state) {
 }
 
 function hydrateInitialState() {
+  const serverCompetition = wheelConfig.competition;
   const serverWheel = wheelConfig.savedWheel;
   const localDraft = readLocalDraft();
+
+  if (serverCompetition) {
+    currentCompetition = serverCompetition;
+    hydrateState({ names: serverCompetition.names, results: serverCompetition.results });
+    lastSavedSnapshot = getSavedListSnapshot();
+    setSaveWorkspace("active");
+    return;
+  }
 
   if (serverWheel) {
     currentSavedWheel = serverWheel;
@@ -344,8 +393,8 @@ function hydrateInitialState() {
 
   if (wheelConfig.authenticated) {
     hydrateState({ names: [], results: [] });
-    setSaveWorkspace("browser");
-    loadSavedWheels({ reset: true });
+    setSaveWorkspace("competitions");
+    loadCompetitions({ reset: true });
     return;
   }
 
@@ -370,15 +419,26 @@ function setSaveStatus(message, tone = "neutral") {
 }
 
 function setSaveWorkspace(view = null) {
-  const showActiveState = view === "active" && Boolean(currentSavedWheel);
+  const activeWorkspace = currentCompetition || currentSavedWheel;
+  const showActiveState = view === "active" && Boolean(activeWorkspace);
 
   if (wheelConfig.authenticated) {
     wheelEditor?.classList.toggle("hidden", !showActiveState);
-    savedWheelsBrowser?.classList.toggle("hidden", showActiveState);
+    competitionsBrowser?.classList.toggle("hidden", view !== "competitions");
+    savedWheelsBrowser?.classList.toggle("hidden", view !== "lists");
   }
 
   if (showActiveState && activeSavedWheelTitle) {
-    activeSavedWheelTitle.textContent = currentSavedWheel.title;
+    activeSavedWheelTitle.textContent = activeWorkspace.title;
+    backToWorkspaceLabel.textContent = currentCompetition
+      ? "العودة إلى مسابقاتي"
+      : "العودة إلى قوائمي";
+    activeWorkspaceHint.textContent = currentCompetition
+      ? "يتم حفظ الأسماء ونتائج اللفات تلقائيًا"
+      : "هذه قائمة أسماء؛ استخدمها داخل مسابقة لإجراء السحب";
+    if (copyConflictBtn) copyConflictBtn.hidden = Boolean(currentCompetition);
+    document.getElementById("resultsTab")?.classList.toggle("hidden", Boolean(currentSavedWheel));
+    if (currentSavedWheel) switchTab("data");
   }
 
   updateControlStates();
@@ -392,25 +452,29 @@ function updateSaveInterface(mode = "guest") {
     wheelEditor?.classList.toggle("hidden", showGuestSavePanel);
   }
 
-  if (currentSavedWheel) {
+  if (currentCompetition) {
+    setSaveStatus(`المسابقة المفتوحة: ${currentCompetition.title}`, "success");
+  } else if (currentSavedWheel) {
     setSaveStatus(`القائمة المفتوحة: ${currentSavedWheel.title}`, "success");
   }
 }
 
 function getSavedListSnapshot() {
-  if (!currentSavedWheel) return null;
+  if (!currentCompetition && !currentSavedWheel) return null;
 
   return JSON.stringify({
-    title: currentSavedWheel.title,
-    names
+    title: (currentCompetition || currentSavedWheel).title,
+    names,
+    ...(currentCompetition ? { results: serializeResults() } : {})
   });
 }
 
 function markChanged(saveList = true) {
   if (isHydrating) return;
-  persistLocalDraft(saveList && Boolean(currentSavedWheel));
+  const activeWorkspace = currentCompetition || currentSavedWheel;
+  persistLocalDraft(saveList && Boolean(activeWorkspace));
 
-  if (!saveList || !wheelConfig.verified || !currentSavedWheel || serverConflictWheel) return;
+  if (!saveList || !wheelConfig.verified || !activeWorkspace || serverConflictWheel) return;
 
   clearTimeout(autosaveTimer);
   setSaveStatus("لديك تغييرات قيد الحفظ…");
@@ -419,6 +483,7 @@ function markChanged(saveList = true) {
 
 function setSaving(disabled) {
   if (confirmCreateSavedWheelBtn) confirmCreateSavedWheelBtn.disabled = disabled;
+  if (confirmCreateCompetitionBtn) confirmCreateCompetitionBtn.disabled = disabled;
   if (backToSavedWheelsBtn) backToSavedWheelsBtn.disabled = disabled;
 }
 
@@ -434,6 +499,323 @@ async function requestJson(url, options) {
   });
   const body = await response.json().catch(() => ({}));
   return { response, body };
+}
+
+function setCompetitionsStatus(message, tone = "neutral") {
+  if (!competitionsStatus) return;
+
+  competitionsStatus.textContent = message;
+  competitionsStatus.className = "m-0 min-h-5 text-xs font-bold";
+  competitionsStatus.classList.add(
+    tone === "error" ? "text-red-700" :
+      tone === "success" ? "text-emerald-700" : "text-slate-500"
+  );
+}
+
+function setCompetitionsLoading(loading) {
+  competitionsLoading = loading;
+  competitionsLoader?.classList.toggle("hidden", !loading);
+  competitionsLoader?.classList.toggle("flex", loading);
+}
+
+function createCompetitionCard(competition) {
+  const card = document.createElement("article");
+  const information = document.createElement("div");
+  const title = document.createElement("strong");
+  const details = document.createElement("span");
+  const actions = document.createElement("div");
+  const openButton = document.createElement("button");
+  const deleteButton = document.createElement("button");
+
+  card.className = "grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-2xl border border-slate-200 bg-white p-3.5 shadow-sm transition hover:border-violet-200 hover:shadow-md";
+  card.dataset.competitionId = String(competition.id);
+  information.className = "grid min-w-0 gap-1";
+  title.className = "truncate text-sm font-black text-slate-900";
+  details.className = "text-xs font-bold text-slate-500";
+  actions.className = "flex shrink-0 gap-2";
+  openButton.className = "inline-flex min-h-9 items-center gap-1.5 rounded-lg bg-violet-700 px-3 text-xs font-black text-white hover:bg-violet-800 disabled:cursor-wait disabled:opacity-60";
+  deleteButton.className = "grid h-9 w-9 place-items-center rounded-lg border border-red-200 bg-white text-red-600 hover:bg-red-50 disabled:cursor-wait disabled:opacity-60";
+
+  title.textContent = competition.title;
+  details.textContent = `${formatNumber(competition.names_count)} مشارك · ${formatNumber(competition.results_count)} لفة`;
+  openButton.type = "button";
+  openButton.innerHTML = '<i class="fa-solid fa-arrow-left" aria-hidden="true"></i><span>فتح</span>';
+  openButton.addEventListener("click", () => loadCompetition(competition.id, openButton));
+  deleteButton.type = "button";
+  deleteButton.title = "حذف المسابقة";
+  deleteButton.setAttribute("aria-label", `حذف مسابقة ${competition.title}`);
+  deleteButton.innerHTML = '<i class="fa-solid fa-trash" aria-hidden="true"></i>';
+  deleteButton.addEventListener("click", () => deleteCompetition(competition, card, deleteButton));
+
+  information.append(title, details);
+  actions.append(openButton, deleteButton);
+  card.append(information, actions);
+
+  return card;
+}
+
+async function loadCompetitions({ reset = false } = {}) {
+  const route = wheelConfig.routes.competitions?.index;
+  if (!route || (!reset && (competitionsLoading || !competitionsHasMore))) return;
+
+  if (reset) {
+    competitionsAbortController?.abort();
+    competitionsLoading = false;
+    competitionsGeneration += 1;
+    competitionsCursor = null;
+    competitionsHasMore = true;
+    competitionsCards?.replaceChildren();
+  }
+
+  const generation = competitionsGeneration;
+  const controller = new AbortController();
+  competitionsAbortController = controller;
+  setCompetitionsLoading(true);
+  setCompetitionsStatus("جارٍ تحميل مسابقاتك…");
+
+  const url = new URL(route, window.location.origin);
+  const search = competitionsSearch?.value.trim() || "";
+  if (search) url.searchParams.set("search", search);
+  if (competitionsCursor) url.searchParams.set("cursor", competitionsCursor);
+
+  try {
+    const { response, body } = await requestJson(url.toString(), {
+      method: "GET",
+      signal: controller.signal
+    });
+    if (!response.ok) throw new Error(body.message || "تعذر تحميل المسابقات.");
+    if (generation !== competitionsGeneration) return;
+
+    const competitions = Array.isArray(body.data) ? body.data : [];
+    const fragment = document.createDocumentFragment();
+    competitions.forEach((competition) => fragment.append(createCompetitionCard(competition)));
+    competitionsCards?.append(fragment);
+    competitionsCursor = body.next_cursor || null;
+    competitionsHasMore = Boolean(body.has_more && competitionsCursor);
+
+    const hasCards = Boolean(competitionsCards?.children.length);
+    competitionsEmpty?.classList.toggle("hidden", hasCards);
+    competitionsEmpty?.classList.toggle("grid", !hasCards);
+    setCompetitionsStatus(
+      hasCards
+        ? `${formatNumber(competitionsCards.children.length)} مسابقة معروضة`
+        : (search ? "لا توجد مسابقات مطابقة للبحث." : "لا توجد مسابقات بعد. ابدأ أول مسابقة الآن."),
+      hasCards ? "success" : "neutral"
+    );
+  } catch (error) {
+    if (error.name !== "AbortError") {
+      setCompetitionsStatus(error.message || "تعذر تحميل المسابقات. حاول مجددًا.", "error");
+    }
+  } finally {
+    if (generation === competitionsGeneration) setCompetitionsLoading(false);
+  }
+}
+
+async function loadCompetition(competitionId, trigger = null) {
+  const base = wheelConfig.routes.competitions?.showBase;
+  if (!base) return;
+
+  if (trigger) trigger.disabled = true;
+  setCompetitionsStatus("جارٍ فتح المسابقة…");
+
+  try {
+    const { response, body } = await requestJson(`${base}/${competitionId}`, { method: "GET" });
+    if (!response.ok || !body.data) throw new Error(body.message || "تعذر فتح المسابقة.");
+
+    currentCompetition = body.data;
+    currentSavedWheel = null;
+    serverConflictWheel = null;
+    saveConflict?.classList.add("hidden");
+    hydrateState({ names: currentCompetition.names, results: currentCompetition.results });
+    lastSavedSnapshot = getSavedListSnapshot();
+    setSaveWorkspace("active");
+    setSaveStatus(`تم فتح «${currentCompetition.title}». كل تعديل ونتيجة لفة سيُحفظ تلقائيًا.`, "success");
+    history.replaceState(null, "", `${location.pathname}?competition=${currentCompetition.id}`);
+  } catch (error) {
+    setCompetitionsStatus(error.message || "تعذر فتح المسابقة. حاول مجددًا.", "error");
+  } finally {
+    if (trigger) trigger.disabled = false;
+  }
+}
+
+async function deleteCompetition(competition, card, trigger) {
+  if (!confirm(`هل تريد حذف مسابقة «${competition.title}» وسجل نتائجها؟ لا يمكن التراجع عن هذا الإجراء.`)) return;
+
+  trigger.disabled = true;
+  try {
+    const { response, body } = await requestJson(
+      `${wheelConfig.routes.competitions.updateBase}/${competition.id}`,
+      { method: "DELETE" }
+    );
+    if (!response.ok) throw new Error(body.message || "تعذر حذف المسابقة.");
+
+    card.remove();
+    const hasCards = Boolean(competitionsCards?.children.length);
+    competitionsEmpty?.classList.toggle("hidden", hasCards);
+    competitionsEmpty?.classList.toggle("grid", !hasCards);
+    setCompetitionsStatus("تم حذف المسابقة.", "success");
+    if (!hasCards && competitionsHasMore) loadCompetitions();
+  } catch (error) {
+    trigger.disabled = false;
+    setCompetitionsStatus(error.message || "تعذر حذف المسابقة.", "error");
+  }
+}
+
+function setCompetitionListMode(mode) {
+  const usesExistingList = mode === "existing";
+  competitionExistingListPanel?.classList.toggle("hidden", !usesExistingList);
+  competitionExistingListPanel?.classList.toggle("grid", usesExistingList);
+  competitionNewListPanel?.classList.toggle("hidden", usesExistingList);
+  competitionNewListPanel?.classList.toggle("grid", !usesExistingList);
+}
+
+function createCompetitionListChoice(savedWheel) {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "grid min-h-12 grid-cols-[auto_minmax(0,1fr)] items-center gap-x-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-right transition hover:border-violet-300 aria-checked:border-violet-500 aria-checked:bg-violet-50";
+  button.dataset.savedWheelId = String(savedWheel.id);
+  button.setAttribute("role", "radio");
+  button.setAttribute("aria-checked", String(selectedCompetitionListId === savedWheel.id));
+  button.innerHTML = `
+    <span class="row-span-2 grid h-8 w-8 place-items-center rounded-lg bg-violet-100 text-violet-700">
+      <i class="fa-solid fa-list" aria-hidden="true"></i>
+    </span>
+    <strong class="truncate text-sm font-black text-slate-900">${escapeHtml(savedWheel.title)}</strong>
+    <span class="text-xs font-bold text-slate-500">${formatNumber(savedWheel.names_count)} اسم</span>
+  `;
+  button.addEventListener("click", () => {
+    selectedCompetitionListId = savedWheel.id;
+    competitionListChoices?.querySelectorAll('[role="radio"]').forEach((choice) => {
+      choice.setAttribute("aria-checked", String(choice === button));
+    });
+    if (competitionListsStatus) competitionListsStatus.textContent = `تم اختيار «${savedWheel.title}».`;
+  });
+  return button;
+}
+
+async function loadCompetitionListChoices({ reset = false } = {}) {
+  if (!wheelConfig.routes.index || (!reset && (competitionListsLoading || !competitionListsHasMore))) return;
+
+  if (reset) {
+    competitionListsAbortController?.abort();
+    competitionListsCursor = null;
+    competitionListsHasMore = true;
+    selectedCompetitionListId = null;
+    competitionListChoices?.replaceChildren();
+  }
+
+  const controller = new AbortController();
+  competitionListsAbortController = controller;
+  competitionListsLoading = true;
+  if (competitionListsStatus) competitionListsStatus.textContent = "جارٍ تحميل القوائم…";
+  loadMoreCompetitionListsBtn?.classList.add("hidden");
+
+  const url = new URL(wheelConfig.routes.index, window.location.origin);
+  const search = competitionListSearch?.value.trim() || "";
+  if (search) url.searchParams.set("search", search);
+  if (competitionListsCursor) url.searchParams.set("cursor", competitionListsCursor);
+
+  try {
+    const { response, body } = await requestJson(url.toString(), {
+      method: "GET",
+      signal: controller.signal
+    });
+    if (!response.ok) throw new Error(body.message || "تعذر تحميل القوائم.");
+
+    const savedWheels = Array.isArray(body.data) ? body.data : [];
+    const fragment = document.createDocumentFragment();
+    savedWheels.forEach((savedWheel) => fragment.append(createCompetitionListChoice(savedWheel)));
+    competitionListChoices?.append(fragment);
+    competitionListsCursor = body.next_cursor || null;
+    competitionListsHasMore = Boolean(body.has_more && competitionListsCursor);
+    loadMoreCompetitionListsBtn?.classList.toggle("hidden", !competitionListsHasMore);
+    if (competitionListsStatus) {
+      competitionListsStatus.textContent = competitionListChoices?.children.length
+        ? "اختر قائمة المشاركين."
+        : "لا توجد قوائم مطابقة. يمكنك إنشاء قائمة جديدة.";
+    }
+  } catch (error) {
+    if (error.name !== "AbortError" && competitionListsStatus) {
+      competitionListsStatus.textContent = error.message || "تعذر تحميل القوائم.";
+    }
+  } finally {
+    competitionListsLoading = false;
+  }
+}
+
+function beginNewCompetition() {
+  if (!wheelConfig.verified || !createCompetitionDialog) return;
+
+  if (competitionTitle) competitionTitle.value = "";
+  if (competitionNewListTitle) competitionNewListTitle.value = "";
+  if (competitionListSearch) competitionListSearch.value = "";
+  if (createCompetitionStatus) createCompetitionStatus.textContent = "";
+  const existingMode = createCompetitionForm?.querySelector('[name="competitionListMode"][value="existing"]');
+  if (existingMode) existingMode.checked = true;
+  setCompetitionListMode("existing");
+  loadCompetitionListChoices({ reset: true });
+  if (!createCompetitionDialog.open) createCompetitionDialog.showModal();
+  window.setTimeout(() => competitionTitle?.focus(), 50);
+}
+
+async function createCompetition() {
+  const title = competitionTitle?.value.trim() || "";
+  const mode = createCompetitionForm?.querySelector('[name="competitionListMode"]:checked')?.value || "existing";
+  const newListTitle = competitionNewListTitle?.value.trim() || "";
+
+  if (!title) {
+    createCompetitionStatus.textContent = "اكتب اسم المسابقة أولًا.";
+    competitionTitle?.focus();
+    return false;
+  }
+  if (mode === "existing" && !selectedCompetitionListId) {
+    createCompetitionStatus.textContent = "اختر قائمة المشاركين أولًا.";
+    competitionListSearch?.focus();
+    return false;
+  }
+  if (mode === "new" && !newListTitle) {
+    createCompetitionStatus.textContent = "اكتب اسم قائمة المشاركين الجديدة.";
+    competitionNewListTitle?.focus();
+    return false;
+  }
+
+  setSaving(true);
+  createCompetitionStatus.textContent = "جارٍ تجهيز المسابقة…";
+
+  try {
+    const payload = {
+      title,
+      ...(mode === "existing"
+        ? { saved_wheel_id: selectedCompetitionListId }
+        : { new_list_title: newListTitle })
+    };
+    const { response, body } = await requestJson(wheelConfig.routes.competitions.store, {
+      method: "POST",
+      body: JSON.stringify(payload)
+    });
+    if (!response.ok) {
+      const message = response.status === 429
+        ? "وصلت إلى حد إنشاء المسابقات مؤقتًا. حاول لاحقًا."
+        : Object.values(body.errors || {}).flat()[0] || body.message || "تعذر إنشاء المسابقة.";
+      throw new Error(message);
+    }
+
+    currentCompetition = body.data;
+    currentSavedWheel = null;
+    serverConflictWheel = null;
+    hydrateState({ names: currentCompetition.names, results: currentCompetition.results });
+    lastSavedSnapshot = getSavedListSnapshot();
+    setSaveWorkspace("active");
+    setSaveStatus(`تم إنشاء «${currentCompetition.title}». أضف المشاركين ثم ابدأ اللفات.`, "success");
+    history.replaceState(null, "", `${location.pathname}?competition=${currentCompetition.id}`);
+    createCompetitionDialog.close();
+    return true;
+  } catch (error) {
+    createCompetitionStatus.textContent = error.message || "تعذر إنشاء المسابقة.";
+    return false;
+  } finally {
+    setSaving(false);
+  }
 }
 
 function setSavedWheelsStatus(message, tone = "neutral") {
@@ -573,6 +955,7 @@ async function loadSavedWheel(savedWheelId, trigger = null) {
     }
 
     currentSavedWheel = body.data;
+    currentCompetition = null;
     serverConflictWheel = null;
     saveConflict?.classList.add("hidden");
     hydrateState({ names: currentSavedWheel.names, results: [] });
@@ -612,6 +995,7 @@ async function createSavedWheel(title, initialNames = []) {
     }
 
     currentSavedWheel = body.data;
+    currentCompetition = null;
     serverConflictWheel = null;
     hydrateState({ names: currentSavedWheel.names, results: [] });
     lastSavedSnapshot = getSavedListSnapshot();
@@ -635,7 +1019,8 @@ async function saveCurrentWheel() {
   clearTimeout(autosaveTimer);
   autosaveTimer = null;
 
-  if (!wheelConfig.verified || !currentSavedWheel || serverConflictWheel) return false;
+  const activeWorkspace = currentCompetition || currentSavedWheel;
+  if (!wheelConfig.verified || !activeWorkspace || serverConflictWheel) return false;
 
   if (saveInFlightPromise) {
     saveQueued = true;
@@ -650,11 +1035,16 @@ async function saveCurrentWheel() {
   }
 
   clearTimeout(retryTimer);
-  const savedWheelId = currentSavedWheel.id;
+  const workspaceId = activeWorkspace.id;
+  const isCompetition = Boolean(currentCompetition);
+  const updateBase = isCompetition
+    ? wheelConfig.routes.competitions?.updateBase
+    : wheelConfig.routes.updateBase;
   const payload = {
-    title: currentSavedWheel.title,
+    title: activeWorkspace.title,
     names: names.slice(),
-    version: currentSavedWheel.version
+    ...(isCompetition ? { results: serializeResults() } : {}),
+    version: activeWorkspace.version
   };
 
   setSaving(true);
@@ -663,7 +1053,7 @@ async function saveCurrentWheel() {
   const cyclePromise = (async () => {
     try {
       const { response, body } = await requestJson(
-        `${wheelConfig.routes.updateBase}/${savedWheelId}`,
+        `${updateBase}/${workspaceId}`,
         {
           method: "PATCH",
           body: JSON.stringify(payload)
@@ -673,7 +1063,10 @@ async function saveCurrentWheel() {
       if (response.status === 409) {
         serverConflictWheel = body.data;
         saveConflict?.classList.remove("hidden");
-        setSaveStatus("توجد نسخة أحدث من هذه القائمة على الخادم.", "warning");
+        setSaveStatus(
+          `توجد نسخة أحدث من ${isCompetition ? "هذه المسابقة" : "هذه القائمة"} على الخادم.`,
+          "warning"
+        );
         persistLocalDraft(true);
         return false;
       }
@@ -683,11 +1076,13 @@ async function saveCurrentWheel() {
         throw new Error(message);
       }
 
-      if (currentSavedWheel?.id !== savedWheelId) return false;
+      const currentWorkspace = isCompetition ? currentCompetition : currentSavedWheel;
+      if (currentWorkspace?.id !== workspaceId) return false;
 
-      currentSavedWheel = body.data;
+      if (isCompetition) currentCompetition = body.data;
+      else currentSavedWheel = body.data;
       lastSavedSnapshot = snapshot;
-      activeSavedWheelTitle.textContent = currentSavedWheel.title;
+      activeSavedWheelTitle.textContent = (currentCompetition || currentSavedWheel).title;
       serverConflictWheel = null;
       saveConflict?.classList.add("hidden");
       retryDelay = 2000;
@@ -714,7 +1109,7 @@ async function saveCurrentWheel() {
   if (saveInFlightPromise === cyclePromise) saveInFlightPromise = null;
 
   const needsLatestState = saved
-    && currentSavedWheel?.id === savedWheelId
+    && (isCompetition ? currentCompetition?.id : currentSavedWheel?.id) === workspaceId
     && (saveQueued || getSavedListSnapshot() !== lastSavedSnapshot);
   saveQueued = false;
 
@@ -762,7 +1157,8 @@ async function deleteSavedWheel(savedWheel, card, trigger) {
 }
 
 async function returnToSavedWheels() {
-  if (!currentSavedWheel) return;
+  const returnsToCompetitions = Boolean(currentCompetition);
+  if (!currentCompetition && !currentSavedWheel) return;
 
   setSaving(true);
   const saved = await flushAutosave();
@@ -774,13 +1170,15 @@ async function returnToSavedWheels() {
   }
 
   currentSavedWheel = null;
+  currentCompetition = null;
   serverConflictWheel = null;
   lastSavedSnapshot = null;
   winners = [];
   hydrateState({ names: [], results: [] });
-  setSaveWorkspace("browser");
+  setSaveWorkspace(returnsToCompetitions ? "competitions" : "lists");
   history.replaceState(null, "", location.pathname);
-  loadSavedWheels({ reset: true });
+  if (returnsToCompetitions) loadCompetitions({ reset: true });
+  else loadSavedWheels({ reset: true });
 }
 
 function recordActivity(event) {
@@ -819,11 +1217,12 @@ function setDisabled(elements, disabled) {
 
 function updateControlStates() {
   const hasEditableWorkspace = wheelConfig.authenticated
-    ? Boolean(currentSavedWheel)
+    ? Boolean(currentCompetition || currentSavedWheel)
     : activeMode === "guest";
   const hasNames = hasEditableWorkspace && names.length > 0;
+  const canRunCompetition = !wheelConfig.authenticated || Boolean(currentCompetition);
   const controlsLocked = spinning || importingNames;
-  const spinDisabled = controlsLocked || !hasNames;
+  const spinDisabled = controlsLocked || !hasNames || !canRunCompetition;
 
   if (!hasNames) stopIdleSpin();
   else if (!spinning) startIdleSpin();
@@ -834,7 +1233,11 @@ function updateControlStates() {
     !hasEditableWorkspace || controlsLocked
   );
   setDisabled([clearBtn, shuffleBtn], !hasNames || controlsLocked);
-  setDisabled([newWheelBtn], !hasEditableWorkspace || controlsLocked);
+  setDisabled(
+    [newWheelBtn],
+    controlsLocked || (wheelConfig.authenticated && !wheelConfig.verified)
+  );
+  setDisabled([autoSpin], !canRunCompetition || controlsLocked);
   setDisabled([clearResultsBtn], winners.length === 0 || controlsLocked);
   setDisabled([restoreAllResultsBtn], winners.length === 0 || controlsLocked);
   syncNameRowControls();
@@ -1200,9 +1603,15 @@ function spinWheel() {
 }
 
 function addWinner(name, nameNumber) {
+  const nextRound = winners.reduce(
+    (highestRound, winner) => Math.max(highestRound, Number(winner.round) || 0),
+    0
+  ) + 1;
+
   winners.unshift({
     name,
     nameNumber,
+    round: nextRound,
     time: new Date()
   });
 
@@ -1336,7 +1745,7 @@ function renderWinners() {
   const isEmpty = winners.length === 0;
   const winnersCount = formatNumber(winners.length);
 
-  winnersTitle.textContent = `الفائزون بالترتيب (${winnersCount})`;
+  winnersTitle.textContent = `سجل اللفات (${winnersCount})`;
   resultsTabLabel.textContent = `النتائج (${winnersCount})`;
   emptyResults.hidden = !isEmpty;
   winnersList.hidden = isEmpty;
@@ -1350,8 +1759,8 @@ function renderWinners() {
     const entry = document.createElement("div");
     entry.className = "winner-entry";
     entry.innerHTML = `
-      <strong>${formatNumber(nameNumber)}. ${escapeHtml(winner.name)}</strong>
-      <span class="winner-time">${formatTime(winner.time)}</span>
+      <strong>اللفة ${formatNumber(winner.round || winners.length - index)} · ${escapeHtml(winner.name)}</strong>
+      <span class="winner-time">ترتيب الاسم ${formatNumber(nameNumber)} · ${formatTime(winner.time)}</span>
     `;
 
     const restoreBtn = document.createElement("button");
@@ -1484,7 +1893,7 @@ function launchConfetti() {
 
 function addName(name) {
   if (
-    (wheelConfig.authenticated && !currentSavedWheel)
+    (wheelConfig.authenticated && !currentCompetition && !currentSavedWheel)
     || (!wheelConfig.authenticated && activeMode !== "guest")
   ) {
     return;
@@ -1669,14 +2078,14 @@ function startNewWheel() {
   if (spinning) return;
 
   if (wheelConfig.authenticated) {
-    returnToSavedWheels();
+    beginNewCompetition();
     return;
   }
 
   const hasCurrentData = names.length > 0 || winners.length > 0;
   if (
     hasCurrentData &&
-    !confirm("هل تريد بدء عجلة جديدة؟ سيتم مسح الأسماء والنتائج الحالية.")
+    !confirm("هل تريد بدء مسابقة جديدة؟ سيتم مسح الأسماء والنتائج الحالية.")
   ) {
     return;
   }
@@ -1685,6 +2094,7 @@ function startNewWheel() {
   selectedIds.clear();
   winners = [];
   currentSavedWheel = null;
+  currentCompetition = null;
   serverConflictWheel = null;
   if (savedWheelTitle) savedWheelTitle.value = "";
   saveConflict?.classList.add("hidden");
@@ -1777,8 +2187,8 @@ function switchMode(mode) {
   modeHint.textContent = selectedMode === "save"
     ? (wheelConfig.authenticated
       ? (wheelConfig.verified
-        ? "وضع الحفظ: أنشئ قائمة جديدة أو حمّل إحدى قوائمك، ثم أضف الأسماء يدويًا أو من ملف."
-        : "وضع الحفظ: يمكنك تحميل قوائمك، وفعّل بريدك لحفظ التعديلات.")
+        ? "وضع الحفظ: اختر مسابقة، ثم جهّز قائمة المشاركين وشاهد نتائج كل لفة."
+        : "وضع الحفظ: يمكنك فتح مسابقاتك وقوائمك، وفعّل بريدك لحفظ التعديلات.")
       : "وضع الحفظ: سجّل الدخول لحفظ مسودتك وفتح قوائمك من أي جهاز.")
     : "وضع الضيف: استخدم العجلة مباشرة بدون حفظ دائم.";
   updateSaveInterface(selectedMode);
@@ -2127,7 +2537,7 @@ selectAllNames.addEventListener("change", () => {
 clearResultsBtn.addEventListener("click", () => {
   winners = [];
   renderWinners();
-  markChanged(false);
+  markChanged(Boolean(currentCompetition));
 });
 
 restoreAllResultsBtn.addEventListener("click", restoreAllWinners);
@@ -2158,6 +2568,50 @@ modeTabs.forEach((button) => {
   button.addEventListener("click", () => switchMode(button.dataset.mode));
 });
 
+createCompetitionBtn?.addEventListener("click", beginNewCompetition);
+manageSavedWheelsBtn?.addEventListener("click", () => {
+  setSaveWorkspace("lists");
+  loadSavedWheels({ reset: true });
+});
+backToCompetitionsFromListsBtn?.addEventListener("click", () => {
+  setSaveWorkspace("competitions");
+  loadCompetitions({ reset: true });
+});
+createCompetitionForm?.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  await createCompetition();
+});
+createCompetitionDialog?.querySelectorAll("[data-close-competition-dialog]").forEach((button) => {
+  button.addEventListener("click", () => createCompetitionDialog.close());
+});
+createCompetitionForm?.querySelectorAll('[name="competitionListMode"]').forEach((radio) => {
+  radio.addEventListener("change", () => setCompetitionListMode(radio.value));
+});
+competitionListSearch?.addEventListener("input", () => {
+  clearTimeout(competitionListsSearchTimer);
+  competitionListsSearchTimer = window.setTimeout(
+    () => loadCompetitionListChoices({ reset: true }),
+    300
+  );
+});
+loadMoreCompetitionListsBtn?.addEventListener("click", () => loadCompetitionListChoices());
+[competitionTitle, competitionNewListTitle].filter(Boolean).forEach((input) => {
+  input.addEventListener("keydown", (event) => {
+    if (event.key !== "Enter" || event.isComposing || event.keyCode === 229) return;
+    event.preventDefault();
+    if (!confirmCreateCompetitionBtn?.disabled) confirmCreateCompetitionBtn?.click();
+  });
+});
+competitionsSearch?.addEventListener("input", () => {
+  clearTimeout(competitionsSearchTimer);
+  competitionsSearchTimer = window.setTimeout(() => loadCompetitions({ reset: true }), 300);
+});
+competitionsCards?.addEventListener("scroll", () => {
+  const isNearEnd = competitionsCards.scrollTop + competitionsCards.clientHeight
+    >= competitionsCards.scrollHeight - 120;
+  if (isNearEnd) loadCompetitions();
+});
+
 createSavedWheelBtn?.addEventListener("click", beginNewSavedWheel);
 createSavedWheelForm?.addEventListener("submit", async (event) => {
   event.preventDefault();
@@ -2186,10 +2640,15 @@ savedWheelsCards?.addEventListener("scroll", () => {
 
 reloadConflictBtn?.addEventListener("click", () => {
   if (!serverConflictWheel) return;
-  currentSavedWheel = serverConflictWheel;
+  if (currentCompetition) currentCompetition = serverConflictWheel;
+  else currentSavedWheel = serverConflictWheel;
   serverConflictWheel = null;
   saveConflict.classList.add("hidden");
-  hydrateState({ names: currentSavedWheel.names, results: [] });
+  const activeWorkspace = currentCompetition || currentSavedWheel;
+  hydrateState({
+    names: activeWorkspace.names,
+    results: currentCompetition ? activeWorkspace.results : []
+  });
   lastSavedSnapshot = getSavedListSnapshot();
   setSaveWorkspace("active");
   setSaveStatus("تم تحميل أحدث نسخة من الخادم.", "success");
@@ -2205,7 +2664,7 @@ copyConflictBtn?.addEventListener("click", async () => {
 
 window.addEventListener("online", () => {
   const draft = readLocalDraft();
-  if (draft?.pending && currentSavedWheel) saveCurrentWheel();
+  if (draft?.pending && (currentCompetition || currentSavedWheel)) saveCurrentWheel();
 });
 
 setupButtonGroupKeyboard(panelTabs, (button) => switchTab(button.dataset.tab));
@@ -2235,7 +2694,11 @@ document.addEventListener("keydown", (event) => {
 });
 
 hydrateInitialState();
-switchMode(wheelConfig.authenticated || wheelConfig.savedWheel ? "save" : "guest");
+switchMode(
+  wheelConfig.authenticated || wheelConfig.savedWheel || wheelConfig.competition
+    ? "save"
+    : "guest"
+);
 setupScrollAnimations();
 if (location.hash) {
   const target = getHashTarget(location.hash);

@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\AdPlacement;
+use App\Http\Resources\CompetitionResource;
 use App\Http\Resources\SavedWheelResource;
+use App\Models\Competition;
 use App\Models\DailyMetric;
 use App\Models\SavedWheel;
 use App\Models\SeoSetting;
@@ -31,9 +33,14 @@ class HomeController extends Controller
             $metrics->recordSiteVisit($visitorIdentifier);
         });
 
+        $loadedCompetition = null;
         $loadedWheel = null;
 
-        if ($request->filled('wheel') && $request->user()) {
+        if ($request->filled('competition') && $request->user()) {
+            $loadedCompetition = Competition::query()->findOrFail($request->integer('competition'));
+            Gate::authorize('view', $loadedCompetition);
+            $loadedCompetition->forceFill(['last_opened_at' => now()])->save();
+        } elseif ($request->filled('wheel') && $request->user()) {
             $loadedWheel = SavedWheel::query()->findOrFail($request->integer('wheel'));
             Gate::authorize('view', $loadedWheel);
             $loadedWheel->forceFill(['last_opened_at' => now()])->save();
@@ -61,6 +68,9 @@ class HomeController extends Controller
         $wheelConfig = [
             'authenticated' => (bool) $request->user(),
             'verified' => $request->user()?->hasVerifiedEmail() ?? false,
+            'competition' => $loadedCompetition
+                ? CompetitionResource::make($loadedCompetition)->resolve($request)
+                : null,
             'savedWheel' => $loadedWheel
                 ? SavedWheelResource::make($loadedWheel)->resolve($request)
                 : null,
@@ -73,6 +83,12 @@ class HomeController extends Controller
                 'store' => $request->user() ? route('saved-wheels.store') : null,
                 'showBase' => $request->user() ? url('/saved-wheels') : null,
                 'updateBase' => $request->user() ? url('/saved-wheels') : null,
+                'competitions' => [
+                    'index' => $request->user() ? route('competitions.index') : null,
+                    'store' => $request->user() ? route('competitions.store') : null,
+                    'showBase' => $request->user() ? url('/competitions') : null,
+                    'updateBase' => $request->user() ? url('/competitions') : null,
+                ],
                 'metrics' => route('activity-metrics.store'),
             ],
             'csrfToken' => csrf_token(),

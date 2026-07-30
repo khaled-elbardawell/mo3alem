@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Competition;
 use App\Models\SavedWheel;
 use App\Models\User;
 
@@ -16,7 +17,7 @@ test('guests may choose guest mode or receive a login prompt for save mode', fun
         ->assertDontSee('id="loadSavedWheelDialog"', false);
 });
 
-test('authenticated users start from a searchable saved lists browser', function () {
+test('authenticated users start from a simple competitions browser', function () {
     $user = User::factory()->create();
 
     $response = $this->actingAs($user)->get(route('home'));
@@ -25,6 +26,13 @@ test('authenticated users start from a searchable saved lists browser', function
         ->assertSuccessful()
         ->assertDontSee('data-mode="guest"', false)
         ->assertSee('data-mode="save"', false)
+        ->assertSee('id="competitionsBrowser"', false)
+        ->assertSee('id="competitionsSearch"', false)
+        ->assertSee('id="competitionsCards"', false)
+        ->assertSee('id="competitionsLoader"', false)
+        ->assertSee('id="createCompetitionBtn"', false)
+        ->assertSee('id="createCompetitionDialog"', false)
+        ->assertSee('id="manageSavedWheelsBtn"', false)
         ->assertSee('id="savedWheelsBrowser"', false)
         ->assertSee('id="savedWheelsSearch"', false)
         ->assertSee('id="savedWheelsCards"', false)
@@ -44,7 +52,42 @@ test('authenticated users start from a searchable saved lists browser', function
     $routes = $response->viewData('wheelConfig')['routes'];
 
     expect($routes['index'])->toBe(route('saved-wheels.index'))
-        ->and($routes['showBase'])->toBe(url('/saved-wheels'));
+        ->and($routes['showBase'])->toBe(url('/saved-wheels'))
+        ->and($routes['competitions']['index'])->toBe(route('competitions.index'))
+        ->and($routes['competitions']['showBase'])->toBe(url('/competitions'));
+});
+
+test('opening a competition exposes its participant snapshot and round history', function () {
+    $user = User::factory()->create();
+    $competition = Competition::factory()->for($user)->create([
+        'names' => ['أحمد', 'سارة'],
+        'names_count' => 2,
+        'results' => [[
+            'round' => 1,
+            'name' => 'سارة',
+            'date' => now()->toISOString(),
+            'position' => 2,
+        ]],
+        'results_count' => 1,
+    ]);
+
+    $response = $this->actingAs($user)->get(route('home', [
+        'competition' => $competition->id,
+    ]));
+
+    $response
+        ->assertSuccessful()
+        ->assertSee('id="backToWorkspaceLabel"', false)
+        ->assertSee('id="activeWorkspaceHint"', false);
+
+    expect($response->viewData('wheelConfig')['competition'])
+        ->toMatchArray([
+            'id' => $competition->id,
+            'names' => ['أحمد', 'سارة'],
+            'results_count' => 1,
+        ])
+        ->and($response->viewData('wheelConfig')['competition']['results'][0]['round'])
+        ->toBe(1);
 });
 
 test('opening a saved list exposes only names and not saved results', function () {
@@ -94,11 +137,12 @@ test('the client enforces the agreed list and autosave safeguards', function () 
         ->toContain('let saveInFlightPromise = null;')
         ->toContain('getSavedListSnapshot() !== lastSavedSnapshot')
         ->toContain('savedWheelsSearchTimer = window.setTimeout(() => loadSavedWheels({ reset: true }), 300)')
+        ->toContain('competitionsSearchTimer = window.setTimeout(() => loadCompetitions({ reset: true }), 300)')
         ->toContain('names: names.slice()')
-        ->not->toContain('results: serializeResults()'.PHP_EOL.'  };');
+        ->toContain('...(isCompetition ? { results: serializeResults() } : {})');
 });
 
-test('pressing enter confirms name and saved list inputs', function () {
+test('pressing enter confirms name list and competition inputs', function () {
     $script = file_get_contents(resource_path('js/app.js'));
 
     expect($script)
@@ -106,7 +150,20 @@ test('pressing enter confirms name and saved list inputs', function () {
         ->toContain('if (!confirmAddName.disabled) confirmAddName.click();')
         ->toContain('savedWheelTitle?.addEventListener("keydown", (event) => {')
         ->toContain('if (!confirmCreateSavedWheelBtn?.disabled) confirmCreateSavedWheelBtn?.click();')
+        ->toContain('[competitionTitle, competitionNewListTitle].filter(Boolean).forEach((input) => {')
+        ->toContain('if (!confirmCreateCompetitionBtn?.disabled) confirmCreateCompetitionBtn?.click();')
         ->toContain('event.isComposing || event.keyCode === 229');
+});
+
+test('the competition flow keeps results grouped by round and lists independent', function () {
+    $script = file_get_contents(resource_path('js/app.js'));
+
+    expect($script)
+        ->toContain('round: Number.isFinite(winner.round)')
+        ->toContain('اللفة ${formatNumber(winner.round || winners.length - index)}')
+        ->toContain('const canRunCompetition = !wheelConfig.authenticated || Boolean(currentCompetition);')
+        ->toContain('activeWorkspaceHint.textContent = currentCompetition')
+        ->toContain('هذه قائمة أسماء؛ استخدمها داخل مسابقة لإجراء السحب');
 });
 
 test('shared styles use the hand cursor for interactive controls', function () {

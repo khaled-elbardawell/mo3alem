@@ -33,5 +33,14 @@ class AppServiceProvider extends ServiceProvider
                 Limit::perDay(30)->by("day:{$userIdentifier}"),
             ];
         });
+
+        RateLimiter::for('competition-creation', function (Request $request): array {
+            $userIdentifier = $request->user()?->getAuthIdentifier() ?? $request->ip();
+
+            return [
+                Limit::perMinute(5)->by("minute:{$userIdentifier}"),
+                Limit::perDay(30)->by("day:{$userIdentifier}"),
+            ];
+        });
     }
 }

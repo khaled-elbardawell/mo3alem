@@ -42,7 +42,7 @@
                         class="absolute top-[calc(100%+10px)] left-0 z-[60] grid min-w-60 gap-1 rounded-2xl border border-[#e7e2f0] bg-white p-2 text-sm font-bold text-[#344054] shadow-[0_20px_55px_rgba(30,41,59,0.16)]">
                         <a class="flex items-center gap-3 rounded-xl px-3.5 py-3 hover:bg-[#f4efff]" href="{{ route('dashboard') }}">
                             <i class="fa-solid fa-bookmark w-5 text-center text-violet-600"></i>
-                            قوائمي
+                            مسابقاتي وقوائمي
                         </a>
                         <a class="flex items-center gap-3 rounded-xl px-3.5 py-3 hover:bg-[#f4efff]" href="{{ route('profile.edit') }}">
                             <i class="fa-regular fa-user w-5 text-center text-violet-600"></i>
@@ -90,7 +90,7 @@
                 <div class="mt-2 grid gap-1 rounded-xl border border-violet-100 bg-white p-2 text-sm font-bold text-[#344054]">
                     <a class="flex items-center gap-3 rounded-lg px-3 py-2.5 hover:bg-[#f4efff]" href="{{ route('dashboard') }}">
                         <i class="fa-solid fa-bookmark w-5 text-center text-violet-600"></i>
-                        قوائمي
+                        مسابقاتي وقوائمي
                     </a>
                     <a class="flex items-center gap-3 rounded-lg px-3 py-2.5 hover:bg-[#f4efff]" href="{{ route('profile.edit') }}">
                         <i class="fa-regular fa-user w-5 text-center text-violet-600"></i>

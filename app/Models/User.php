@@ -31,6 +31,11 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(SavedWheel::class);
     }
 
+    public function competitions(): HasMany
+    {
+        return $this->hasMany(Competition::class);
+    }
+
     public function isAdmin(): bool
     {
         return $this->role === UserRole::Admin;

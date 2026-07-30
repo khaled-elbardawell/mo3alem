@@ -4,11 +4,16 @@ use App\Http\Controllers\ActivityMetricController;
 use App\Http\Controllers\AdClickController;
 use App\Http\Controllers\AdImpressionController;
 use App\Http\Controllers\Admin;
+use App\Http\Controllers\CompetitionController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\RobotsController;
 use App\Http\Controllers\SavedWheelController;
 use App\Http\Controllers\SitemapController;
+use App\Http\Controllers\User\CompetitionController as UserCompetitionController;
+use App\Http\Controllers\User\CompetitionNameController;
+use App\Http\Controllers\User\SavedWheelController as UserSavedWheelController;
+use App\Http\Controllers\User\SavedWheelNameController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', HomeController::class)->name('home');
@@ -26,6 +31,24 @@ Route::post('/activity-metrics', ActivityMetricController::class)
 
 Route::middleware(['auth', 'active'])->group(function (): void {
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
+    Route::get('/dashboard/competitions/{competition}', [UserCompetitionController::class, 'show'])
+        ->name('user.competitions.show');
+    Route::post('/dashboard/competitions/{competition}/names', [CompetitionNameController::class, 'store'])
+        ->middleware('throttle:120,1')
+        ->name('user.competitions.names.store');
+    Route::delete('/dashboard/competitions/{competition}/names/{nameIndex}', [CompetitionNameController::class, 'destroy'])
+        ->whereNumber('nameIndex')
+        ->middleware('throttle:120,1')
+        ->name('user.competitions.names.destroy');
+    Route::get('/dashboard/lists/{savedWheel}', [UserSavedWheelController::class, 'show'])
+        ->name('user.saved-wheels.show');
+    Route::post('/dashboard/lists/{savedWheel}/names', [SavedWheelNameController::class, 'store'])
+        ->middleware('throttle:120,1')
+        ->name('user.saved-wheels.names.store');
+    Route::delete('/dashboard/lists/{savedWheel}/names/{nameIndex}', [SavedWheelNameController::class, 'destroy'])
+        ->whereNumber('nameIndex')
+        ->middleware('throttle:120,1')
+        ->name('user.saved-wheels.names.destroy');
     Route::view('/profile', 'profile.edit')->name('profile.edit');
 
     Route::post('/saved-wheels', [SavedWheelController::class, 'store'])
@@ -33,6 +56,12 @@ Route::middleware(['auth', 'active'])->group(function (): void {
         ->name('saved-wheels.store');
     Route::resource('saved-wheels', SavedWheelController::class)
         ->parameters(['saved-wheels' => 'savedWheel'])
+        ->only(['index', 'show', 'update', 'destroy']);
+
+    Route::post('/competitions', [CompetitionController::class, 'store'])
+        ->middleware('throttle:competition-creation')
+        ->name('competitions.store');
+    Route::resource('competitions', CompetitionController::class)
         ->only(['index', 'show', 'update', 'destroy']);
 });
 
