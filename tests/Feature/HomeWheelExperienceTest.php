@@ -1,0 +1,121 @@
+<?php
+
+use App\Models\SavedWheel;
+use App\Models\User;
+
+test('guests may choose guest mode or receive a login prompt for save mode', function () {
+    $this->get(route('home'))
+        ->assertSuccessful()
+        ->assertSee('data-mode="guest"', false)
+        ->assertSee('data-mode="save"', false)
+        ->assertSee('id="guestSaveActions"', false)
+        ->assertSee('تسجيل الدخول مطلوب')
+        ->assertSee('id="wheelEditor"', false)
+        ->assertDontSee('id="savedWheelsBrowser"', false)
+        ->assertDontSee('id="createSavedWheelDialog"', false)
+        ->assertDontSee('id="loadSavedWheelDialog"', false);
+});
+
+test('authenticated users start from a searchable saved lists browser', function () {
+    $user = User::factory()->create();
+
+    $response = $this->actingAs($user)->get(route('home'));
+
+    $response
+        ->assertSuccessful()
+        ->assertDontSee('data-mode="guest"', false)
+        ->assertSee('data-mode="save"', false)
+        ->assertSee('id="savedWheelsBrowser"', false)
+        ->assertSee('id="savedWheelsSearch"', false)
+        ->assertSee('id="savedWheelsCards"', false)
+        ->assertSee('id="savedWheelsLoader"', false)
+        ->assertSee('id="createSavedWheelBtn"', false)
+        ->assertSee('id="createSavedWheelDialog"', false)
+        ->assertSee('id="backToSavedWheelsBtn"', false)
+        ->assertSee('id="wheelEditor"', false)
+        ->assertSee('id="savedWheelActiveState"', false)
+        ->assertDontSee('id="loadSavedWheelDialog"', false)
+        ->assertDontSee('id="loadSavedWheelBtn"', false)
+        ->assertDontSee('id="guestSaveActions"', false);
+
+    expect(strpos($response->getContent(), 'id="createSavedWheelBtn"'))
+        ->toBeLessThan(strpos($response->getContent(), 'id="dataPage"'));
+
+    $routes = $response->viewData('wheelConfig')['routes'];
+
+    expect($routes['index'])->toBe(route('saved-wheels.index'))
+        ->and($routes['showBase'])->toBe(url('/saved-wheels'));
+});
+
+test('opening a saved list exposes only names and not saved results', function () {
+    $user = User::factory()->create();
+    $wheel = SavedWheel::factory()->for($user)->create([
+        'names' => ['أحمد', 'سارة'],
+        'names_count' => 2,
+        'results' => [['name' => 'سارة', 'date' => now()->toISOString()]],
+    ]);
+
+    $response = $this->actingAs($user)->get(route('home', ['wheel' => $wheel->id]));
+
+    $response
+        ->assertSuccessful()
+        ->assertSee('id="backToSavedWheelsBtn"', false);
+
+    expect($response->viewData('wheelConfig')['savedWheel'])
+        ->toMatchArray([
+            'id' => $wheel->id,
+            'names' => ['أحمد', 'سارة'],
+        ])
+        ->not->toHaveKey('results');
+});
+
+test('the home page includes an accessible progress loader for file imports', function () {
+    $this->get(route('home'))
+        ->assertSuccessful()
+        ->assertSee('id="emptyAddNameBtn"', false)
+        ->assertSee('id="emptyImportNamesBtn"', false)
+        ->assertSee('id="importLoader"', false)
+        ->assertSee('id="importProgressBar"', false)
+        ->assertSee('aria-live="assertive"', false);
+
+    $script = file_get_contents(resource_path('js/app.js'));
+
+    expect($script)
+        ->toContain('emptyAddNameBtn?.addEventListener("click", () => addNameBtn.click())')
+        ->toContain('emptyImportNamesBtn?.addEventListener("click", () => importInput.click())');
+});
+
+test('the client enforces the agreed list and autosave safeguards', function () {
+    $script = file_get_contents(resource_path('js/app.js'));
+
+    expect($script)
+        ->toContain('const maximumNames = 2000;')
+        ->toContain('window.setTimeout(() => saveCurrentWheel(), 2000)')
+        ->toContain('let saveInFlightPromise = null;')
+        ->toContain('getSavedListSnapshot() !== lastSavedSnapshot')
+        ->toContain('savedWheelsSearchTimer = window.setTimeout(() => loadSavedWheels({ reset: true }), 300)')
+        ->toContain('names: names.slice()')
+        ->not->toContain('results: serializeResults()'.PHP_EOL.'  };');
+});
+
+test('pressing enter confirms name and saved list inputs', function () {
+    $script = file_get_contents(resource_path('js/app.js'));
+
+    expect($script)
+        ->toContain('nameInput.addEventListener("keydown", (event) => {')
+        ->toContain('if (!confirmAddName.disabled) confirmAddName.click();')
+        ->toContain('savedWheelTitle?.addEventListener("keydown", (event) => {')
+        ->toContain('if (!confirmCreateSavedWheelBtn?.disabled) confirmCreateSavedWheelBtn?.click();')
+        ->toContain('event.isComposing || event.keyCode === 229');
+});
+
+test('shared styles use the hand cursor for interactive controls', function () {
+    $styles = file_get_contents(resource_path('css/app.css'));
+
+    expect($styles)
+        ->toContain('a[href]:not([aria-disabled="true"])')
+        ->toContain('button:not(:disabled)')
+        ->toContain('[role="button"]:not([aria-disabled="true"])')
+        ->toContain('cursor: pointer;')
+        ->toContain('cursor: not-allowed;');
+});

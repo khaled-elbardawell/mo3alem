@@ -1,4 +1,123 @@
+function setupAdImpressionTracking() {
+  const advertisements = [...document.querySelectorAll("[data-ad-impression-url]")];
+
+  if (!advertisements.length) return;
+
+  const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || "";
+  const visibilityTimers = new WeakMap();
+
+  const isHalfVisible = (advertisement) => {
+    const rectangle = advertisement.getBoundingClientRect();
+    const visibleWidth = Math.max(
+      0,
+      Math.min(rectangle.right, window.innerWidth) - Math.max(rectangle.left, 0)
+    );
+    const visibleHeight = Math.max(
+      0,
+      Math.min(rectangle.bottom, window.innerHeight) - Math.max(rectangle.top, 0)
+    );
+    const advertisementArea = rectangle.width * rectangle.height;
+
+    return advertisementArea > 0
+      && (visibleWidth * visibleHeight) / advertisementArea >= 0.5;
+  };
+
+  const clearVisibilityTimer = (advertisement) => {
+    const timer = visibilityTimers.get(advertisement);
+
+    if (timer) {
+      window.clearTimeout(timer);
+      visibilityTimers.delete(advertisement);
+    }
+  };
+
+  const scheduleImpression = (advertisement, observer) => {
+    if (
+      advertisement.dataset.adImpressionState
+      || visibilityTimers.has(advertisement)
+      || !isHalfVisible(advertisement)
+    ) {
+      return;
+    }
+
+    const image = advertisement.querySelector("img");
+
+    if (image && (!image.complete || image.naturalWidth === 0)) {
+      if (!image.dataset.adImpressionLoadListener) {
+        image.dataset.adImpressionLoadListener = "waiting";
+        image.addEventListener("load", () => {
+          image.dataset.adImpressionLoadListener = "loaded";
+          scheduleImpression(advertisement, observer);
+        }, { once: true });
+      }
+
+      return;
+    }
+
+    const timer = window.setTimeout(() => {
+      visibilityTimers.delete(advertisement);
+
+      if (document.visibilityState === "visible" && isHalfVisible(advertisement)) {
+        recordImpression(advertisement, observer);
+      }
+    }, 1000);
+
+    visibilityTimers.set(advertisement, timer);
+  };
+
+  const recordImpression = async (advertisement, observer = null) => {
+    if (advertisement.dataset.adImpressionState) return;
+
+    clearVisibilityTimer(advertisement);
+    advertisement.dataset.adImpressionState = "pending";
+
+    try {
+      const response = await fetch(advertisement.dataset.adImpressionUrl, {
+        method: "POST",
+        credentials: "same-origin",
+        keepalive: true,
+        headers: {
+          Accept: "application/json",
+          "X-CSRF-TOKEN": csrfToken
+        }
+      });
+
+      if (!response.ok) throw new Error("Advertising impression was not recorded.");
+
+      advertisement.dataset.adImpressionState = "recorded";
+      observer?.unobserve(advertisement);
+    } catch (_) {
+      delete advertisement.dataset.adImpressionState;
+    }
+  };
+
+  if (!("IntersectionObserver" in window)) {
+    advertisements.forEach((advertisement) => recordImpression(advertisement));
+    return;
+  }
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (!entry.isIntersecting || entry.intersectionRatio < 0.5) {
+        clearVisibilityTimer(entry.target);
+        return;
+      }
+
+      scheduleImpression(entry.target, observer);
+    });
+  }, {
+    threshold: [0, 0.5]
+  });
+
+  advertisements.forEach((advertisement) => {
+    observer.observe(advertisement);
+  });
+}
+
+setupAdImpressionTracking();
+
 const canvas = document.getElementById("wheelCanvas");
+if (canvas) {
 const ctx = canvas.getContext("2d");
 
 const dataTabLabel = document.getElementById("dataTabLabel");
@@ -12,10 +131,18 @@ const centerSpinBtn = document.getElementById("centerSpinBtn");
 const resultCard = document.getElementById("resultCard");
 const resultName = document.getElementById("resultName");
 const addNameBtn = document.getElementById("addNameBtn");
+const emptyAddNameBtn = document.getElementById("emptyAddNameBtn");
+const emptyImportNamesBtn = document.getElementById("emptyImportNamesBtn");
 const nameDialog = document.getElementById("nameDialog");
 const nameInput = document.getElementById("nameInput");
 const confirmAddName = document.getElementById("confirmAddName");
 const importInput = document.getElementById("importInput");
+const importTrigger = document.getElementById("importTrigger");
+const importLoader = document.getElementById("importLoader");
+const importLoaderTitle = document.getElementById("importLoaderTitle");
+const importLoaderProgress = document.getElementById("importLoaderProgress");
+const importProgressTrack = document.getElementById("importProgressTrack");
+const importProgressBar = document.getElementById("importProgressBar");
 const clearBtn = document.getElementById("clearBtn");
 const clearSelectedBtn = document.getElementById("clearSelectedBtn");
 const shuffleBtn = document.getElementById("shuffleBtn");
@@ -54,6 +181,31 @@ const backToTopBtn = document.getElementById("backToTopBtn");
 const spinBtnText = spinBtn.querySelector(".spin-btn__text");
 const faqSummaries = document.querySelectorAll(".faq-list summary");
 const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const configElement = document.getElementById("wheelAppConfig");
+const wheelConfig = JSON.parse(configElement?.dataset.config || "{}");
+const cloudSavePanel = document.getElementById("cloudSavePanel");
+const guestSaveActions = document.getElementById("guestSaveActions");
+const wheelEditor = document.getElementById("wheelEditor");
+const savedWheelsBrowser = document.getElementById("savedWheelsBrowser");
+const createSavedWheelBtn = document.getElementById("createSavedWheelBtn");
+const createSavedWheelDialog = document.getElementById("createSavedWheelDialog");
+const createSavedWheelForm = document.getElementById("createSavedWheelForm");
+const confirmCreateSavedWheelBtn = document.getElementById("confirmCreateSavedWheelBtn");
+const createSavedWheelStatus = document.getElementById("createSavedWheelStatus");
+const savedWheelsSearch = document.getElementById("savedWheelsSearch");
+const savedWheelsCards = document.getElementById("savedWheelsCards");
+const savedWheelsStatus = document.getElementById("savedWheelsStatus");
+const savedWheelsEmpty = document.getElementById("savedWheelsEmpty");
+const savedWheelsLoader = document.getElementById("savedWheelsLoader");
+const backToSavedWheelsBtn = document.getElementById("backToSavedWheelsBtn");
+const savedWheelActiveState = document.getElementById("savedWheelActiveState");
+const activeSavedWheelTitle = document.getElementById("activeSavedWheelTitle");
+const savedWheelTitle = document.getElementById("savedWheelTitle");
+const saveStatus = document.getElementById("saveStatus");
+const saveConflict = document.getElementById("saveConflict");
+const reloadConflictBtn = document.getElementById("reloadConflictBtn");
+const copyConflictBtn = document.getElementById("copyConflictBtn");
+const localDraftKey = "nard-wheel-draft-v1";
 
 const colors = [
   "#ef4444", "#f97316", "#f59e0b", "#22c55e", "#14b8a6", "#06b6d4",
@@ -79,9 +231,28 @@ let confettiTimers = [];
 let draggedNameIndex = null;
 let idleSpinFrame = null;
 let lastIdleSpinTime = null;
+let currentSavedWheel = null;
+let serverConflictWheel = null;
+let autosaveTimer = null;
+let retryTimer = null;
+let retryDelay = 2000;
+let saveInFlightPromise = null;
+let saveQueued = false;
+let lastSavedSnapshot = null;
+let savedWheelsCursor = null;
+let savedWheelsHasMore = true;
+let savedWheelsLoading = false;
+let savedWheelsSearchTimer = null;
+let savedWheelsAbortController = null;
+let savedWheelsGeneration = 0;
+let isHydrating = true;
+let activeMode = wheelConfig.authenticated ? "save" : "guest";
+let importingNames = false;
 
 const rowHeight = 46;
 const overscan = 8;
+const maximumNames = 2000;
+const maximumImportFileSize = 20 * 1024 * 1024;
 const spinDurationMs = 5100;
 const celebrationDurationMs = 5200;
 const idleSpinSpeedDegPerSecond = 8;
@@ -91,6 +262,538 @@ celebrationAudio.preload = "auto";
 
 function createInitialNames(count) {
   return Array.from({ length: count }, (_, i) => arabicNames[i % arabicNames.length]);
+}
+
+function readLocalDraft() {
+  try {
+    const draft = JSON.parse(localStorage.getItem(localDraftKey) || "null");
+    return draft && Array.isArray(draft.names) ? draft : null;
+  } catch {
+    return null;
+  }
+}
+
+function serializeResults() {
+  return winners.map((winner) => ({
+    name: winner.name,
+    date: winner.time instanceof Date ? winner.time.toISOString() : winner.date || null
+  }));
+}
+
+function deserializeResults(results) {
+  if (!Array.isArray(results)) return [];
+
+  return results
+    .filter((result) => result && typeof result.name === "string")
+    .map((result, index) => ({
+      name: result.name,
+      nameNumber: index + 1,
+      time: result.date ? new Date(result.date) : new Date()
+    }));
+}
+
+function persistLocalDraft(pending = false) {
+  const draft = {
+    names,
+    results: serializeResults(),
+    title: currentSavedWheel?.title || savedWheelTitle?.value?.trim() || "",
+    savedWheelId: currentSavedWheel?.id || null,
+    version: currentSavedWheel?.version || null,
+    pending,
+    updatedAt: new Date().toISOString()
+  };
+
+  try {
+    localStorage.setItem(localDraftKey, JSON.stringify(draft));
+  } catch {
+    setSaveStatus("تعذر حفظ المسودة محليًا في هذا المتصفح.", "error");
+  }
+}
+
+function hydrateState(state) {
+  isHydrating = true;
+  names = Array.isArray(state?.names) ? state.names.slice(0, maximumNames) : [];
+  winners = deserializeResults(state?.results);
+  selectedIds.clear();
+  rotation = 0;
+  setWheelRotation(0);
+  resultCard.hidden = true;
+  drawWheel();
+  renderVirtualList();
+  renderWinners();
+  isHydrating = false;
+  persistLocalDraft(false);
+}
+
+function hydrateInitialState() {
+  const serverWheel = wheelConfig.savedWheel;
+  const localDraft = readLocalDraft();
+
+  if (serverWheel) {
+    currentSavedWheel = serverWheel;
+    hydrateState({ names: serverWheel.names, results: [] });
+    lastSavedSnapshot = getSavedListSnapshot();
+    setSaveWorkspace("active");
+    return;
+  }
+
+  if (!wheelConfig.authenticated && localDraft) {
+    hydrateState(localDraft);
+    return;
+  }
+
+  if (wheelConfig.authenticated) {
+    hydrateState({ names: [], results: [] });
+    setSaveWorkspace("browser");
+    loadSavedWheels({ reset: true });
+    return;
+  }
+
+  hydrateState({ names, results: [] });
+}
+
+function setSaveStatus(message, tone = "neutral") {
+  const statusElements = [
+    saveStatus,
+    createSavedWheelDialog?.open ? createSavedWheelStatus : null
+  ].filter(Boolean);
+
+  statusElements.forEach((statusElement) => {
+    statusElement.textContent = message;
+    statusElement.className = "m-0 min-h-5 text-xs font-bold";
+    statusElement.classList.add(
+      tone === "success" ? "text-emerald-700" :
+        tone === "error" ? "text-red-700" :
+          tone === "warning" ? "text-amber-700" : "text-slate-500"
+    );
+  });
+}
+
+function setSaveWorkspace(view = null) {
+  const showActiveState = view === "active" && Boolean(currentSavedWheel);
+
+  if (wheelConfig.authenticated) {
+    wheelEditor?.classList.toggle("hidden", !showActiveState);
+    savedWheelsBrowser?.classList.toggle("hidden", showActiveState);
+  }
+
+  if (showActiveState && activeSavedWheelTitle) {
+    activeSavedWheelTitle.textContent = currentSavedWheel.title;
+  }
+
+  updateControlStates();
+}
+
+function updateSaveInterface(mode = "guest") {
+  const showGuestSavePanel = !wheelConfig.authenticated && mode === "save";
+  cloudSavePanel?.classList.toggle("hidden", !showGuestSavePanel);
+  guestSaveActions?.classList.toggle("hidden", !showGuestSavePanel);
+  if (!wheelConfig.authenticated) {
+    wheelEditor?.classList.toggle("hidden", showGuestSavePanel);
+  }
+
+  if (currentSavedWheel) {
+    setSaveStatus(`القائمة المفتوحة: ${currentSavedWheel.title}`, "success");
+  }
+}
+
+function getSavedListSnapshot() {
+  if (!currentSavedWheel) return null;
+
+  return JSON.stringify({
+    title: currentSavedWheel.title,
+    names
+  });
+}
+
+function markChanged(saveList = true) {
+  if (isHydrating) return;
+  persistLocalDraft(saveList && Boolean(currentSavedWheel));
+
+  if (!saveList || !wheelConfig.verified || !currentSavedWheel || serverConflictWheel) return;
+
+  clearTimeout(autosaveTimer);
+  setSaveStatus("لديك تغييرات قيد الحفظ…");
+  autosaveTimer = window.setTimeout(() => saveCurrentWheel(), 2000);
+}
+
+function setSaving(disabled) {
+  if (confirmCreateSavedWheelBtn) confirmCreateSavedWheelBtn.disabled = disabled;
+  if (backToSavedWheelsBtn) backToSavedWheelsBtn.disabled = disabled;
+}
+
+async function requestJson(url, options) {
+  const response = await fetch(url, {
+    ...options,
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+      "X-CSRF-TOKEN": wheelConfig.csrfToken,
+      ...(options.headers || {})
+    }
+  });
+  const body = await response.json().catch(() => ({}));
+  return { response, body };
+}
+
+function setSavedWheelsStatus(message, tone = "neutral") {
+  if (!savedWheelsStatus) return;
+
+  savedWheelsStatus.textContent = message;
+  savedWheelsStatus.className = "m-0 min-h-5 text-xs font-bold";
+  savedWheelsStatus.classList.add(
+    tone === "error" ? "text-red-700" :
+      tone === "success" ? "text-emerald-700" : "text-slate-500"
+  );
+}
+
+function setSavedWheelsLoading(loading) {
+  savedWheelsLoading = loading;
+  savedWheelsLoader?.classList.toggle("hidden", !loading);
+  savedWheelsLoader?.classList.toggle("flex", loading);
+}
+
+function createSavedWheelCard(savedWheel) {
+  const card = document.createElement("article");
+  const information = document.createElement("div");
+  const title = document.createElement("strong");
+  const details = document.createElement("span");
+  const actions = document.createElement("div");
+  const loadButton = document.createElement("button");
+  const deleteButton = document.createElement("button");
+
+  card.className = "grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-2xl border border-slate-200 bg-white p-3.5 shadow-sm transition hover:border-violet-200 hover:shadow-md";
+  card.dataset.savedWheelId = String(savedWheel.id);
+  information.className = "grid min-w-0 gap-1";
+  title.className = "truncate text-sm font-black text-slate-900";
+  details.className = "text-xs font-bold text-slate-500";
+  actions.className = "flex shrink-0 gap-2";
+  loadButton.className = "inline-flex min-h-9 items-center gap-1.5 rounded-lg bg-violet-700 px-3 text-xs font-black text-white hover:bg-violet-800 disabled:cursor-wait disabled:opacity-60";
+  deleteButton.className = "grid h-9 w-9 place-items-center rounded-lg border border-red-200 bg-white text-red-600 hover:bg-red-50 disabled:cursor-wait disabled:opacity-60";
+
+  title.textContent = savedWheel.title;
+  details.textContent = `${formatNumber(savedWheel.names_count)} اسم`;
+  loadButton.type = "button";
+  loadButton.innerHTML = '<i class="fa-solid fa-folder-open" aria-hidden="true"></i><span>تحميل</span>';
+  loadButton.addEventListener("click", () => loadSavedWheel(savedWheel.id, loadButton));
+  deleteButton.type = "button";
+  deleteButton.title = "حذف القائمة";
+  deleteButton.setAttribute("aria-label", `حذف قائمة ${savedWheel.title}`);
+  deleteButton.innerHTML = '<i class="fa-solid fa-trash" aria-hidden="true"></i>';
+  deleteButton.addEventListener("click", () => deleteSavedWheel(savedWheel, card, deleteButton));
+
+  information.append(title, details);
+  actions.append(loadButton, deleteButton);
+  card.append(information, actions);
+
+  return card;
+}
+
+function beginNewSavedWheel() {
+  if (!wheelConfig.verified || !createSavedWheelDialog) return;
+
+  if (createSavedWheelStatus) createSavedWheelStatus.textContent = "";
+  if (savedWheelTitle) savedWheelTitle.value = "";
+
+  if (!createSavedWheelDialog.open) createSavedWheelDialog.showModal();
+  window.setTimeout(() => savedWheelTitle?.focus(), 50);
+}
+
+async function loadSavedWheels({ reset = false } = {}) {
+  if (!wheelConfig.routes.index || (!reset && (savedWheelsLoading || !savedWheelsHasMore))) return;
+
+  if (reset) {
+    savedWheelsAbortController?.abort();
+    savedWheelsLoading = false;
+    savedWheelsGeneration += 1;
+    savedWheelsCursor = null;
+    savedWheelsHasMore = true;
+    savedWheelsCards?.replaceChildren();
+  }
+
+  const generation = savedWheelsGeneration;
+  const controller = new AbortController();
+  savedWheelsAbortController = controller;
+  setSavedWheelsLoading(true);
+  setSavedWheelsStatus("جارٍ تحميل قوائمك…");
+
+  const url = new URL(wheelConfig.routes.index, window.location.origin);
+  const search = savedWheelsSearch?.value.trim() || "";
+  if (search) url.searchParams.set("search", search);
+  if (savedWheelsCursor) url.searchParams.set("cursor", savedWheelsCursor);
+
+  try {
+    const { response, body } = await requestJson(url.toString(), {
+      method: "GET",
+      signal: controller.signal
+    });
+
+    if (!response.ok) throw new Error(body.message || "تعذر تحميل القوائم.");
+    if (generation !== savedWheelsGeneration) return;
+
+    const savedWheels = Array.isArray(body.data) ? body.data : [];
+    const fragment = document.createDocumentFragment();
+    savedWheels.forEach((savedWheel) => fragment.append(createSavedWheelCard(savedWheel)));
+    savedWheelsCards?.append(fragment);
+    savedWheelsCursor = body.next_cursor || null;
+    savedWheelsHasMore = Boolean(body.has_more && savedWheelsCursor);
+
+    const hasCards = Boolean(savedWheelsCards?.children.length);
+    savedWheelsEmpty?.classList.toggle("hidden", hasCards);
+    savedWheelsEmpty?.classList.toggle("grid", !hasCards);
+    setSavedWheelsStatus(
+      hasCards
+        ? `${formatNumber(savedWheelsCards.children.length)} قائمة معروضة`
+        : (search ? "لا توجد قوائم مطابقة للبحث." : "لا توجد قوائم محفوظة بعد."),
+      hasCards ? "success" : "neutral"
+    );
+  } catch (error) {
+    if (error.name !== "AbortError") {
+      setSavedWheelsStatus(error.message || "تعذر تحميل القوائم. حاول مجددًا.", "error");
+    }
+  } finally {
+    if (generation === savedWheelsGeneration) setSavedWheelsLoading(false);
+  }
+}
+
+async function loadSavedWheel(savedWheelId, trigger = null) {
+  if (!wheelConfig.routes.showBase) return;
+
+  if (trigger) trigger.disabled = true;
+  setSavedWheelsStatus("جارٍ فتح القائمة…");
+
+  try {
+    const { response, body } = await requestJson(
+      `${wheelConfig.routes.showBase}/${savedWheelId}`,
+      { method: "GET" }
+    );
+
+    if (!response.ok || !body.data) {
+      throw new Error(body.message || "تعذر فتح القائمة.");
+    }
+
+    currentSavedWheel = body.data;
+    serverConflictWheel = null;
+    saveConflict?.classList.add("hidden");
+    hydrateState({ names: currentSavedWheel.names, results: [] });
+    lastSavedSnapshot = getSavedListSnapshot();
+    setSaveWorkspace("active");
+    setSaveStatus(`تم تحميل «${currentSavedWheel.title}». يمكنك إضافة أسماء أو تعديلها.`, "success");
+    history.replaceState(null, "", `${location.pathname}?wheel=${currentSavedWheel.id}`);
+  } catch (error) {
+    setSavedWheelsStatus(error.message || "تعذر فتح القائمة. حاول مجددًا.", "error");
+  } finally {
+    if (trigger) trigger.disabled = false;
+  }
+}
+
+async function createSavedWheel(title, initialNames = []) {
+  if (!wheelConfig.verified || !wheelConfig.routes.store) return false;
+  if (!title) {
+    setSaveStatus("اكتب اسمًا للقائمة أولًا.", "error");
+    savedWheelTitle?.focus();
+    return false;
+  }
+
+  setSaving(true);
+  setSaveStatus("جارٍ إنشاء القائمة…");
+
+  try {
+    const { response, body } = await requestJson(wheelConfig.routes.store, {
+      method: "POST",
+      body: JSON.stringify({ title, names: initialNames.slice(0, maximumNames) })
+    });
+
+    if (!response.ok) {
+      const message = response.status === 429
+        ? "وصلت إلى حد إنشاء القوائم مؤقتًا. حاول لاحقًا."
+        : Object.values(body.errors || {}).flat()[0] || body.message || "تعذر إنشاء القائمة.";
+      throw new Error(message);
+    }
+
+    currentSavedWheel = body.data;
+    serverConflictWheel = null;
+    hydrateState({ names: currentSavedWheel.names, results: [] });
+    lastSavedSnapshot = getSavedListSnapshot();
+    saveConflict?.classList.add("hidden");
+    retryDelay = 2000;
+    persistLocalDraft(false);
+    setSaveWorkspace("active");
+    setSaveStatus(`تم إنشاء «${currentSavedWheel.title}». أضف الأسماء للبدء.`, "success");
+    history.replaceState(null, "", `${location.pathname}?wheel=${currentSavedWheel.id}`);
+
+    return true;
+  } catch (error) {
+    setSaveStatus(error.message || "تعذر إنشاء القائمة.", "error");
+    return false;
+  } finally {
+    setSaving(false);
+  }
+}
+
+async function saveCurrentWheel() {
+  clearTimeout(autosaveTimer);
+  autosaveTimer = null;
+
+  if (!wheelConfig.verified || !currentSavedWheel || serverConflictWheel) return false;
+
+  if (saveInFlightPromise) {
+    saveQueued = true;
+    await saveInFlightPromise;
+    return getSavedListSnapshot() === lastSavedSnapshot || saveCurrentWheel();
+  }
+
+  const snapshot = getSavedListSnapshot();
+  if (snapshot === lastSavedSnapshot) {
+    persistLocalDraft(false);
+    return true;
+  }
+
+  clearTimeout(retryTimer);
+  const savedWheelId = currentSavedWheel.id;
+  const payload = {
+    title: currentSavedWheel.title,
+    names: names.slice(),
+    version: currentSavedWheel.version
+  };
+
+  setSaving(true);
+  setSaveStatus("جارٍ الحفظ التلقائي…");
+
+  const cyclePromise = (async () => {
+    try {
+      const { response, body } = await requestJson(
+        `${wheelConfig.routes.updateBase}/${savedWheelId}`,
+        {
+          method: "PATCH",
+          body: JSON.stringify(payload)
+        }
+      );
+
+      if (response.status === 409) {
+        serverConflictWheel = body.data;
+        saveConflict?.classList.remove("hidden");
+        setSaveStatus("توجد نسخة أحدث من هذه القائمة على الخادم.", "warning");
+        persistLocalDraft(true);
+        return false;
+      }
+
+      if (!response.ok) {
+        const message = Object.values(body.errors || {}).flat()[0] || body.message || "تعذر الحفظ.";
+        throw new Error(message);
+      }
+
+      if (currentSavedWheel?.id !== savedWheelId) return false;
+
+      currentSavedWheel = body.data;
+      lastSavedSnapshot = snapshot;
+      activeSavedWheelTitle.textContent = currentSavedWheel.title;
+      serverConflictWheel = null;
+      saveConflict?.classList.add("hidden");
+      retryDelay = 2000;
+      persistLocalDraft(getSavedListSnapshot() !== lastSavedSnapshot);
+      setSaveStatus("تم حفظ جميع التغييرات.", "success");
+
+      return true;
+    } catch (error) {
+      persistLocalDraft(true);
+      setSaveStatus(error.message || "تعذر الحفظ. سنحاول مجددًا عند عودة الاتصال.", "error");
+      retryTimer = window.setTimeout(() => {
+        retryDelay = Math.min(retryDelay * 2, 60000);
+        saveCurrentWheel();
+      }, retryDelay);
+
+      return false;
+    } finally {
+      setSaving(false);
+    }
+  })();
+
+  saveInFlightPromise = cyclePromise;
+  const saved = await cyclePromise;
+  if (saveInFlightPromise === cyclePromise) saveInFlightPromise = null;
+
+  const needsLatestState = saved
+    && currentSavedWheel?.id === savedWheelId
+    && (saveQueued || getSavedListSnapshot() !== lastSavedSnapshot);
+  saveQueued = false;
+
+  return needsLatestState && getSavedListSnapshot() !== lastSavedSnapshot
+    ? saveCurrentWheel()
+    : saved;
+}
+
+async function flushAutosave() {
+  clearTimeout(autosaveTimer);
+  autosaveTimer = null;
+
+  if (saveInFlightPromise) {
+    saveQueued = true;
+    await saveInFlightPromise;
+  }
+
+  return getSavedListSnapshot() === lastSavedSnapshot || saveCurrentWheel();
+}
+
+async function deleteSavedWheel(savedWheel, card, trigger) {
+  if (!confirm(`هل تريد حذف قائمة «${savedWheel.title}»؟ لا يمكن التراجع عن هذا الإجراء.`)) return;
+
+  trigger.disabled = true;
+
+  try {
+    const { response, body } = await requestJson(
+      `${wheelConfig.routes.updateBase}/${savedWheel.id}`,
+      { method: "DELETE" }
+    );
+
+    if (!response.ok) throw new Error(body.message || "تعذر حذف القائمة.");
+
+    card.remove();
+    const hasCards = Boolean(savedWheelsCards?.children.length);
+    savedWheelsEmpty?.classList.toggle("hidden", hasCards);
+    savedWheelsEmpty?.classList.toggle("grid", !hasCards);
+    setSavedWheelsStatus("تم حذف القائمة.", "success");
+
+    if (!hasCards && savedWheelsHasMore) loadSavedWheels();
+  } catch (error) {
+    trigger.disabled = false;
+    setSavedWheelsStatus(error.message || "تعذر حذف القائمة.", "error");
+  }
+}
+
+async function returnToSavedWheels() {
+  if (!currentSavedWheel) return;
+
+  setSaving(true);
+  const saved = await flushAutosave();
+  setSaving(false);
+
+  if (!saved && getSavedListSnapshot() !== lastSavedSnapshot) {
+    setSaveStatus("تعذر حفظ آخر تعديل. ابقَ في القائمة وحاول مجددًا.", "error");
+    return;
+  }
+
+  currentSavedWheel = null;
+  serverConflictWheel = null;
+  lastSavedSnapshot = null;
+  winners = [];
+  hydrateState({ names: [], results: [] });
+  setSaveWorkspace("browser");
+  history.replaceState(null, "", location.pathname);
+  loadSavedWheels({ reset: true });
+}
+
+function recordActivity(event) {
+  fetch(wheelConfig.routes.metrics, {
+    method: "POST",
+    keepalive: true,
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+      "X-CSRF-TOKEN": wheelConfig.csrfToken
+    },
+    body: JSON.stringify({ event })
+  }).catch(() => {});
 }
 
 function formatNumber(number) {
@@ -115,22 +818,33 @@ function setDisabled(elements, disabled) {
 }
 
 function updateControlStates() {
-  const hasNames = names.length > 0;
-  const spinDisabled = spinning || !hasNames;
+  const hasEditableWorkspace = wheelConfig.authenticated
+    ? Boolean(currentSavedWheel)
+    : activeMode === "guest";
+  const hasNames = hasEditableWorkspace && names.length > 0;
+  const controlsLocked = spinning || importingNames;
+  const spinDisabled = controlsLocked || !hasNames;
 
   if (!hasNames) stopIdleSpin();
   else if (!spinning) startIdleSpin();
 
   setDisabled([spinBtn, centerSpinBtn], spinDisabled);
-  setDisabled([clearBtn, shuffleBtn], !hasNames || spinning);
-  setDisabled([newWheelBtn], spinning);
-  setDisabled([clearResultsBtn], winners.length === 0 || spinning);
-  setDisabled([restoreAllResultsBtn], winners.length === 0 || spinning);
+  setDisabled(
+    [addNameBtn, emptyAddNameBtn, emptyImportNamesBtn, importInput],
+    !hasEditableWorkspace || controlsLocked
+  );
+  setDisabled([clearBtn, shuffleBtn], !hasNames || controlsLocked);
+  setDisabled([newWheelBtn], !hasEditableWorkspace || controlsLocked);
+  setDisabled([clearResultsBtn], winners.length === 0 || controlsLocked);
+  setDisabled([restoreAllResultsBtn], winners.length === 0 || controlsLocked);
   syncNameRowControls();
 
   spinBtn.classList.toggle("is-loading", spinning);
   centerSpinBtn.classList.toggle("is-loading", spinning);
   wheelStage?.setAttribute("aria-busy", String(spinning));
+  importTrigger?.setAttribute("aria-disabled", String(!hasEditableWorkspace || controlsLocked));
+  importTrigger?.classList.toggle("pointer-events-none", !hasEditableWorkspace || controlsLocked);
+  importTrigger?.classList.toggle("opacity-60", !hasEditableWorkspace || controlsLocked);
 
   if (spinBtnText) {
     spinBtnText.textContent = spinning ? "جاري اللف..." : "لف العجلة";
@@ -433,17 +1147,21 @@ function createRowButton(icon, label, onClick) {
 }
 
 function setData(newNames) {
-  names = Array.isArray(newNames) ? newNames : [];
+  names = Array.isArray(newNames)
+    ? newNames.map((name) => String(name).trim().slice(0, 120)).filter(Boolean).slice(0, maximumNames)
+    : [];
   selectedIds.clear();
   virtualList.scrollTop = 0;
   resultCard.hidden = true;
   drawWheel();
   renderVirtualList();
+  markChanged();
 }
 
 function spinWheel() {
   if (spinning || names.length === 0) return;
 
+  recordActivity("spin");
   stopIdleSpin();
   spinning = true;
   updateControlStates();
@@ -502,6 +1220,7 @@ function removeWinnerFromNames(index, winnerName) {
   clampVirtualScroll();
   drawWheel();
   renderVirtualList();
+  markChanged();
 }
 
 function deleteName(index) {
@@ -512,6 +1231,7 @@ function deleteName(index) {
   clampVirtualScroll();
   drawWheel();
   renderVirtualList();
+  markChanged();
 }
 
 function deleteSelectedNames() {
@@ -524,6 +1244,7 @@ function deleteSelectedNames() {
   clampVirtualScroll();
   drawWheel();
   renderVirtualList();
+  markChanged();
 }
 
 function moveNameToIndex(index, targetIndex) {
@@ -542,6 +1263,7 @@ function moveNameToIndex(index, targetIndex) {
   resultCard.hidden = true;
   drawWheel();
   renderVirtualList();
+  markChanged();
 }
 
 function updateSelectionAfterDelete(deletedIndex) {
@@ -588,6 +1310,7 @@ function restoreWinner(index) {
   restoreWinnerToNames(winner);
   refreshWheelAndNames();
   renderWinners();
+  markChanged();
 }
 
 function restoreAllWinners() {
@@ -605,6 +1328,7 @@ function restoreAllWinners() {
   winners = [];
   refreshWheelAndNames();
   renderWinners();
+  markChanged();
 }
 
 function renderWinners() {
@@ -759,19 +1483,171 @@ function launchConfetti() {
 }
 
 function addName(name) {
-  const clean = String(name || "").trim();
+  if (
+    (wheelConfig.authenticated && !currentSavedWheel)
+    || (!wheelConfig.authenticated && activeMode !== "guest")
+  ) {
+    return;
+  }
+
+  const clean = String(name || "").trim().slice(0, 120);
   if (!clean) return;
+  if (names.length >= maximumNames) {
+    alert(`الحد الأقصى للقائمة هو ${maximumNames} اسم.`);
+    return;
+  }
   setData([clean, ...names]);
 }
 
-function importNames(text) {
-  const imported = text
-    .split(/\r?\n|,/)
-    .map((name) => name.trim())
-    .filter(Boolean);
+function waitForNextPaint() {
+  return new Promise((resolve) => window.requestAnimationFrame(resolve));
+}
 
-  if (!imported.length) return;
-  setData(imported.concat(names));
+function showImportLoader(fileName) {
+  importingNames = true;
+  importLoader?.classList.remove("hidden");
+  importLoader?.classList.add("flex");
+  importLoader?.setAttribute("aria-hidden", "false");
+  importTrigger?.setAttribute("aria-disabled", "true");
+  importTrigger?.classList.add("pointer-events-none", "opacity-60");
+  document.body.setAttribute("aria-busy", "true");
+  if (importLoaderTitle) importLoaderTitle.textContent = "جارٍ قراءة الملف…";
+  if (importLoaderProgress) importLoaderProgress.textContent = fileName;
+  updateImportProgress(0);
+}
+
+function updateImportProgress(progress, message = null) {
+  const normalizedProgress = Math.max(0, Math.min(100, Math.round(progress)));
+  if (importProgressBar) importProgressBar.style.width = `${normalizedProgress}%`;
+  importProgressTrack?.setAttribute("aria-valuenow", String(normalizedProgress));
+  if (message && importLoaderProgress) importLoaderProgress.textContent = message;
+}
+
+function hideImportLoader() {
+  importingNames = false;
+  importLoader?.classList.add("hidden");
+  importLoader?.classList.remove("flex");
+  importLoader?.setAttribute("aria-hidden", "true");
+  importTrigger?.setAttribute("aria-disabled", "false");
+  importTrigger?.classList.remove("pointer-events-none", "opacity-60");
+  document.body.removeAttribute("aria-busy");
+  updateControlStates();
+}
+
+function parseNamesChunk(text, state) {
+  for (let index = 0; index < text.length && state.names.length < state.limit; index++) {
+    const character = text[index];
+
+    if (character === "," || character === "\r" || character === "\n") {
+      const importedName = state.currentName.trim().slice(0, 120);
+      if (importedName) state.names.push(importedName);
+      state.currentName = "";
+      continue;
+    }
+
+    if (state.currentName.length < 240) {
+      state.currentName += character;
+    }
+  }
+}
+
+function finishNamesParsing(state) {
+  if (state.names.length >= state.limit) return;
+
+  const importedName = state.currentName.trim().slice(0, 120);
+  if (importedName) state.names.push(importedName);
+  state.currentName = "";
+}
+
+async function readNamesFromFile(file, limit) {
+  const state = { names: [], currentName: "", limit };
+  const decoder = new TextDecoder();
+  let bytesRead = 0;
+
+  if (typeof file.stream !== "function") {
+    const text = await file.text();
+
+    for (let offset = 0; offset < text.length && state.names.length < limit; offset += 65536) {
+      parseNamesChunk(text.slice(offset, offset + 65536), state);
+      updateImportProgress(
+        (offset / Math.max(text.length, 1)) * 100,
+        `تم تجهيز ${formatNumber(state.names.length)} من ${formatNumber(limit)} اسم`
+      );
+      await waitForNextPaint();
+    }
+
+    finishNamesParsing(state);
+    updateImportProgress(100, `تمت قراءة ${formatNumber(state.names.length)} اسم`);
+    return state.names;
+  }
+
+  const reader = file.stream().getReader();
+
+  while (state.names.length < limit) {
+    const { done, value } = await reader.read();
+    if (done) break;
+
+    bytesRead += value.byteLength;
+    parseNamesChunk(decoder.decode(value, { stream: true }), state);
+
+    const progress = file.size ? (bytesRead / file.size) * 100 : 0;
+    updateImportProgress(
+      progress,
+      `تم تجهيز ${formatNumber(state.names.length)} من ${formatNumber(limit)} اسم`
+    );
+    await waitForNextPaint();
+  }
+
+  if (state.names.length >= limit) {
+    await reader.cancel();
+  } else {
+    parseNamesChunk(decoder.decode(), state);
+    finishNamesParsing(state);
+  }
+
+  updateImportProgress(100, `تمت قراءة ${formatNumber(state.names.length)} اسم`);
+  return state.names;
+}
+
+async function importNamesFromFile(file) {
+  const availableSlots = maximumNames - names.length;
+  const extension = file.name.split(".").pop()?.toLowerCase();
+
+  if (!["txt", "csv"].includes(extension)) {
+    alert("اختر ملفًا بصيغة TXT أو CSV.");
+    return;
+  }
+
+  if (file.size > maximumImportFileSize) {
+    alert("حجم الملف أكبر من 20 ميجابايت. قسّم الملف ثم حاول مجددًا.");
+    return;
+  }
+
+  if (availableSlots <= 0) {
+    alert(`القائمة تحتوي بالفعل على الحد الأقصى وهو ${maximumNames} اسم.`);
+    return;
+  }
+
+  showImportLoader(file.name);
+  await waitForNextPaint();
+
+  try {
+    const importedNames = await readNamesFromFile(file, availableSlots);
+
+    if (!importedNames.length) {
+      throw new Error("لم يتم العثور على أسماء صالحة داخل الملف.");
+    }
+
+    setData(importedNames.concat(names));
+    recordActivity("import");
+    if (importLoaderTitle) importLoaderTitle.textContent = "اكتمل الاستيراد";
+    updateImportProgress(100, `تمت إضافة ${formatNumber(importedNames.length)} اسم`);
+    await new Promise((resolve) => window.setTimeout(resolve, 450));
+  } catch (error) {
+    alert(error.message || "تعذر قراءة الملف. تأكد من صيغته وحاول مجددًا.");
+  } finally {
+    hideImportLoader();
+  }
 }
 
 function shuffleNames() {
@@ -792,6 +1668,11 @@ function clearNames() {
 function startNewWheel() {
   if (spinning) return;
 
+  if (wheelConfig.authenticated) {
+    returnToSavedWheels();
+    return;
+  }
+
   const hasCurrentData = names.length > 0 || winners.length > 0;
   if (
     hasCurrentData &&
@@ -803,6 +1684,11 @@ function startNewWheel() {
   stopCelebration();
   selectedIds.clear();
   winners = [];
+  currentSavedWheel = null;
+  serverConflictWheel = null;
+  if (savedWheelTitle) savedWheelTitle.value = "";
+  saveConflict?.classList.add("hidden");
+  setSaveWorkspace(null);
   rotation = 0;
   setWheelRotation(0);
   resultCard.hidden = true;
@@ -880,14 +1766,23 @@ function switchTab(tab) {
 }
 
 function switchMode(mode) {
+  const selectedMode = wheelConfig.authenticated ? "save" : mode;
+  activeMode = selectedMode;
+
   modeTabs.forEach((button) => {
-    const isActive = button.dataset.mode === mode;
+    const isActive = button.dataset.mode === selectedMode;
     button.classList.toggle("active", isActive);
     button.setAttribute("aria-pressed", String(isActive));
   });
-  modeHint.textContent = mode === "save"
-    ? "وضع الحفظ: سجّل الدخول لحفظ القوائم والنتائج والرجوع لها لاحقًا."
+  modeHint.textContent = selectedMode === "save"
+    ? (wheelConfig.authenticated
+      ? (wheelConfig.verified
+        ? "وضع الحفظ: أنشئ قائمة جديدة أو حمّل إحدى قوائمك، ثم أضف الأسماء يدويًا أو من ملف."
+        : "وضع الحفظ: يمكنك تحميل قوائمك، وفعّل بريدك لحفظ التعديلات.")
+      : "وضع الحفظ: سجّل الدخول لحفظ مسودتك وفتح قوائمك من أي جهاز.")
     : "وضع الضيف: استخدم العجلة مباشرة بدون حفظ دائم.";
+  updateSaveInterface(selectedMode);
+  updateControlStates();
 }
 
 function getKeyboardStep(event) {
@@ -1191,19 +2086,30 @@ addNameBtn.addEventListener("click", () => {
     addName(prompt("اكتب الاسم"));
   }
 });
+emptyAddNameBtn?.addEventListener("click", () => addNameBtn.click());
+emptyImportNamesBtn?.addEventListener("click", () => importInput.click());
 
 confirmAddName.addEventListener("click", (event) => {
   event.preventDefault();
   addName(nameInput.value);
   nameDialog.close();
 });
+nameInput.addEventListener("keydown", (event) => {
+  if (event.key !== "Enter" || event.isComposing || event.keyCode === 229) return;
+
+  event.preventDefault();
+  if (!confirmAddName.disabled) confirmAddName.click();
+});
 
 importInput.addEventListener("change", async (event) => {
   const file = event.target.files?.[0];
   if (!file) return;
-  const text = await file.text();
-  importNames(text);
-  event.target.value = "";
+
+  try {
+    await importNamesFromFile(file);
+  } finally {
+    event.target.value = "";
+  }
 });
 
 clearBtn.addEventListener("click", clearNames);
@@ -1221,6 +2127,7 @@ selectAllNames.addEventListener("change", () => {
 clearResultsBtn.addEventListener("click", () => {
   winners = [];
   renderWinners();
+  markChanged(false);
 });
 
 restoreAllResultsBtn.addEventListener("click", restoreAllWinners);
@@ -1251,6 +2158,56 @@ modeTabs.forEach((button) => {
   button.addEventListener("click", () => switchMode(button.dataset.mode));
 });
 
+createSavedWheelBtn?.addEventListener("click", beginNewSavedWheel);
+createSavedWheelForm?.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const saved = await createSavedWheel(savedWheelTitle?.value.trim() || "", []);
+  if (saved) createSavedWheelDialog?.close();
+});
+savedWheelTitle?.addEventListener("keydown", (event) => {
+  if (event.key !== "Enter" || event.isComposing || event.keyCode === 229) return;
+
+  event.preventDefault();
+  if (!confirmCreateSavedWheelBtn?.disabled) confirmCreateSavedWheelBtn?.click();
+});
+createSavedWheelDialog?.querySelectorAll("[data-close-dialog]").forEach((button) => {
+  button.addEventListener("click", () => createSavedWheelDialog.close());
+});
+backToSavedWheelsBtn?.addEventListener("click", returnToSavedWheels);
+savedWheelsSearch?.addEventListener("input", () => {
+  clearTimeout(savedWheelsSearchTimer);
+  savedWheelsSearchTimer = window.setTimeout(() => loadSavedWheels({ reset: true }), 300);
+});
+savedWheelsCards?.addEventListener("scroll", () => {
+  const isNearEnd = savedWheelsCards.scrollTop + savedWheelsCards.clientHeight
+    >= savedWheelsCards.scrollHeight - 120;
+  if (isNearEnd) loadSavedWheels();
+});
+
+reloadConflictBtn?.addEventListener("click", () => {
+  if (!serverConflictWheel) return;
+  currentSavedWheel = serverConflictWheel;
+  serverConflictWheel = null;
+  saveConflict.classList.add("hidden");
+  hydrateState({ names: currentSavedWheel.names, results: [] });
+  lastSavedSnapshot = getSavedListSnapshot();
+  setSaveWorkspace("active");
+  setSaveStatus("تم تحميل أحدث نسخة من الخادم.", "success");
+});
+
+copyConflictBtn?.addEventListener("click", async () => {
+  if (!currentSavedWheel) return;
+
+  const copyTitle = `${currentSavedWheel.title} - نسخة`;
+  saveConflict.classList.add("hidden");
+  await createSavedWheel(copyTitle, names);
+});
+
+window.addEventListener("online", () => {
+  const draft = readLocalDraft();
+  if (draft?.pending && currentSavedWheel) saveCurrentWheel();
+});
+
 setupButtonGroupKeyboard(panelTabs, (button) => switchTab(button.dataset.tab));
 setupButtonGroupKeyboard(modeTabs, (button) => switchMode(button.dataset.mode));
 setupFaqKeyboard();
@@ -1277,12 +2234,82 @@ document.addEventListener("keydown", (event) => {
   }
 });
 
-drawWheel();
-renderVirtualList();
-renderWinners();
+hydrateInitialState();
+switchMode(wheelConfig.authenticated || wheelConfig.savedWheel ? "save" : "guest");
 setupScrollAnimations();
 if (location.hash) {
   const target = getHashTarget(location.hash);
   if (target) requestAnimationFrame(() => scrollToTarget(target, "auto"));
 }
 updateScrollState();
+}
+
+if (!canvas) {
+  const mobileMenuBtn = document.getElementById("mobileMenuBtn");
+  const mobileDrawer = document.getElementById("mobileDrawer");
+
+  if (mobileMenuBtn && mobileDrawer) {
+    const closeMobileDrawer = () => {
+      mobileDrawer.classList.remove("is-open");
+      mobileMenuBtn.setAttribute("aria-expanded", "false");
+      mobileMenuBtn.innerHTML = '<i class="fa-solid fa-bars"></i>';
+    };
+
+    mobileMenuBtn.addEventListener("click", () => {
+      const isOpen = mobileDrawer.classList.toggle("is-open");
+      mobileMenuBtn.setAttribute("aria-expanded", String(isOpen));
+      mobileMenuBtn.innerHTML = isOpen
+        ? '<i class="fa-solid fa-xmark"></i>'
+        : '<i class="fa-solid fa-bars"></i>';
+    });
+
+    mobileDrawer.querySelectorAll("a").forEach((link) => {
+      link.addEventListener("click", closeMobileDrawer);
+    });
+  }
+}
+
+document.querySelectorAll('input[type="file"][accept*=".webp"]').forEach((input) => {
+  input.addEventListener("change", () => {
+    const file = input.files?.[0];
+    const preview = document.getElementById(input.dataset.previewTarget || "");
+    if (!file || !preview) return;
+    preview.src = URL.createObjectURL(file);
+    preview.classList.remove("hidden");
+  });
+});
+
+document.querySelectorAll("[data-confirm]").forEach((form) => {
+  form.addEventListener("submit", (event) => {
+    if (!confirm(form.dataset.confirm)) event.preventDefault();
+  });
+});
+
+document.querySelectorAll("[data-rename-wheel]").forEach((button) => {
+  button.addEventListener("click", async () => {
+    const title = prompt("الاسم الجديد للقائمة", button.dataset.currentTitle);
+    if (!title?.trim() || title.trim() === button.dataset.currentTitle) return;
+
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+    const response = await fetch(button.dataset.renameWheel, {
+      method: "PATCH",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        "X-CSRF-TOKEN": csrfToken
+      },
+      body: JSON.stringify({
+        title: title.trim(),
+        version: Number(button.dataset.version)
+      })
+    });
+    const body = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+      alert(Object.values(body.errors || {}).flat()[0] || body.message || "تعذر تغيير الاسم.");
+      return;
+    }
+
+    location.reload();
+  });
+});

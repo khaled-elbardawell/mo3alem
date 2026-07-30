@@ -1,5 +1,36 @@
 @import "tailwindcss";
 
+@layer base {
+    :is(
+        a[href]:not([aria-disabled="true"]),
+        button:not(:disabled),
+        input[type="button"]:not(:disabled),
+        input[type="submit"]:not(:disabled),
+        input[type="reset"]:not(:disabled),
+        input[type="checkbox"]:not(:disabled),
+        input[type="radio"]:not(:disabled),
+        select:not(:disabled),
+        summary,
+        [role="button"]:not([aria-disabled="true"])
+    ) {
+        cursor: pointer;
+    }
+
+    :is(
+        button,
+        input[type="button"],
+        input[type="submit"],
+        input[type="reset"],
+        input[type="checkbox"],
+        input[type="radio"],
+        select
+    ):disabled,
+    a[aria-disabled="true"],
+    [role="button"][aria-disabled="true"] {
+        cursor: not-allowed;
+    }
+}
+
 @theme {
     --animate-celebration: pop 0.42s ease both, celebration-float 1.8s ease-in-out 0.42s infinite alternate;
     --animate-trophy-pulse: trophy-pulse 1.15s ease-in-out infinite;
