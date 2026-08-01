@@ -186,9 +186,9 @@ const wheelConfig = JSON.parse(configElement?.dataset.config || "{}");
 const cloudSavePanel = document.getElementById("cloudSavePanel");
 const guestSaveActions = document.getElementById("guestSaveActions");
 const wheelEditor = document.getElementById("wheelEditor");
+const saveWorkspaceTabs = document.querySelectorAll("[data-save-workspace]");
 const competitionsBrowser = document.getElementById("competitionsBrowser");
 const createCompetitionBtn = document.getElementById("createCompetitionBtn");
-const manageSavedWheelsBtn = document.getElementById("manageSavedWheelsBtn");
 const competitionsSearch = document.getElementById("competitionsSearch");
 const competitionsCards = document.getElementById("competitionsCards");
 const competitionsStatus = document.getElementById("competitionsStatus");
@@ -218,7 +218,6 @@ const savedWheelsStatus = document.getElementById("savedWheelsStatus");
 const savedWheelsEmpty = document.getElementById("savedWheelsEmpty");
 const savedWheelsLoader = document.getElementById("savedWheelsLoader");
 const backToSavedWheelsBtn = document.getElementById("backToSavedWheelsBtn");
-const backToCompetitionsFromListsBtn = document.getElementById("backToCompetitionsFromListsBtn");
 const backToWorkspaceLabel = document.getElementById("backToWorkspaceLabel");
 const savedWheelActiveState = document.getElementById("savedWheelActiveState");
 const activeSavedWheelTitle = document.getElementById("activeSavedWheelTitle");
@@ -421,11 +420,19 @@ function setSaveStatus(message, tone = "neutral") {
 function setSaveWorkspace(view = null) {
   const activeWorkspace = currentCompetition || currentSavedWheel;
   const showActiveState = view === "active" && Boolean(activeWorkspace);
+  const selectedWorkspace = view === "lists" || (showActiveState && currentSavedWheel)
+    ? "lists"
+    : "competitions";
 
   if (wheelConfig.authenticated) {
     wheelEditor?.classList.toggle("hidden", !showActiveState);
     competitionsBrowser?.classList.toggle("hidden", view !== "competitions");
     savedWheelsBrowser?.classList.toggle("hidden", view !== "lists");
+    saveWorkspaceTabs.forEach((button) => {
+      const isSelected = button.dataset.saveWorkspace === selectedWorkspace;
+      button.classList.toggle("active", isSelected);
+      button.setAttribute("aria-pressed", String(isSelected));
+    });
   }
 
   if (showActiveState && activeSavedWheelTitle) {
@@ -485,6 +492,9 @@ function setSaving(disabled) {
   if (confirmCreateSavedWheelBtn) confirmCreateSavedWheelBtn.disabled = disabled;
   if (confirmCreateCompetitionBtn) confirmCreateCompetitionBtn.disabled = disabled;
   if (backToSavedWheelsBtn) backToSavedWheelsBtn.disabled = disabled;
+  saveWorkspaceTabs.forEach((button) => {
+    button.disabled = disabled;
+  });
 }
 
 async function requestJson(url, options) {
@@ -1156,28 +1166,28 @@ async function deleteSavedWheel(savedWheel, card, trigger) {
   }
 }
 
-async function returnToSavedWheels() {
-  const returnsToCompetitions = Boolean(currentCompetition);
-  if (!currentCompetition && !currentSavedWheel) return;
+async function openSaveWorkspace(workspace = currentCompetition ? "competitions" : "lists") {
+  if (currentCompetition || currentSavedWheel) {
+    setSaving(true);
+    const saved = await flushAutosave();
+    setSaving(false);
 
-  setSaving(true);
-  const saved = await flushAutosave();
-  setSaving(false);
+    if (!saved && getSavedListSnapshot() !== lastSavedSnapshot) {
+      setSaveStatus("تعذر حفظ آخر تعديل. ابقَ في القائمة وحاول مجددًا.", "error");
+      return;
+    }
 
-  if (!saved && getSavedListSnapshot() !== lastSavedSnapshot) {
-    setSaveStatus("تعذر حفظ آخر تعديل. ابقَ في القائمة وحاول مجددًا.", "error");
-    return;
+    currentSavedWheel = null;
+    currentCompetition = null;
+    serverConflictWheel = null;
+    lastSavedSnapshot = null;
+    winners = [];
+    hydrateState({ names: [], results: [] });
+    history.replaceState(null, "", location.pathname);
   }
 
-  currentSavedWheel = null;
-  currentCompetition = null;
-  serverConflictWheel = null;
-  lastSavedSnapshot = null;
-  winners = [];
-  hydrateState({ names: [], results: [] });
-  setSaveWorkspace(returnsToCompetitions ? "competitions" : "lists");
-  history.replaceState(null, "", location.pathname);
-  if (returnsToCompetitions) loadCompetitions({ reset: true });
+  setSaveWorkspace(workspace);
+  if (workspace === "competitions") loadCompetitions({ reset: true });
   else loadSavedWheels({ reset: true });
 }
 
@@ -2569,13 +2579,8 @@ modeTabs.forEach((button) => {
 });
 
 createCompetitionBtn?.addEventListener("click", beginNewCompetition);
-manageSavedWheelsBtn?.addEventListener("click", () => {
-  setSaveWorkspace("lists");
-  loadSavedWheels({ reset: true });
-});
-backToCompetitionsFromListsBtn?.addEventListener("click", () => {
-  setSaveWorkspace("competitions");
-  loadCompetitions({ reset: true });
+saveWorkspaceTabs.forEach((button) => {
+  button.addEventListener("click", () => openSaveWorkspace(button.dataset.saveWorkspace));
 });
 createCompetitionForm?.addEventListener("submit", async (event) => {
   event.preventDefault();
@@ -2627,7 +2632,7 @@ savedWheelTitle?.addEventListener("keydown", (event) => {
 createSavedWheelDialog?.querySelectorAll("[data-close-dialog]").forEach((button) => {
   button.addEventListener("click", () => createSavedWheelDialog.close());
 });
-backToSavedWheelsBtn?.addEventListener("click", returnToSavedWheels);
+backToSavedWheelsBtn?.addEventListener("click", () => openSaveWorkspace());
 savedWheelsSearch?.addEventListener("input", () => {
   clearTimeout(savedWheelsSearchTimer);
   savedWheelsSearchTimer = window.setTimeout(() => loadSavedWheels({ reset: true }), 300);

@@ -388,6 +388,23 @@
                 @endguest
 
                 @auth
+                    <nav
+                        class="mb-3.5 grid grid-cols-2 gap-2 rounded-2xl border border-violet-100 bg-violet-50 p-2 [&_button]:inline-flex [&_button]:min-h-11 [&_button]:items-center [&_button]:justify-center [&_button]:gap-2 [&_button]:rounded-xl [&_button]:px-3 [&_button]:text-sm [&_button]:font-black [&_button]:text-slate-600 [&_button]:transition [&_button]:hover:bg-white/70 [&_button]:focus-visible:outline-2 [&_button]:focus-visible:outline-offset-2 [&_button]:focus-visible:outline-violet-600 [&_button.active]:bg-white [&_button.active]:text-violet-700 [&_button.active]:shadow-sm [&_button]:disabled:cursor-wait [&_button]:disabled:opacity-60"
+                        id="saveWorkspaceTabs" aria-label="أقسام وضع الحفظ">
+                        <button @class(['active' => blank($wheelConfig['savedWheel'])])
+                            id="competitionsWorkspaceTab" type="button" data-save-workspace="competitions"
+                            aria-pressed="{{ blank($wheelConfig['savedWheel']) ? 'true' : 'false' }}">
+                            <i class="fa-solid fa-trophy" aria-hidden="true"></i>
+                            مسابقاتي
+                        </button>
+                        <button @class(['active' => filled($wheelConfig['savedWheel'])])
+                            id="listsWorkspaceTab" type="button" data-save-workspace="lists"
+                            aria-pressed="{{ filled($wheelConfig['savedWheel']) ? 'true' : 'false' }}">
+                            <i class="fa-solid fa-list" aria-hidden="true"></i>
+                            قوائم الأسماء
+                        </button>
+                    </nav>
+
                     <section @class([
                         'grid gap-3.5',
                         'hidden' => filled($wheelConfig['savedWheel']) || filled($wheelConfig['competition']),
@@ -405,13 +422,6 @@
                                 مسابقة جديدة
                             </button>
                         </div>
-
-                        <button
-                            class="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-violet-200 bg-violet-50 px-3.5 text-sm font-black text-violet-800 transition hover:border-violet-300 hover:bg-violet-100"
-                            id="manageSavedWheelsBtn" type="button">
-                            <i class="fa-solid fa-address-book" aria-hidden="true"></i>
-                            إدارة قوائم الأسماء
-                        </button>
 
                         <label class="relative block">
                             <span class="sr-only">البحث في المسابقات</span>
@@ -467,13 +477,6 @@
                                 قائمة جديدة
                             </button>
                         </div>
-
-                        <button
-                            class="inline-flex min-h-10 w-fit items-center justify-center gap-2 rounded-xl border border-violet-200 bg-white px-3 text-sm font-black text-violet-700 transition hover:border-violet-300 hover:bg-violet-50"
-                            id="backToCompetitionsFromListsBtn" type="button">
-                            <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
-                            العودة إلى مسابقاتي
-                        </button>
 
                         <label class="relative block">
                             <span class="sr-only">البحث في القوائم المحفوظة</span>

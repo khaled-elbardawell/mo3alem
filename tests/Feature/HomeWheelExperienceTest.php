@@ -17,7 +17,7 @@ test('guests may choose guest mode or receive a login prompt for save mode', fun
         ->assertDontSee('id="loadSavedWheelDialog"', false);
 });
 
-test('authenticated users start from a simple competitions browser', function () {
+test('authenticated users start from competitions and may switch to saved name lists', function () {
     $user = User::factory()->create();
 
     $response = $this->actingAs($user)->get(route('home'));
@@ -26,13 +26,24 @@ test('authenticated users start from a simple competitions browser', function ()
         ->assertSuccessful()
         ->assertDontSee('data-mode="guest"', false)
         ->assertSee('data-mode="save"', false)
+        ->assertSee('id="saveWorkspaceTabs"', false)
+        ->assertSee('id="competitionsWorkspaceTab"', false)
+        ->assertSee('data-save-workspace="competitions"', false)
+        ->assertSee('id="listsWorkspaceTab"', false)
+        ->assertSee('data-save-workspace="lists"', false)
+        ->assertSeeInOrder(['مسابقاتي', 'قوائم الأسماء'])
+        ->assertSeeInOrder([
+            'id="competitionsWorkspaceTab"',
+            'aria-pressed="true"',
+            'id="listsWorkspaceTab"',
+            'aria-pressed="false"',
+        ], false)
         ->assertSee('id="competitionsBrowser"', false)
         ->assertSee('id="competitionsSearch"', false)
         ->assertSee('id="competitionsCards"', false)
         ->assertSee('id="competitionsLoader"', false)
         ->assertSee('id="createCompetitionBtn"', false)
         ->assertSee('id="createCompetitionDialog"', false)
-        ->assertSee('id="manageSavedWheelsBtn"', false)
         ->assertSee('id="savedWheelsBrowser"', false)
         ->assertSee('id="savedWheelsSearch"', false)
         ->assertSee('id="savedWheelsCards"', false)
@@ -104,6 +115,13 @@ test('opening a saved list exposes only names and not saved results', function (
         ->assertSuccessful()
         ->assertSee('id="backToSavedWheelsBtn"', false);
 
+    $response->assertSeeInOrder([
+        'id="competitionsWorkspaceTab"',
+        'aria-pressed="false"',
+        'id="listsWorkspaceTab"',
+        'aria-pressed="true"',
+    ], false);
+
     expect($response->viewData('wheelConfig')['savedWheel'])
         ->toMatchArray([
             'id' => $wheel->id,
@@ -140,6 +158,18 @@ test('the client enforces the agreed list and autosave safeguards', function () 
         ->toContain('competitionsSearchTimer = window.setTimeout(() => loadCompetitions({ reset: true }), 300)')
         ->toContain('names: names.slice()')
         ->toContain('...(isCompetition ? { results: serializeResults() } : {})');
+});
+
+test('save workspace tabs preserve autosave before changing sections', function () {
+    $script = file_get_contents(resource_path('js/app.js'));
+
+    expect($script)
+        ->toContain('const saveWorkspaceTabs = document.querySelectorAll("[data-save-workspace]");')
+        ->toContain('async function openSaveWorkspace(workspace = currentCompetition ? "competitions" : "lists")')
+        ->toContain('const saved = await flushAutosave();')
+        ->toContain('button.addEventListener("click", () => openSaveWorkspace(button.dataset.saveWorkspace));')
+        ->not->toContain('manageSavedWheelsBtn')
+        ->not->toContain('backToCompetitionsFromListsBtn');
 });
 
 test('pressing enter confirms name list and competition inputs', function () {
