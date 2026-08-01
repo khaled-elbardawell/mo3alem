@@ -131,10 +131,19 @@ test('opening a saved list exposes only names and not saved results', function (
 });
 
 test('the home page includes an accessible progress loader for file imports', function () {
-    $this->get(route('home'))
+    $response = $this->get(route('home'));
+
+    $response
         ->assertSuccessful()
-        ->assertSee('id="emptyAddNameBtn"', false)
-        ->assertSee('id="emptyImportNamesBtn"', false)
+        ->assertSeeInOrder([
+            'id="dataPage"',
+            'id="addNameBtn"',
+            'id="importTrigger"',
+            'id="virtualList"',
+        ], false)
+        ->assertSee('الأسماء (0)')
+        ->assertDontSee('id="emptyAddNameBtn"', false)
+        ->assertDontSee('id="emptyImportNamesBtn"', false)
         ->assertSee('id="importLoader"', false)
         ->assertSee('id="importProgressBar"', false)
         ->assertSee('aria-live="assertive"', false);
@@ -142,8 +151,9 @@ test('the home page includes an accessible progress loader for file imports', fu
     $script = file_get_contents(resource_path('js/app.js'));
 
     expect($script)
-        ->toContain('emptyAddNameBtn?.addEventListener("click", () => addNameBtn.click())')
-        ->toContain('emptyImportNamesBtn?.addEventListener("click", () => importInput.click())');
+        ->toContain('importTrigger?.addEventListener("click", () => importInput.click())')
+        ->not->toContain('emptyAddNameBtn')
+        ->not->toContain('emptyImportNamesBtn');
 });
 
 test('the client enforces the agreed list and autosave safeguards', function () {

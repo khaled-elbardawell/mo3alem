@@ -131,8 +131,6 @@ const centerSpinBtn = document.getElementById("centerSpinBtn");
 const resultCard = document.getElementById("resultCard");
 const resultName = document.getElementById("resultName");
 const addNameBtn = document.getElementById("addNameBtn");
-const emptyAddNameBtn = document.getElementById("emptyAddNameBtn");
-const emptyImportNamesBtn = document.getElementById("emptyImportNamesBtn");
 const nameDialog = document.getElementById("nameDialog");
 const nameInput = document.getElementById("nameInput");
 const confirmAddName = document.getElementById("confirmAddName");
@@ -1209,7 +1207,7 @@ function formatNumber(number) {
 }
 
 function updateCounts() {
-  dataTabLabel.textContent = `البيانات (${formatNumber(names.length)})`;
+  dataTabLabel.textContent = `الأسماء (${formatNumber(names.length)})`;
   selectedCountEl.textContent = `عدد المحدد (${formatNumber(selectedIds.size)})`;
   clearSelectedBtn.disabled = spinning || selectedIds.size === 0;
   selectAllNames.disabled = spinning || names.length === 0;
@@ -1239,7 +1237,7 @@ function updateControlStates() {
 
   setDisabled([spinBtn, centerSpinBtn], spinDisabled);
   setDisabled(
-    [addNameBtn, emptyAddNameBtn, emptyImportNamesBtn, importInput],
+    [addNameBtn, importTrigger, importInput],
     !hasEditableWorkspace || controlsLocked
   );
   setDisabled([clearBtn, shuffleBtn], !hasNames || controlsLocked);
@@ -1927,12 +1925,11 @@ function showImportLoader(fileName) {
   importLoader?.classList.remove("hidden");
   importLoader?.classList.add("flex");
   importLoader?.setAttribute("aria-hidden", "false");
-  importTrigger?.setAttribute("aria-disabled", "true");
-  importTrigger?.classList.add("pointer-events-none", "opacity-60");
   document.body.setAttribute("aria-busy", "true");
   if (importLoaderTitle) importLoaderTitle.textContent = "جارٍ قراءة الملف…";
   if (importLoaderProgress) importLoaderProgress.textContent = fileName;
   updateImportProgress(0);
+  updateControlStates();
 }
 
 function updateImportProgress(progress, message = null) {
@@ -1947,8 +1944,6 @@ function hideImportLoader() {
   importLoader?.classList.add("hidden");
   importLoader?.classList.remove("flex");
   importLoader?.setAttribute("aria-hidden", "true");
-  importTrigger?.setAttribute("aria-disabled", "false");
-  importTrigger?.classList.remove("pointer-events-none", "opacity-60");
   document.body.removeAttribute("aria-busy");
   updateControlStates();
 }
@@ -2506,8 +2501,7 @@ addNameBtn.addEventListener("click", () => {
     addName(prompt("اكتب الاسم"));
   }
 });
-emptyAddNameBtn?.addEventListener("click", () => addNameBtn.click());
-emptyImportNamesBtn?.addEventListener("click", () => importInput.click());
+importTrigger?.addEventListener("click", () => importInput.click());
 
 confirmAddName.addEventListener("click", (event) => {
   event.preventDefault();

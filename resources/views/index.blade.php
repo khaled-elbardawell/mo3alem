@@ -175,7 +175,7 @@
             </section>
         @endif
 
-        <nav class="wheel-toolbar relative z-[2] mx-auto mt-7 grid w-[min(calc(100%_-_44px),900px)] grid-cols-6 items-stretch rounded-[18px] border border-[#e7e2f0] bg-white/[0.96] px-3 py-3.5 shadow-[0_14px_38px_rgba(76,29,149,0.08),0_2px_8px_rgba(15,23,42,0.03)] max-[900px]:mt-5 max-[900px]:w-[min(calc(100%_-_28px),720px)] max-[900px]:grid-cols-3 max-[900px]:p-2.5 max-[620px]:grid-cols-6 max-[620px]:rounded-2xl max-[620px]:px-[5px] max-[620px]:py-[7px] [&_.wheel-tool]:grid [&_.wheel-tool]:min-h-[78px] [&_.wheel-tool]:min-w-0 [&_.wheel-tool]:cursor-pointer [&_.wheel-tool]:content-center [&_.wheel-tool]:justify-items-center [&_.wheel-tool]:gap-[7px] [&_.wheel-tool]:rounded-none [&_.wheel-tool]:border-0 [&_.wheel-tool]:border-s [&_.wheel-tool]:border-[#ece8f3] [&_.wheel-tool]:bg-transparent [&_.wheel-tool]:px-3.5 [&_.wheel-tool]:py-[7px] [&_.wheel-tool]:text-center [&_.wheel-tool]:text-[#171243] [&_.wheel-tool]:transition-[color,background,transform] [&_.wheel-tool]:duration-200 [&_.wheel-tool:first-child]:border-s-0 [&_.wheel-tool:hover]:-translate-y-px [&_.wheel-tool:hover]:rounded-[13px] [&_.wheel-tool:hover]:bg-[#f4efff] [&_.wheel-tool:hover]:text-[#6d28d9] [&_.wheel-tool:focus-visible]:-translate-y-px [&_.wheel-tool:focus-visible]:rounded-[13px] [&_.wheel-tool:focus-visible]:bg-[#f4efff] [&_.wheel-tool:focus-visible]:text-[#6d28d9] [&_.wheel-tool:focus-visible]:shadow-[0_0_0_4px_rgba(124,58,237,0.16)] [&_.wheel-tool.is-active]:-translate-y-px [&_.wheel-tool.is-active]:rounded-[13px] [&_.wheel-tool.is-active]:bg-[#f4efff] [&_.wheel-tool.is-active]:text-[#6d28d9] [&_.wheel-tool:disabled]:translate-y-0 [&_.wheel-tool:disabled]:cursor-not-allowed [&_.wheel-tool:disabled]:opacity-50 [&_.wheel-tool__icon]:grid [&_.wheel-tool__icon]:h-[34px] [&_.wheel-tool__icon]:w-[34px] [&_.wheel-tool__icon]:place-items-center [&_.wheel-tool__icon]:rounded-[10px] [&_.wheel-tool__icon]:border [&_.wheel-tool__icon]:border-[#e3dcf2] [&_.wheel-tool__icon]:bg-white [&_.wheel-tool__icon]:text-[17px] [&_.wheel-tool__icon]:text-[#6d28d9] [&_.wheel-tool__icon]:shadow-[0_6px_16px_rgba(76,29,149,0.06)] [&_.wheel-tool__copy]:grid [&_.wheel-tool__copy]:min-w-0 [&_.wheel-tool__copy]:gap-0.5 [&_.wheel-tool_strong]:overflow-hidden [&_.wheel-tool_strong]:text-ellipsis [&_.wheel-tool_strong]:whitespace-nowrap [&_.wheel-tool_strong]:text-[13px] [&_.wheel-tool_strong]:font-black [&_.wheel-tool_small]:overflow-hidden [&_.wheel-tool_small]:text-ellipsis [&_.wheel-tool_small]:whitespace-nowrap [&_.wheel-tool_small]:text-[10px] [&_.wheel-tool_small]:font-bold [&_.wheel-tool_small]:text-[#667085] max-[900px]:[&_.wheel-tool:nth-child(4)]:border-s-0 max-[900px]:[&_.wheel-tool:nth-child(-n+3)]:border-b max-[900px]:[&_.wheel-tool:nth-child(-n+3)]:border-[#ece8f3] max-[620px]:[&_.wheel-tool]:min-h-16 max-[620px]:[&_.wheel-tool]:gap-[5px] max-[620px]:[&_.wheel-tool]:border-b-0 max-[620px]:[&_.wheel-tool]:px-0.5 max-[620px]:[&_.wheel-tool]:py-1 max-[620px]:[&_.wheel-tool:not(:first-child)]:border-s max-[620px]:[&_.wheel-tool:not(:first-child)]:border-[#ece8f3] max-[620px]:[&_.wheel-tool:first-child]:border-s-0 max-[620px]:[&_.wheel-tool__icon]:h-[29px] max-[620px]:[&_.wheel-tool__icon]:w-[29px] max-[620px]:[&_.wheel-tool__icon]:rounded-lg max-[620px]:[&_.wheel-tool__icon]:text-sm max-[620px]:[&_.wheel-tool__copy]:gap-0 max-[620px]:[&_.wheel-tool_strong]:overflow-visible max-[620px]:[&_.wheel-tool_strong]:whitespace-normal max-[620px]:[&_.wheel-tool_strong]:text-[clamp(8px,2.35vw,10px)] max-[620px]:[&_.wheel-tool_strong]:leading-tight max-[620px]:[&_.wheel-tool_small]:hidden"
+        <nav class="wheel-toolbar relative z-[2] mx-auto mt-7 grid w-[min(calc(100%_-_44px),900px)] grid-cols-4 items-stretch rounded-[18px] border border-[#e7e2f0] bg-white/[0.96] px-3 py-3.5 shadow-[0_14px_38px_rgba(76,29,149,0.08),0_2px_8px_rgba(15,23,42,0.03)] max-[900px]:mt-5 max-[900px]:w-[min(calc(100%_-_28px),720px)] max-[900px]:p-2.5 max-[620px]:rounded-2xl max-[620px]:px-[5px] max-[620px]:py-[7px] [&_.wheel-tool]:grid [&_.wheel-tool]:min-h-[78px] [&_.wheel-tool]:min-w-0 [&_.wheel-tool]:cursor-pointer [&_.wheel-tool]:content-center [&_.wheel-tool]:justify-items-center [&_.wheel-tool]:gap-[7px] [&_.wheel-tool]:rounded-none [&_.wheel-tool]:border-0 [&_.wheel-tool]:border-s [&_.wheel-tool]:border-[#ece8f3] [&_.wheel-tool]:bg-transparent [&_.wheel-tool]:px-3.5 [&_.wheel-tool]:py-[7px] [&_.wheel-tool]:text-center [&_.wheel-tool]:text-[#171243] [&_.wheel-tool]:transition-[color,background,transform] [&_.wheel-tool]:duration-200 [&_.wheel-tool:first-child]:border-s-0 [&_.wheel-tool:hover]:-translate-y-px [&_.wheel-tool:hover]:rounded-[13px] [&_.wheel-tool:hover]:bg-[#f4efff] [&_.wheel-tool:hover]:text-[#6d28d9] [&_.wheel-tool:focus-visible]:-translate-y-px [&_.wheel-tool:focus-visible]:rounded-[13px] [&_.wheel-tool:focus-visible]:bg-[#f4efff] [&_.wheel-tool:focus-visible]:text-[#6d28d9] [&_.wheel-tool:focus-visible]:shadow-[0_0_0_4px_rgba(124,58,237,0.16)] [&_.wheel-tool.is-active]:-translate-y-px [&_.wheel-tool.is-active]:rounded-[13px] [&_.wheel-tool.is-active]:bg-[#f4efff] [&_.wheel-tool.is-active]:text-[#6d28d9] [&_.wheel-tool:disabled]:translate-y-0 [&_.wheel-tool:disabled]:cursor-not-allowed [&_.wheel-tool:disabled]:opacity-50 [&_.wheel-tool__icon]:grid [&_.wheel-tool__icon]:h-[34px] [&_.wheel-tool__icon]:w-[34px] [&_.wheel-tool__icon]:place-items-center [&_.wheel-tool__icon]:rounded-[10px] [&_.wheel-tool__icon]:border [&_.wheel-tool__icon]:border-[#e3dcf2] [&_.wheel-tool__icon]:bg-white [&_.wheel-tool__icon]:text-[17px] [&_.wheel-tool__icon]:text-[#6d28d9] [&_.wheel-tool__icon]:shadow-[0_6px_16px_rgba(76,29,149,0.06)] [&_.wheel-tool__copy]:grid [&_.wheel-tool__copy]:min-w-0 [&_.wheel-tool__copy]:gap-0.5 [&_.wheel-tool_strong]:overflow-hidden [&_.wheel-tool_strong]:text-ellipsis [&_.wheel-tool_strong]:whitespace-nowrap [&_.wheel-tool_strong]:text-[13px] [&_.wheel-tool_strong]:font-black [&_.wheel-tool_small]:overflow-hidden [&_.wheel-tool_small]:text-ellipsis [&_.wheel-tool_small]:whitespace-nowrap [&_.wheel-tool_small]:text-[10px] [&_.wheel-tool_small]:font-bold [&_.wheel-tool_small]:text-[#667085] max-[620px]:[&_.wheel-tool]:min-h-16 max-[620px]:[&_.wheel-tool]:gap-[5px] max-[620px]:[&_.wheel-tool]:px-0.5 max-[620px]:[&_.wheel-tool]:py-1 max-[620px]:[&_.wheel-tool:not(:first-child)]:border-s max-[620px]:[&_.wheel-tool:not(:first-child)]:border-[#ece8f3] max-[620px]:[&_.wheel-tool:first-child]:border-s-0 max-[620px]:[&_.wheel-tool__icon]:h-[29px] max-[620px]:[&_.wheel-tool__icon]:w-[29px] max-[620px]:[&_.wheel-tool__icon]:rounded-lg max-[620px]:[&_.wheel-tool__icon]:text-sm max-[620px]:[&_.wheel-tool__copy]:gap-0 max-[620px]:[&_.wheel-tool_strong]:overflow-visible max-[620px]:[&_.wheel-tool_strong]:whitespace-normal max-[620px]:[&_.wheel-tool_strong]:text-[clamp(8px,2.35vw,10px)] max-[620px]:[&_.wheel-tool_strong]:leading-tight max-[620px]:[&_.wheel-tool_small]:hidden"
             aria-label="أدوات العجلة">
             <button class="wheel-tool" type="button" id="newWheelBtn">
                 <span
@@ -186,18 +186,6 @@
                 <span class="wheel-tool__copy grid min-w-0 gap-0.5 max-[620px]:gap-0">
                     <strong>مسابقة جديدة</strong>
                     <small>ابدأ من قائمة أسماء</small>
-                </span>
-            </button>
-
-            <button class="wheel-tool" type="button" id="addNameBtn">
-                <span
-                    class="wheel-tool__icon grid h-[34px] w-[34px] place-items-center rounded-[10px] border border-[#e3dcf2] bg-white text-[17px] text-[#6d28d9] shadow-[0_6px_16px_rgba(76,29,149,0.06)] max-[620px]:h-[29px] max-[620px]:w-[29px] max-[620px]:rounded-lg max-[620px]:text-sm"
-                    aria-hidden="true">
-                    <i class="fa-solid fa-user-plus"></i>
-                </span>
-                <span class="wheel-tool__copy grid min-w-0 gap-0.5 max-[620px]:gap-0">
-                    <strong>إضافة اسم</strong>
-                    <small>إضافة سريعة</small>
                 </span>
             </button>
 
@@ -212,20 +200,6 @@
                     <small>خلط عشوائي</small>
                 </span>
             </button>
-
-            <label class="wheel-tool" id="importTrigger" for="importInput" role="button" tabindex="0"
-                aria-controls="importLoader" aria-disabled="false">
-                <span
-                    class="wheel-tool__icon grid h-[34px] w-[34px] place-items-center rounded-[10px] border border-[#e3dcf2] bg-white text-[17px] text-[#6d28d9] shadow-[0_6px_16px_rgba(76,29,149,0.06)] max-[620px]:h-[29px] max-[620px]:w-[29px] max-[620px]:rounded-lg max-[620px]:text-sm"
-                    aria-hidden="true">
-                    <i class="fa-solid fa-upload"></i>
-                </span>
-                <span class="wheel-tool__copy grid min-w-0 gap-0.5 max-[620px]:gap-0">
-                    <strong>استيراد أسماء</strong>
-                    <small>من ملف أو نص</small>
-                </span>
-            </label>
-            <input class="sr-only" id="importInput" type="file" accept=".txt,.csv,text/plain,text/csv" />
 
             <button class="wheel-tool" type="button" id="toolbarFullscreenBtn">
                 <span
@@ -562,7 +536,7 @@
                     <button class="active" type="button" data-tab="data" id="dataTab" role="tab"
                         aria-selected="true" aria-controls="dataPage" tabindex="0">
                         <i class="fa-solid fa-list"></i>
-                        <span id="dataTabLabel">البيانات (0)</span>
+                        <span id="dataTabLabel">الأسماء (0)</span>
                     </button>
                     <button type="button" data-tab="results" id="resultsTab" role="tab" aria-selected="false"
                         aria-controls="resultsPage" tabindex="-1">
@@ -573,6 +547,23 @@
 
                 <div class="tab-page active hidden [&.active]:block" id="dataPage" role="tabpanel"
                     aria-labelledby="dataTab">
+                    <div class="mb-3 grid grid-cols-2 gap-2.5 rounded-2xl border border-violet-100 bg-violet-50 p-2.5"
+                        aria-label="إجراءات قائمة الأسماء">
+                        <button
+                            class="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-violet-700 px-3 py-2.5 text-sm font-black text-white shadow-sm transition hover:bg-violet-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600 disabled:cursor-not-allowed disabled:opacity-55"
+                            id="addNameBtn" type="button">
+                            <i class="fa-solid fa-user-plus" aria-hidden="true"></i>
+                            إضافة اسم
+                        </button>
+                        <button
+                            class="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-violet-200 bg-white px-3 py-2.5 text-sm font-black text-violet-700 shadow-sm transition hover:border-violet-300 hover:bg-violet-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600 disabled:cursor-not-allowed disabled:opacity-55"
+                            id="importTrigger" type="button" aria-controls="importLoader" aria-disabled="false">
+                            <i class="fa-solid fa-file-arrow-up" aria-hidden="true"></i>
+                            استيراد أسماء
+                        </button>
+                        <input class="sr-only" id="importInput" type="file" accept=".txt,.csv,text/plain,text/csv" />
+                    </div>
+
                     <div
                         class="count-row list-controls grid grid-cols-[28px_auto_minmax(0,1fr)] items-center gap-2.5 rounded-[14px] bg-[#fbfbfd] px-3.5 py-3 text-[#1f2937] max-[620px]:grid-cols-[28px_minmax(0,1fr)]">
                         <span class="list-controls__order w-7" aria-hidden="true"></span>
@@ -598,22 +589,8 @@
                                 class="grid h-[42px] w-[42px] place-items-center rounded-full bg-[#f4efff] text-lg text-[#6d28d9]"><i
                                     class="fa-solid fa-list-check"></i></span>
                             <strong class="font-black text-[#1e293b]">لا توجد أسماء حالياً</strong>
-                            <p class="m-0 leading-[1.7] font-bold">أضف اسماً أو استورد ملف أسماء لبدء استخدام العجلة.
+                            <p class="m-0 leading-[1.7] font-bold">استخدم زري الإضافة أو الاستيراد أعلى القائمة للبدء.
                             </p>
-                            <div class="mt-2 grid w-full grid-cols-2 gap-2">
-                                <button
-                                    class="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl bg-violet-700 px-3 text-sm font-black text-white shadow-sm transition hover:bg-violet-800 disabled:cursor-not-allowed disabled:opacity-55"
-                                    id="emptyAddNameBtn" type="button">
-                                    <i class="fa-solid fa-user-plus" aria-hidden="true"></i>
-                                    إضافة اسم
-                                </button>
-                                <button
-                                    class="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-violet-200 bg-white px-3 text-sm font-black text-violet-700 transition hover:border-violet-300 hover:bg-violet-50 disabled:cursor-not-allowed disabled:opacity-55"
-                                    id="emptyImportNamesBtn" type="button">
-                                    <i class="fa-solid fa-file-arrow-up" aria-hidden="true"></i>
-                                    استيراد أسماء
-                                </button>
-                            </div>
                         </div>
                     </div>
 
