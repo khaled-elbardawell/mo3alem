@@ -116,6 +116,114 @@ function setupAdImpressionTracking() {
 
 setupAdImpressionTracking();
 
+function setupPublicScrollSpy() {
+  const navigationLinks = [...document.querySelectorAll("[data-scrollspy-target]")];
+  const siteHeader = document.querySelector(".site-header");
+
+  if (!navigationLinks.length || !siteHeader) return;
+
+  const targetIds = [...new Set(
+    navigationLinks.map((link) => link.dataset.scrollspyTarget).filter(Boolean)
+  )];
+  const sections = targetIds
+    .map((id) => document.getElementById(id))
+    .filter(Boolean);
+
+  if (!sections.length) return;
+
+  let activeTarget = null;
+  let updateFrame = null;
+
+  const setActiveTarget = (targetId) => {
+    if (targetId === activeTarget) return;
+
+    activeTarget = targetId;
+    navigationLinks.forEach((link) => {
+      const isActive = link.dataset.scrollspyTarget === targetId;
+      link.toggleAttribute("data-active", isActive);
+
+      if (isActive) link.setAttribute("aria-current", "location");
+      else link.removeAttribute("aria-current");
+    });
+  };
+
+  const updateActiveTarget = () => {
+    const activationLine = window.scrollY + siteHeader.offsetHeight + 24;
+    let currentSection = sections[0];
+
+    sections.forEach((section) => {
+      const sectionTop = section.getBoundingClientRect().top + window.scrollY;
+
+      if (sectionTop <= activationLine) currentSection = section;
+    });
+
+    const reachedPageEnd = window.scrollY + window.innerHeight
+      >= document.documentElement.scrollHeight - 2;
+
+    setActiveTarget(reachedPageEnd ? sections.at(-1).id : currentSection.id);
+  };
+
+  const requestActiveTargetUpdate = () => {
+    if (updateFrame) return;
+
+    updateFrame = window.requestAnimationFrame(() => {
+      updateActiveTarget();
+      updateFrame = null;
+    });
+  };
+
+  navigationLinks.forEach((link) => {
+    link.addEventListener("click", () => {
+      setActiveTarget(link.dataset.scrollspyTarget);
+    });
+  });
+
+  window.addEventListener("scroll", requestActiveTargetUpdate, { passive: true });
+  window.addEventListener("resize", requestActiveTargetUpdate);
+  window.addEventListener("hashchange", requestActiveTargetUpdate);
+  window.requestAnimationFrame(updateActiveTarget);
+}
+
+function setupPageRevealAnimations() {
+  const revealElements = [...document.querySelectorAll("[data-reveal]")];
+
+  if (!revealElements.length) return;
+
+  const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  if (prefersReducedMotion || !("IntersectionObserver" in window)) {
+    revealElements.forEach((element) => element.classList.add("is-visible"));
+    return;
+  }
+
+  document.querySelectorAll("[data-reveal-group]").forEach((group) => {
+    [...group.children]
+      .filter((element) => element.matches("[data-reveal]"))
+      .forEach((element, index) => {
+        element.style.setProperty("--reveal-delay", `${Math.min(index * 90, 270)}ms`);
+      });
+  });
+
+  document.documentElement.classList.add("reveal-ready");
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (!entry.isIntersecting) return;
+
+      entry.target.classList.add("is-visible");
+      observer.unobserve(entry.target);
+    });
+  }, {
+    rootMargin: "0px 0px -8% 0px",
+    threshold: 0.12
+  });
+
+  revealElements.forEach((element) => observer.observe(element));
+}
+
+setupPublicScrollSpy();
+setupPageRevealAnimations();
+
 const canvas = document.getElementById("wheelCanvas");
 if (canvas) {
 const ctx = canvas.getContext("2d");

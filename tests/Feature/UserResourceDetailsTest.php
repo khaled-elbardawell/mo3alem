@@ -40,7 +40,7 @@ test('a user can view complete competition details grouped by round', function (
         ->assertViewIs('users.competitions.show')
         ->assertSee('محمد')
         ->assertSee('قائمة المشاركين')
-        ->assertSee(route('home', ['competition' => $competition]), false);
+        ->assertSee(route('tools.wheel', ['competition' => $competition]), false);
 
     expect(collect($response->viewData('results')->items())->pluck('name')->all())
         ->toBe(['سارة', 'أحمد']);
@@ -94,7 +94,7 @@ test('a user can view a saved list with all names and without competition result
         ->assertSeeInOrder(['ليان', 'عمر', 'نور'])
         ->assertDontSee('نتيجة قديمة لا تخص مسابقة')
         ->assertSee('الفائزون ونتائج اللفات محفوظون داخل كل مسابقة بشكل مستقل')
-        ->assertSee(route('home', ['wheel' => $savedWheel]), false);
+        ->assertSee(route('tools.wheel', ['wheel' => $savedWheel]), false);
 });
 
 test('detail filters search the complete names and results collections', function () {

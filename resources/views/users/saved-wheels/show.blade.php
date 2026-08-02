@@ -14,7 +14,7 @@
             <p class="mt-2 text-slate-500">تفاصيل قائمة الأسماء المحفوظة والقابلة لإعادة الاستخدام.</p>
         </div>
         <a class="inline-flex min-h-12 items-center gap-2 rounded-xl bg-violet-700 px-5 font-black text-white hover:bg-violet-800"
-            href="{{ route('home', ['wheel' => $savedWheel]) }}">
+            href="{{ route('tools.wheel', ['wheel' => $savedWheel]) }}">
             <i class="fa-solid fa-play" aria-hidden="true"></i>
             استخدام القائمة
         </a>

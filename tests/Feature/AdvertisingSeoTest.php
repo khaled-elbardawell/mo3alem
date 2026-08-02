@@ -11,6 +11,7 @@ use App\Services\MetricService;
 use App\Services\VisitorIdentity;
 use App\UserRole;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 
 test('daily metrics can be incremented atomically', function () {
     app(MetricService::class)->increment('site_visits');
@@ -84,8 +85,24 @@ test('only campaigns matching placement status and schedule are displayed', func
 test('no unmanaged fallback advertisement is shown when no campaign is eligible', function () {
     $this->get(route('home'))
         ->assertSuccessful()
-        ->assertDontSee('cmp-tch.com', false)
+        ->assertDontSee('المعرفة وراء الأدوات')
         ->assertDontSee('data-ad-impression-url', false);
+});
+
+test('a bottom campaign is rendered before the frequently asked questions', function () {
+    $campaign = AdCampaign::factory()->create([
+        'placement' => AdPlacement::Bottom,
+        'status' => AdCampaignStatus::Active,
+    ]);
+
+    $content = $this->get(route('home'))
+        ->assertSuccessful()
+        ->assertSee(route('ads.click', $campaign), false)
+        ->assertSee(Storage::disk('public')->url($campaign->image_path), false)
+        ->getContent();
+
+    expect(strpos($content, route('ads.click', $campaign)))
+        ->toBeLessThan(strpos($content, 'id="faq"'));
 });
 
 test('site visits are counted once per signed in visitor each day', function () {

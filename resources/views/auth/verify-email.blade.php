@@ -13,7 +13,7 @@
         <button class="w-full rounded-xl bg-violet-700 px-5 py-3 font-black text-white" type="submit">إعادة إرسال رابط التفعيل</button>
     </form>
     <div class="mt-4 grid grid-cols-2 gap-3">
-        <a class="rounded-xl border border-violet-200 px-4 py-3 text-center font-bold text-violet-700" href="{{ route('home') }}">متابعة للعجلة</a>
+        <a class="rounded-xl border border-violet-200 px-4 py-3 text-center font-bold text-violet-700" href="{{ route('tools.wheel') }}">متابعة للعجلة</a>
         <form method="POST" action="{{ route('logout') }}">
             @csrf
             <button class="w-full rounded-xl border border-slate-200 px-4 py-3 font-bold" type="submit">تسجيل الخروج</button>

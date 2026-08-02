@@ -9,7 +9,7 @@
             <p class="mt-2 text-slate-500">تابع تفاصيل المسابقات ونتائج اللفات، وأدر قوائم الأسماء القابلة لإعادة الاستخدام.</p>
         </div>
         <a class="rounded-xl bg-violet-700 px-5 py-3 font-black text-white hover:bg-violet-800"
-            href="{{ route('home') }}">مسابقة جديدة</a>
+            href="{{ route('tools.wheel') }}">مسابقة جديدة</a>
     </div>
 
     @unless(auth()->user()->hasVerifiedEmail())
@@ -106,8 +106,8 @@
                         </a>
                         <a class="rounded-xl border border-violet-200 px-4 py-2.5 text-center font-bold text-violet-700 hover:bg-violet-50"
                             href="{{ $section === 'competitions'
-                                ? route('home', ['competition' => $item])
-                                : route('home', ['wheel' => $item]) }}">
+                                ? route('tools.wheel', ['competition' => $item])
+                                : route('tools.wheel', ['wheel' => $item]) }}">
                             {{ $section === 'competitions' ? 'متابعة المسابقة' : 'استخدام القائمة' }}
                         </a>
                         @if(auth()->user()->hasVerifiedEmail())

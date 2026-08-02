@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Site;
 
 use App\AdPlacement;
+use App\Http\Controllers\Controller;
 use App\Http\Resources\CompetitionResource;
 use App\Http\Resources\SavedWheelResource;
 use App\Models\Competition;
@@ -20,7 +21,7 @@ use Illuminate\View\View;
 
 use function Illuminate\Support\defer;
 
-class HomeController extends Controller
+class WheelController extends Controller
 {
     public function __invoke(
         Request $request,
@@ -94,6 +95,6 @@ class HomeController extends Controller
             'csrfToken' => csrf_token(),
         ];
 
-        return view('index', compact('seo', 'publicStats', 'campaigns', 'wheelConfig'));
+        return view('public.tools.wheel', compact('seo', 'publicStats', 'campaigns', 'wheelConfig'));
     }
 }

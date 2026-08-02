@@ -14,10 +14,10 @@ class SeoSetting extends Model
     use HasFactory;
 
     protected $attributes = [
-        'site_name' => 'نرد',
-        'title' => 'نرد | عجلة الحظ',
-        'description' => 'عجلة اختيار أسماء عربية مجانية وسهلة الاستخدام مع حفظ القوائم والنتائج.',
-        'keywords' => 'عجلة الحظ, اختيار أسماء, عجلة أسماء, نرد',
+        'site_name' => 'معلم',
+        'title' => 'معلم | أدوات ذكية لكل معلم',
+        'description' => 'منصة أدوات تعليمية عربية تساعد المعلم على إنشاء الأنشطة ورموز QR والشهادات بسهولة واحترافية.',
+        'keywords' => 'أدوات المعلم, عجلة الأسماء, إنشاء QR, إنشاء شهادات, معلم',
         'allow_indexing' => true,
         'twitter_card' => 'summary_large_image',
     ];

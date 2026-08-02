@@ -18,10 +18,10 @@ class SeoSettingFactory extends Factory
     public function definition(): array
     {
         return [
-            'site_name' => 'نرد',
-            'title' => 'نرد | عجلة الحظ',
-            'description' => 'عجلة اختيار أسماء عربية مجانية وسهلة الاستخدام.',
-            'keywords' => 'عجلة الحظ, اختيار أسماء, نرد',
+            'site_name' => 'معلم',
+            'title' => 'معلم | أدوات ذكية لكل معلم',
+            'description' => 'منصة أدوات تعليمية عربية تساعد المعلم على إنجاز مهامه بسهولة.',
+            'keywords' => 'أدوات المعلم, عجلة الأسماء, إنشاء QR, إنشاء شهادات, معلم',
             'canonical_url' => config('app.url'),
             'allow_indexing' => true,
             'twitter_card' => 'summary_large_image',

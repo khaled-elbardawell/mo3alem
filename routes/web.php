@@ -6,9 +6,10 @@ use App\Http\Controllers\AdImpressionController;
 use App\Http\Controllers\Admin;
 use App\Http\Controllers\CompetitionController;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\HomeController;
 use App\Http\Controllers\RobotsController;
 use App\Http\Controllers\SavedWheelController;
+use App\Http\Controllers\Site\HomeController;
+use App\Http\Controllers\Site\WheelController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\User\CompetitionController as UserCompetitionController;
 use App\Http\Controllers\User\CompetitionNameController;
@@ -17,6 +18,7 @@ use App\Http\Controllers\User\SavedWheelNameController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', HomeController::class)->name('home');
+Route::get('/tools/wheel', WheelController::class)->name('tools.wheel');
 Route::get('/sitemap.xml', SitemapController::class)->name('sitemap');
 Route::get('/robots.txt', RobotsController::class)->name('robots');
 Route::get('/ads/{adCampaign}/click', AdClickController::class)
@@ -49,7 +51,7 @@ Route::middleware(['auth', 'active'])->group(function (): void {
         ->whereNumber('nameIndex')
         ->middleware('throttle:120,1')
         ->name('user.saved-wheels.names.destroy');
-    Route::view('/profile', 'profile.edit')->name('profile.edit');
+    Route::view('/profile', 'users.profile.edit')->name('profile.edit');
 
     Route::post('/saved-wheels', [SavedWheelController::class, 'store'])
         ->middleware('throttle:saved-wheel-creation')

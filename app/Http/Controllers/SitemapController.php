@@ -10,10 +10,12 @@ class SitemapController extends Controller
     {
         $lastModified = now()->toAtomString();
         $home = e(route('home'));
+        $wheel = e(route('tools.wheel'));
         $xml = <<<XML
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url><loc>{$home}</loc><lastmod>{$lastModified}</lastmod><changefreq>weekly</changefreq><priority>1.0</priority></url>
+    <url><loc>{$wheel}</loc><lastmod>{$lastModified}</lastmod><changefreq>weekly</changefreq><priority>0.9</priority></url>
 </urlset>
 XML;
 

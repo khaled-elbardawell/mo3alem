@@ -23,7 +23,7 @@
             <p class="mt-2 text-slate-500">تفاصيل المشاركين وسجل الفائزين مرتبًا حسب اللفة.</p>
         </div>
         <a class="inline-flex min-h-12 items-center gap-2 rounded-xl bg-violet-700 px-5 font-black text-white hover:bg-violet-800"
-            href="{{ route('home', ['competition' => $competition]) }}">
+            href="{{ route('tools.wheel', ['competition' => $competition]) }}">
             <i class="fa-solid fa-play" aria-hidden="true"></i>
             متابعة المسابقة
         </a>

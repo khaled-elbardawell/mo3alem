@@ -5,7 +5,7 @@ use App\Models\SavedWheel;
 use App\Models\User;
 
 test('guests may choose guest mode or receive a login prompt for save mode', function () {
-    $this->get(route('home'))
+    $this->get(route('tools.wheel'))
         ->assertSuccessful()
         ->assertSee('data-mode="guest"', false)
         ->assertSee('data-mode="save"', false)
@@ -20,7 +20,7 @@ test('guests may choose guest mode or receive a login prompt for save mode', fun
 test('authenticated users start from competitions and may switch to saved name lists', function () {
     $user = User::factory()->create();
 
-    $response = $this->actingAs($user)->get(route('home'));
+    $response = $this->actingAs($user)->get(route('tools.wheel'));
 
     $response
         ->assertSuccessful()
@@ -82,7 +82,7 @@ test('opening a competition exposes its participant snapshot and round history',
         'results_count' => 1,
     ]);
 
-    $response = $this->actingAs($user)->get(route('home', [
+    $response = $this->actingAs($user)->get(route('tools.wheel', [
         'competition' => $competition->id,
     ]));
 
@@ -109,7 +109,7 @@ test('opening a saved list exposes only names and not saved results', function (
         'results' => [['name' => 'سارة', 'date' => now()->toISOString()]],
     ]);
 
-    $response = $this->actingAs($user)->get(route('home', ['wheel' => $wheel->id]));
+    $response = $this->actingAs($user)->get(route('tools.wheel', ['wheel' => $wheel->id]));
 
     $response
         ->assertSuccessful()
@@ -130,8 +130,8 @@ test('opening a saved list exposes only names and not saved results', function (
         ->not->toHaveKey('results');
 });
 
-test('the home page includes an accessible progress loader for file imports', function () {
-    $response = $this->get(route('home'));
+test('the wheel page includes an accessible progress loader for file imports', function () {
+    $response = $this->get(route('tools.wheel'));
 
     $response
         ->assertSuccessful()
