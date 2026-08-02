@@ -7,6 +7,7 @@ test('the home page presents the muallem tools hub', function () {
         ->assertSee('معلم - الصفحة الرئيسية')
         ->assertSee(asset('assets/logo.png'), false)
         ->assertSee('class="h-14 w-auto brightness-0 invert"', false)
+        ->assertSee('id="backToTopBtn"', false)
         ->assertSee('كل ما يحتاجه المعلم')
         ->assertSee('عجلة الأسماء العشوائية')
         ->assertSee('إنشاء QR احترافي')
@@ -67,8 +68,19 @@ test('the wheel uses the shared public site shell', function () {
 
     expect(substr_count($response->getContent(), '<header'))->toBe(1)
         ->and(substr_count($response->getContent(), '<footer'))->toBe(1)
+        ->and(substr_count($response->getContent(), 'id="backToTopBtn"'))->toBe(1)
         ->and((string) str($response->getContent())->between('<header', '</header>'))
         ->not->toContain('data-scrollspy-target');
+});
+
+test('the shared back to top control is initialized outside the wheel experience', function () {
+    $script = file_get_contents(resource_path('js/app.js'));
+
+    expect($script)
+        ->toContain('function setupBackToTopButton()')
+        ->toContain('setupBackToTopButton();')
+        ->toContain('window.addEventListener("scroll", updateVisibility, { passive: true })')
+        ->toContain('behavior: prefersReducedMotion ? "auto" : "smooth"');
 });
 
 test('legacy wheel query links redirect to the tool page', function () {

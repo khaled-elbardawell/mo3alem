@@ -221,8 +221,31 @@ function setupPageRevealAnimations() {
   revealElements.forEach((element) => observer.observe(element));
 }
 
+function setupBackToTopButton() {
+  const backToTopButton = document.getElementById("backToTopBtn");
+
+  if (!backToTopButton) return;
+
+  const updateVisibility = () => {
+    backToTopButton.classList.toggle("is-visible", window.scrollY > 360);
+  };
+
+  backToTopButton.addEventListener("click", () => {
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    window.scrollTo({
+      top: 0,
+      behavior: prefersReducedMotion ? "auto" : "smooth"
+    });
+  });
+
+  window.addEventListener("scroll", updateVisibility, { passive: true });
+  updateVisibility();
+}
+
 setupPublicScrollSpy();
 setupPageRevealAnimations();
+setupBackToTopButton();
 
 const canvas = document.getElementById("wheelCanvas");
 if (canvas) {
@@ -283,7 +306,6 @@ const navSectionLinks = document.querySelectorAll(
 const smoothScrollLinks = document.querySelectorAll(
   '.brand[href^="#"], .nav-links a[href^="#"], .mobile-drawer a[href^="#"]'
 );
-const backToTopBtn = document.getElementById("backToTopBtn");
 const spinBtnText = spinBtn.querySelector(".spin-btn__text");
 const faqSummaries = document.querySelectorAll(".faq-list summary");
 const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -2517,8 +2539,6 @@ const scrollSpySections = Array.from(new Set(
 })).filter((section) => section.target);
 
 function updateScrollState() {
-  backToTopBtn?.classList.toggle("is-visible", window.scrollY > 360);
-
   if (clickedScrollHash) {
     setActiveNav(clickedScrollHash);
     scheduleClickedScrollRelease();
@@ -2583,12 +2603,6 @@ smoothScrollLinks.forEach((link) => {
     scrollToTarget(target);
     history.pushState(null, "", hash);
   });
-});
-
-backToTopBtn?.addEventListener("click", () => {
-  holdClickedActiveLink("#home");
-  window.scrollTo({ top: 0, behavior: "smooth" });
-  history.pushState(null, "", "#home");
 });
 
 spinBtn.addEventListener("click", spinWheel);

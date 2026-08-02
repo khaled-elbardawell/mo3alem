@@ -68,6 +68,13 @@
     @endif
 
     <x-public.site-footer />
+
+    <button
+        class="back-to-top pointer-events-none fixed bottom-[18px] left-[18px] z-80 grid h-[42px] w-[42px] translate-y-2.5 cursor-pointer place-items-center rounded-xl border border-slate-300/70 bg-white text-violet-700 opacity-0 shadow-[0_14px_34px_rgba(30,41,59,0.16)] transition-[opacity,transform,background,color] duration-200 hover:bg-violet-700 hover:text-white [&.is-visible]:pointer-events-auto [&.is-visible]:translate-y-0 [&.is-visible]:opacity-100"
+        type="button" id="backToTopBtn" aria-label="الرجوع للأعلى" title="الرجوع للأعلى">
+        <i class="fa-solid fa-arrow-up" aria-hidden="true"></i>
+    </button>
+
     @stack('scripts')
 </body>
 
