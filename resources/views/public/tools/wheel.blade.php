@@ -1,195 +1,15 @@
-<!doctype html>
-<html
-    class="scroll-smooth overflow-x-hidden motion-reduce:scroll-auto motion-reduce:[&_*]:!duration-[0.001ms] motion-reduce:[&_*]:!animate-none [&.animate-ready_.reveal-on-scroll]:translate-y-6 [&.animate-ready_.reveal-on-scroll]:scale-[0.985] [&.animate-ready_.reveal-on-scroll]:opacity-0 [&.animate-ready_.reveal-on-scroll]:transition-[opacity,transform,box-shadow,border-color] [&.animate-ready_.reveal-on-scroll]:duration-700 [&.animate-ready_.reveal-on-scroll]:ease-[cubic-bezier(0.2,0.8,0.2,1)] [&.animate-ready_.reveal-on-scroll]:delay-[var(--reveal-delay,0ms)] [&.animate-ready_.reveal-on-scroll]:will-change-[opacity,transform] [&.animate-ready_.reveal-on-scroll.is-visible]:translate-y-0 [&.animate-ready_.reveal-on-scroll.is-visible]:scale-100 [&.animate-ready_.reveal-on-scroll.is-visible]:opacity-100 motion-reduce:[&.animate-ready_.reveal-on-scroll]:!translate-y-0 motion-reduce:[&.animate-ready_.reveal-on-scroll]:!scale-100 motion-reduce:[&.animate-ready_.reveal-on-scroll]:!opacity-100"
-    lang="ar" dir="rtl">
+@extends('layouts.public', ['activeNavigation' => 'wheel'])
 
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="csrf-token" content="{{ csrf_token() }}" />
-    <link rel="icon" href="{{ asset('assets/icon.png') }}" sizes="32x32" />
-    <title>عجلة الأسماء العشوائية | معلم</title>
-    @if ($seo->description)
-        <meta name="description" content="{{ $seo->description }}" />
-    @endif
-    @if ($seo->keywords)
-        <meta name="keywords" content="{{ $seo->keywords }}" />
-    @endif
-    <meta name="robots" content="{{ $seo->allow_indexing ? 'index,follow' : 'noindex,nofollow' }}" />
-    <link rel="canonical" href="{{ route('tools.wheel') }}" />
-    <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="{{ $seo->site_name }}" />
-    <meta property="og:title" content="عجلة الأسماء العشوائية | معلم" />
-    @if ($seo->description)
-        <meta property="og:description" content="{{ $seo->description }}" />
-    @endif
-    <meta property="og:url" content="{{ route('tools.wheel') }}" />
-    @if ($seo->og_image_path)
-        <meta property="og:image" content="{{ Storage::disk('public')->url($seo->og_image_path) }}" />
-    @endif
-    <meta name="twitter:card" content="{{ $seo->twitter_card }}" />
+@section('title', 'عجلة الأسماء العشوائية | معلم')
+@section('canonical', route('tools.wheel'))
 
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap"
-        rel="stylesheet" />
-
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
-
-    @vite(['resources/js/app.js', 'resources/css/app.css'])
-</head>
-
-<body
-    class="m-0 max-w-full overflow-x-hidden bg-[radial-gradient(circle_at_18%_8%,rgba(124,58,237,0.08),transparent_32%),radial-gradient(circle_at_80%_16%,rgba(99,102,241,0.06),transparent_30%),#fff] pt-[76px] font-['Tajawal',system-ui,-apple-system,BlinkMacSystemFont,'Segoe_UI',sans-serif] text-[#111827] before:pointer-events-none before:fixed before:inset-0 before:content-[''] before:bg-[linear-gradient(rgba(109,40,217,0.035)_1px,transparent_1px),linear-gradient(90deg,rgba(109,40,217,0.035)_1px,transparent_1px)] before:bg-[size:44px_44px] before:[mask-image:linear-gradient(to_bottom,#000_0%,transparent_65%)] max-[620px]:pt-16 [&_a]:text-inherit [&_a]:no-underline [&_a]:[-webkit-tap-highlight-color:transparent] [&_button]:font-[inherit] [&_button]:[-webkit-tap-highlight-color:transparent] [&_input]:font-[inherit] [&_summary]:font-[inherit] [&_summary]:[-webkit-tap-highlight-color:transparent] [&_a:focus-visible]:outline-0 [&_a:focus-visible]:shadow-[0_0_0_4px_rgba(124,58,237,0.16)] [&_button:focus-visible]:outline-0 [&_button:focus-visible]:shadow-[0_0_0_4px_rgba(124,58,237,0.16)] [&_input:focus-visible]:outline-0 [&_input:focus-visible]:shadow-[0_0_0_4px_rgba(124,58,237,0.16)] [&_summary:focus-visible]:outline-0 [&_summary:focus-visible]:shadow-[0_0_0_4px_rgba(124,58,237,0.16)] [&_.confetti]:pointer-events-none [&_.confetti]:fixed [&_.confetti]:z-[109] [&_.confetti]:h-[18px] [&_.confetti]:w-2.5 [&_.confetti]:rounded-[3px] [&_.confetti]:opacity-0 [&_.confetti]:animate-confetti-burst">
+@section('content')
+    <div class="m-0 max-w-full overflow-x-hidden bg-[radial-gradient(circle_at_18%_8%,rgba(124,58,237,0.08),transparent_32%),radial-gradient(circle_at_80%_16%,rgba(99,102,241,0.06),transparent_30%),#fff] font-['Tajawal',system-ui,-apple-system,BlinkMacSystemFont,'Segoe_UI',sans-serif] text-[#111827] before:pointer-events-none before:fixed before:inset-0 before:content-[''] before:bg-[linear-gradient(rgba(109,40,217,0.035)_1px,transparent_1px),linear-gradient(90deg,rgba(109,40,217,0.035)_1px,transparent_1px)] before:bg-[size:44px_44px] before:[mask-image:linear-gradient(to_bottom,#000_0%,transparent_65%)] [&_a]:text-inherit [&_a]:no-underline [&_a]:[-webkit-tap-highlight-color:transparent] [&_button]:font-[inherit] [&_button]:[-webkit-tap-highlight-color:transparent] [&_input]:font-[inherit] [&_summary]:font-[inherit] [&_summary]:[-webkit-tap-highlight-color:transparent] [&_a:focus-visible]:outline-0 [&_a:focus-visible]:shadow-[0_0_0_4px_rgba(124,58,237,0.16)] [&_button:focus-visible]:outline-0 [&_button:focus-visible]:shadow-[0_0_0_4px_rgba(124,58,237,0.16)] [&_input:focus-visible]:outline-0 [&_input:focus-visible]:shadow-[0_0_0_4px_rgba(124,58,237,0.16)] [&_summary:focus-visible]:outline-0 [&_summary:focus-visible]:shadow-[0_0_0_4px_rgba(124,58,237,0.16)] [&_.confetti]:pointer-events-none [&_.confetti]:fixed [&_.confetti]:z-[109] [&_.confetti]:h-[18px] [&_.confetti]:w-2.5 [&_.confetti]:rounded-[3px] [&_.confetti]:opacity-0 [&_.confetti]:animate-confetti-burst min-h-[calc(100vh-5rem)] pb-12">
     <div id="wheelAppConfig" hidden
         data-config="{{ json_encode($wheelConfig, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) }}">
     </div>
-    <header
-        class="site-header fixed inset-x-0 top-0 z-50 border-b border-[#e7e2f0] bg-white/[0.92] backdrop-blur-[16px]">
-        <div
-            class="nav mx-auto grid min-h-[76px] w-[min(calc(100%_-_44px),1320px)] grid-cols-[auto_1fr_auto_auto] items-center gap-[26px] max-[900px]:w-[min(calc(100%_-_28px),1320px)] max-[900px]:grid-cols-[auto_1fr_auto] max-[620px]:min-h-16">
-            <a class="brand inline-flex items-center" href="{{ route('home') }}" aria-label="معلم - الصفحة الرئيسية">
-                <img class="h-11 w-auto max-[620px]:h-10" src="{{ asset('assets/logo.png') }}" alt="معلم">
-            </a>
 
-            <nav class="nav-links flex items-center justify-self-center gap-[clamp(18px,4vw,58px)] font-bold text-[#1f2937] max-[900px]:hidden"
-                id="navLinks" aria-label="روابط الموقع">
-                <a class="relative pt-7 pb-[23px] hover:text-[#6d28d9]" href="{{ route('home') }}">الرئيسية</a>
-                <a class="active relative pt-7 pb-[23px] [&.active]:text-[#6d28d9] [&.active]:after:absolute [&.active]:after:bottom-[15px] [&.active]:after:left-1/2 [&.active]:after:h-[3px] [&.active]:after:w-[34px] [&.active]:after:-translate-x-1/2 [&.active]:after:rounded-full [&.active]:after:bg-[#6d28d9] [&.active]:after:content-['']"
-                    href="{{ route('tools.wheel') }}">عجلة الأسماء</a>
-                <a class="relative pt-7 pb-[23px] [&.active]:text-[#6d28d9] [&.active]:after:absolute [&.active]:after:bottom-[15px] [&.active]:after:left-1/2 [&.active]:after:h-[3px] [&.active]:after:w-[34px] [&.active]:after:-translate-x-1/2 [&.active]:after:rounded-full [&.active]:after:bg-[#6d28d9] [&.active]:after:content-['']"
-                    href="#how">كيف تعمل العجلة؟</a>
-                <!-- <a href="#uses">الاستخدامات</a> -->
-                <a class="relative pt-7 pb-[23px] [&.active]:text-[#6d28d9] [&.active]:after:absolute [&.active]:after:bottom-[15px] [&.active]:after:left-1/2 [&.active]:after:h-[3px] [&.active]:after:w-[34px] [&.active]:after:-translate-x-1/2 [&.active]:after:rounded-full [&.active]:after:bg-[#6d28d9] [&.active]:after:content-['']"
-                    href="#faq">الأسئلة الشائعة</a>
-            </nav>
-
-            <div class="nav-actions flex items-center gap-3 max-[900px]:hidden">
-                @auth
-                    <details class="group relative">
-                        <summary
-                            class="inline-flex min-h-11 cursor-pointer list-none items-center justify-center gap-2.5 rounded-xl border border-[#e7e2f0] bg-white px-4 font-extrabold text-[#1f2937] shadow-[0_8px_22px_rgba(76,29,149,0.08)] transition-[border-color,box-shadow] hover:border-violet-300 group-open:border-violet-300 group-open:shadow-[0_12px_30px_rgba(76,29,149,0.13)] [&::-webkit-details-marker]:hidden">
-                            <span
-                                class="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-violet-100 text-sm text-violet-700">
-                                <i class="fa-regular fa-user"></i>
-                            </span>
-                            <span class="max-w-40 truncate">{{ auth()->user()->name }}</span>
-                            <i
-                                class="fa-solid fa-chevron-down text-xs text-violet-600 transition-transform duration-200 group-open:rotate-180"></i>
-                        </summary>
-                        <div
-                            class="absolute top-[calc(100%+10px)] left-0 z-[60] grid min-w-60 gap-1 rounded-2xl border border-[#e7e2f0] bg-white p-2 text-sm font-bold text-[#344054] shadow-[0_20px_55px_rgba(30,41,59,0.16)]">
-                            <a class="flex items-center gap-3 rounded-xl px-3.5 py-3 hover:bg-[#f4efff]"
-                                href="{{ route('dashboard') }}">
-                                <i class="fa-solid fa-bookmark w-5 text-center text-violet-600"></i>
-                                مسابقاتي وقوائمي
-                            </a>
-                            <a class="flex items-center gap-3 rounded-xl px-3.5 py-3 hover:bg-[#f4efff]"
-                                href="{{ route('profile.edit') }}">
-                                <i class="fa-regular fa-user w-5 text-center text-violet-600"></i>
-                                الملف الشخصي
-                            </a>
-                            @if (auth()->user()->isAdmin())
-                                <a class="flex items-center gap-3 rounded-xl px-3.5 py-3 hover:bg-[#f4efff]"
-                                    href="{{ route('admin.dashboard') }}">
-                                    <i class="fa-solid fa-shield-halved w-5 text-center text-violet-600"></i>
-                                    لوحة الإدارة
-                                </a>
-                            @endif
-                            <form class="mt-1 border-t border-slate-100 pt-1" method="POST"
-                                action="{{ route('logout') }}">
-                                @csrf
-                                <button
-                                    class="flex w-full cursor-pointer items-center gap-3 rounded-xl px-3.5 py-3 text-right font-bold text-red-700 hover:bg-red-50"
-                                    type="submit">
-                                    <i class="fa-solid fa-arrow-right-from-bracket w-5 text-center"></i>
-                                    تسجيل الخروج
-                                </button>
-                            </form>
-                        </div>
-                    </details>
-                @else
-                    <a class="btn btn--primary inline-flex min-h-11 items-center justify-center gap-[9px] rounded-xl bg-linear-to-br from-[#7c3aed] to-[#5b21b6] px-5 font-extrabold text-white! shadow-[0_12px_28px_rgba(51,65,85,0.24)]"
-                        href="{{ route('login') }}"><i class="fa-solid fa-user"></i>تسجيل الدخول</a>
-                    <a class="btn btn--ghost inline-flex min-h-11 items-center justify-center gap-[9px] rounded-xl border border-[#e7e2f0] bg-white px-5 font-extrabold text-[#1f2937]"
-                        href="{{ route('register') }}"><i class="fa-regular fa-user"></i>إنشاء حساب</a>
-                @endauth
-            </div>
-
-            <button
-                class="mobile-menu hidden h-11 w-11 cursor-pointer rounded-xl border border-[#e7e2f0] bg-white text-[21px] text-[#6d28d9] max-[900px]:inline-grid max-[900px]:place-items-center max-[900px]:justify-self-end"
-                type="button" id="mobileMenuBtn" aria-label="فتح القائمة" aria-expanded="false">
-                <i class="fa-solid fa-bars"></i>
-            </button>
-        </div>
-
-        <div class="mobile-drawer mx-auto mb-3 hidden w-[min(calc(100%_-_28px),1320px)] rounded-[18px] border border-[#e7e2f0] bg-white p-3 shadow-[0_18px_50px_rgba(76,29,149,0.08)] [&.is-open]:grid"
-            id="mobileDrawer">
-            <a class="rounded-xl px-3.5 py-[13px] font-extrabold text-[#344054] hover:bg-[#f4efff] hover:text-[#6d28d9]"
-                href="{{ route('home') }}">الرئيسية</a>
-            <a class="active rounded-xl px-3.5 py-[13px] font-extrabold text-[#344054] hover:bg-[#f4efff] hover:text-[#6d28d9] [&.active]:bg-[#f4efff] [&.active]:text-[#6d28d9]"
-                href="{{ route('tools.wheel') }}">عجلة الأسماء</a>
-            <a class="rounded-xl px-3.5 py-[13px] font-extrabold text-[#344054] hover:bg-[#f4efff] hover:text-[#6d28d9] [&.active]:bg-[#f4efff] [&.active]:text-[#6d28d9]"
-                href="#how">كيف تعمل العجلة؟</a>
-            <!-- <a href="#uses">الاستخدامات</a> -->
-            <a class="rounded-xl px-3.5 py-[13px] font-extrabold text-[#344054] hover:bg-[#f4efff] hover:text-[#6d28d9] [&.active]:bg-[#f4efff] [&.active]:text-[#6d28d9]"
-                href="#faq">الأسئلة الشائعة</a>
-            <div class="mobile-drawer__actions mt-2.5 grid grid-cols-2 gap-2.5 max-[620px]:grid-cols-1">
-                @auth
-                    <details class="group col-span-full">
-                        <summary
-                            class="flex min-h-12 cursor-pointer list-none items-center gap-2.5 rounded-xl border border-violet-100 bg-violet-50 px-3.5 font-extrabold text-[#1f2937] [&::-webkit-details-marker]:hidden">
-                            <span
-                                class="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-violet-200 text-sm text-violet-700">
-                                <i class="fa-regular fa-user"></i>
-                            </span>
-                            <span class="min-w-0 flex-1 truncate">{{ auth()->user()->name }}</span>
-                            <i
-                                class="fa-solid fa-chevron-down text-xs text-violet-600 transition-transform duration-200 group-open:rotate-180"></i>
-                        </summary>
-                        <div
-                            class="mt-2 grid gap-1 rounded-xl border border-violet-100 bg-white p-2 text-sm font-bold text-[#344054]">
-                            <a class="flex items-center gap-3 rounded-lg px-3 py-2.5 hover:bg-[#f4efff]"
-                                href="{{ route('dashboard') }}">
-                                <i class="fa-solid fa-bookmark w-5 text-center text-violet-600"></i>
-                                مسابقاتي وقوائمي
-                            </a>
-                            <a class="flex items-center gap-3 rounded-lg px-3 py-2.5 hover:bg-[#f4efff]"
-                                href="{{ route('profile.edit') }}">
-                                <i class="fa-regular fa-user w-5 text-center text-violet-600"></i>
-                                الملف الشخصي
-                            </a>
-                            @if (auth()->user()->isAdmin())
-                                <a class="flex items-center gap-3 rounded-lg px-3 py-2.5 hover:bg-[#f4efff]"
-                                    href="{{ route('admin.dashboard') }}">
-                                    <i class="fa-solid fa-shield-halved w-5 text-center text-violet-600"></i>
-                                    لوحة الإدارة
-                                </a>
-                            @endif
-                            <form class="mt-1 border-t border-slate-100 pt-1" method="POST"
-                                action="{{ route('logout') }}">
-                                @csrf
-                                <button
-                                    class="flex w-full cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-right font-bold text-red-700 hover:bg-red-50"
-                                    type="submit">
-                                    <i class="fa-solid fa-arrow-right-from-bracket w-5 text-center"></i>
-                                    تسجيل الخروج
-                                </button>
-                            </form>
-                        </div>
-                    </details>
-                @else
-                    <a class="btn btn--primary inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-violet-700 px-5 font-extrabold text-white!"
-                        href="{{ route('login') }}">تسجيل الدخول</a>
-                    <a class="btn btn--ghost inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-violet-100 px-5 font-extrabold"
-                        href="{{ route('register') }}">إنشاء حساب</a>
-                @endauth
-            </div>
-        </div>
-    </header>
-
-    <main id="home">
+    <div id="wheel">
         @if ($campaigns['top'])
             <!-- الإعلان العلوي: الصورة كلها رابط -->
             <section
@@ -929,11 +749,8 @@
                 </a>
             </section>
         @endif
-    </main>
+    </div>
 
-    <footer
-        class="footer mt-[50px] border-t border-white/[0.18] bg-linear-to-br from-[#7c3aed] to-[#5b21b6] p-6 text-center font-bold text-white">
-        © {{ now()->year }} معلم - جميع الحقوق محفوظة</footer>
 
     <dialog
         class="name-dialog fixed inset-0 m-auto rounded-[20px] border-0 p-0 shadow-[0_28px_90px_rgba(17,24,39,0.22)] backdrop:bg-[rgba(17,24,39,0.35)] backdrop:backdrop-blur-[4px]"
@@ -1143,6 +960,5 @@
         type="button" id="backToTopBtn" aria-label="الرجوع للأعلى" title="الرجوع للأعلى">
         <i class="fa-solid fa-arrow-up"></i>
     </button>
-</body>
-
-</html>
+    </div>
+@endsection

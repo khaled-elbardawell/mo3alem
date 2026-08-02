@@ -9,18 +9,24 @@
         <nav class="nav-links hidden items-center gap-7 text-sm font-extrabold text-slate-700 xl:flex"
             aria-label="التنقل الرئيسي">
             <a class="border-b-2 border-transparent py-7 transition-[color,border-color,transform] duration-300 hover:text-violet-700 data-active:-translate-y-0.5 data-active:border-violet-700 data-active:text-violet-800"
-                href="{{ route('home') }}#home" data-scrollspy-target="home"
+                href="{{ route('home') }}#home"
+                @if ($active === 'home') data-scrollspy-target="home" @endif
                 @if ($active === 'home') data-active aria-current="location" @endif>الرئيسية</a>
             <a class="border-b-2 border-transparent py-7 transition-[color,border-color,transform] duration-300 hover:text-violet-700 data-active:-translate-y-0.5 data-active:border-violet-700 data-active:text-violet-800"
-                href="{{ route('home') }}#tools" data-scrollspy-target="tools">الأدوات</a>
+                href="{{ route('home') }}#tools"
+                @if ($active === 'home') data-scrollspy-target="tools" @endif>الأدوات</a>
             <a class="border-b-2 border-transparent py-7 transition-[color,border-color,transform] duration-300 hover:text-violet-700 data-active:-translate-y-0.5 data-active:border-violet-700 data-active:text-violet-800"
-                href="{{ route('home') }}#features" data-scrollspy-target="features">مميزاتنا</a>
+                href="{{ route('home') }}#features"
+                @if ($active === 'home') data-scrollspy-target="features" @endif>مميزاتنا</a>
             <a class="border-b-2 border-transparent py-7 transition-[color,border-color,transform] duration-300 hover:text-violet-700 data-active:-translate-y-0.5 data-active:border-violet-700 data-active:text-violet-800"
-                href="{{ route('home') }}#activity" data-scrollspy-target="activity">نشاط المنصة</a>
+                href="{{ route('home') }}#activity"
+                @if ($active === 'home') data-scrollspy-target="activity" @endif>نشاط المنصة</a>
             <a class="border-b-2 border-transparent py-7 transition-[color,border-color,transform] duration-300 hover:text-violet-700 data-active:-translate-y-0.5 data-active:border-violet-700 data-active:text-violet-800"
-                href="{{ route('home') }}#how" data-scrollspy-target="how">كيف تعمل المنصة؟</a>
+                href="{{ route('home') }}#how"
+                @if ($active === 'home') data-scrollspy-target="how" @endif>كيف تعمل المنصة؟</a>
             <a class="border-b-2 border-transparent py-7 transition-[color,border-color,transform] duration-300 hover:text-violet-700 data-active:-translate-y-0.5 data-active:border-violet-700 data-active:text-violet-800"
-                href="{{ route('home') }}#faq" data-scrollspy-target="faq">الأسئلة الشائعة</a>
+                href="{{ route('home') }}#faq"
+                @if ($active === 'home') data-scrollspy-target="faq" @endif>الأسئلة الشائعة</a>
         </nav>
 
         <div class="hidden items-center gap-2.5 xl:flex">
@@ -87,18 +93,24 @@
     <div class="mobile-drawer mx-auto mb-3 hidden w-[min(calc(100%_-_2rem),1280px)] gap-1 rounded-2xl border border-violet-100 bg-white p-3 shadow-xl [&.is-open]:grid"
         id="mobileDrawer">
         <a class="rounded-xl px-4 py-3 font-extrabold text-slate-700 transition-colors hover:bg-violet-50 hover:text-violet-700 data-active:bg-violet-50 data-active:text-violet-800"
-            href="{{ route('home') }}#home" data-scrollspy-target="home"
+            href="{{ route('home') }}#home"
+            @if ($active === 'home') data-scrollspy-target="home" @endif
             @if ($active === 'home') data-active aria-current="location" @endif>الرئيسية</a>
         <a class="rounded-xl px-4 py-3 font-extrabold text-slate-700 transition-colors hover:bg-violet-50 hover:text-violet-700 data-active:bg-violet-50 data-active:text-violet-800"
-            href="{{ route('home') }}#tools" data-scrollspy-target="tools">كل الأدوات</a>
+            href="{{ route('home') }}#tools"
+            @if ($active === 'home') data-scrollspy-target="tools" @endif>كل الأدوات</a>
         <a class="rounded-xl px-4 py-3 font-extrabold text-slate-700 transition-colors hover:bg-violet-50 hover:text-violet-700 data-active:bg-violet-50 data-active:text-violet-800"
-            href="{{ route('home') }}#features" data-scrollspy-target="features">مميزاتنا</a>
+            href="{{ route('home') }}#features"
+            @if ($active === 'home') data-scrollspy-target="features" @endif>مميزاتنا</a>
         <a class="rounded-xl px-4 py-3 font-extrabold text-slate-700 transition-colors hover:bg-violet-50 hover:text-violet-700 data-active:bg-violet-50 data-active:text-violet-800"
-            href="{{ route('home') }}#activity" data-scrollspy-target="activity">نشاط المنصة</a>
+            href="{{ route('home') }}#activity"
+            @if ($active === 'home') data-scrollspy-target="activity" @endif>نشاط المنصة</a>
         <a class="rounded-xl px-4 py-3 font-extrabold text-slate-700 transition-colors hover:bg-violet-50 hover:text-violet-700 data-active:bg-violet-50 data-active:text-violet-800"
-            href="{{ route('home') }}#how" data-scrollspy-target="how">كيف تعمل المنصة؟</a>
+            href="{{ route('home') }}#how"
+            @if ($active === 'home') data-scrollspy-target="how" @endif>كيف تعمل المنصة؟</a>
         <a class="rounded-xl px-4 py-3 font-extrabold text-slate-700 transition-colors hover:bg-violet-50 hover:text-violet-700 data-active:bg-violet-50 data-active:text-violet-800"
-            href="{{ route('home') }}#faq" data-scrollspy-target="faq">الأسئلة الشائعة</a>
+            href="{{ route('home') }}#faq"
+            @if ($active === 'home') data-scrollspy-target="faq" @endif>الأسئلة الشائعة</a>
         <div class="mt-2 grid grid-cols-2 gap-2 border-t border-slate-100 pt-3">
             @auth
                 <a class="rounded-xl bg-violet-700 px-4 py-3 text-center font-extrabold text-white"

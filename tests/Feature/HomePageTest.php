@@ -56,12 +56,19 @@ test('the home page includes scroll-aware navigation and reveal animation hooks'
         ->toContain('@media (prefers-reduced-motion: reduce)');
 });
 
-test('the wheel remains available as a separate tool page', function () {
-    $this->get(route('tools.wheel'))
+test('the wheel uses the shared public site shell', function () {
+    $response = $this->get(route('tools.wheel'))
         ->assertSuccessful()
         ->assertViewIs('public.tools.wheel')
         ->assertSee('id="wheelCanvas"', false)
+        ->assertSee('aria-label="التنقل الرئيسي"', false)
+        ->assertSee('صُممت لتجعل يوم المعلم أسهل.')
         ->assertSee(asset('assets/logo.png'), false);
+
+    expect(substr_count($response->getContent(), '<header'))->toBe(1)
+        ->and(substr_count($response->getContent(), '<footer'))->toBe(1)
+        ->and((string) str($response->getContent())->between('<header', '</header>'))
+        ->not->toContain('data-scrollspy-target');
 });
 
 test('legacy wheel query links redirect to the tool page', function () {
