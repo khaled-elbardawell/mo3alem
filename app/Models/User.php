@@ -36,6 +36,11 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(Competition::class);
     }
 
+    public function qrCodes(): HasMany
+    {
+        return $this->hasMany(QrCode::class);
+    }
+
     public function isAdmin(): bool
     {
         return $this->role === UserRole::Admin;

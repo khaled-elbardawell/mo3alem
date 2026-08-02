@@ -4,7 +4,7 @@
 
 @section('content')
     <h1 class="text-2xl font-black">إنشاء حساب مجاني</h1>
-    <p class="mt-2 text-sm text-slate-500">الحساب مجاني، والعجلة تبقى متاحة أيضًا دون تسجيل.</p>
+    <p class="mt-2 text-sm text-slate-500">الحساب مجاني، ويمكنك حفظ أعمالك وفتحها من أي جهاز.</p>
 
     <form class="mt-6 grid gap-4" method="POST" action="{{ route('register') }}">
         @csrf

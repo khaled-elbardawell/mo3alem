@@ -22,6 +22,8 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('saved-wheels*')
+                || $request->is('qr-codes*')
+                || $request->is('tools/qr/render')
                 || $request->is('activity-metrics')
                 || $request->expectsJson(),
         );

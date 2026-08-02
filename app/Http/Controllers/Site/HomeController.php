@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Site;
 use App\AdPlacement;
 use App\Http\Controllers\Controller;
 use App\Models\Competition;
+use App\Models\DailyMetric;
 use App\Models\SeoSetting;
 use App\Models\User;
 use App\Services\AdCampaignSelector;
@@ -41,7 +42,7 @@ class HomeController extends Controller
 
         $seo = (new SeoSetting)->forceFill($seoValues);
         $platformActivity = Cache::remember('public:platform-activity', 300, fn (): array => [
-            'qrCodes' => 0,
+            'qrCodes' => (int) DailyMetric::query()->sum('qr_generated'),
             'certificates' => 0,
             'competitions' => Competition::query()->count(),
             'activeUsers' => User::query()->where('status', UserStatus::Active)->count(),

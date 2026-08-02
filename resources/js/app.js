@@ -1,3 +1,5 @@
+import "./qr-tool";
+
 function setupAdImpressionTracking() {
   const advertisements = [...document.querySelectorAll("[data-ad-impression-url]")];
 

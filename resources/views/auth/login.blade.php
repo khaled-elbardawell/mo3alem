@@ -4,7 +4,7 @@
 
 @section('content')
     <h1 class="text-2xl font-black">تسجيل الدخول</h1>
-    <p class="mt-2 text-sm text-slate-500">ادخل لحفظ قوائمك وتحميلها من أي جهاز.</p>
+    <p class="mt-2 text-sm text-slate-500">ادخل لحفظ أعمالك ومتابعتها من أي جهاز.</p>
 
     <form class="mt-6 grid gap-4" method="POST" action="{{ route('login') }}">
         @csrf

@@ -42,5 +42,14 @@ class AppServiceProvider extends ServiceProvider
                 Limit::perDay(30)->by("day:{$userIdentifier}"),
             ];
         });
+
+        RateLimiter::for('qr-code-creation', function (Request $request): array {
+            $userIdentifier = $request->user()?->getAuthIdentifier() ?? $request->ip();
+
+            return [
+                Limit::perMinute(10)->by("minute:{$userIdentifier}"),
+                Limit::perDay(100)->by("day:{$userIdentifier}"),
+            ];
+        });
     }
 }

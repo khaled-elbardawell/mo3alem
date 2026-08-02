@@ -86,7 +86,7 @@
                         <div class="my-4 grid h-40 min-h-0 shrink-0 place-items-center overflow-hidden rounded-2xl bg-slate-50/70 p-2 sm:h-44">
                             <img class="block h-auto max-h-36 w-auto max-w-full object-contain sm:max-h-40" src="{{ asset('assets/qr-small-card.png') }}" alt="واجهة أداة إنشاء رمز QR" loading="lazy">
                         </div>
-                        <a class="mt-auto inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-violet-700 px-5 font-black text-white transition-colors hover:bg-violet-800" href="">
+                        <a class="mt-auto inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-violet-700 px-5 font-black text-white transition-colors hover:bg-violet-800" href="{{ route('tools.qr') }}">
                             استخدم الأداة
                             <i class="fa-solid fa-arrow-left text-xs" aria-hidden="true"></i>
                         </a>

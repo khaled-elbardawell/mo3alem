@@ -10,7 +10,13 @@ class ActivityMetricController extends Controller
 {
     public function __invoke(ActivityMetricRequest $request, MetricService $metrics): Response
     {
-        $metrics->increment($request->validated('event') === 'spin' ? 'spins' : 'imports');
+        $metric = match ($request->validated('event')) {
+            'spin' => 'spins',
+            'import' => 'imports',
+            'qr_generate' => 'qr_generated',
+        };
+
+        $metrics->increment($metric);
 
         if ($request->user()) {
             $metrics->recordActiveUser($request->user());

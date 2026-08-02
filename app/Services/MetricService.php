@@ -20,6 +20,8 @@ class MetricService
         'names_saved',
         'spins',
         'imports',
+        'qr_generated',
+        'qr_saved',
         'ad_impressions',
         'ad_clicks',
     ];
