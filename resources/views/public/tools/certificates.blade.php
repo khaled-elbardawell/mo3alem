@@ -15,16 +15,12 @@
             data-config="{{ json_encode($certificateConfig, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) }}">
         </div>
 
-        <section class="relative isolate overflow-hidden border-b border-violet-100/80 bg-white/85 py-7 sm:py-9">
-            <div class="pointer-events-none absolute inset-0 -z-10 opacity-40 [background-image:radial-gradient(rgba(109,40,217,0.18)_1px,transparent_1px)] [background-size:24px_24px] [mask-image:linear-gradient(to_bottom,black,transparent)]" aria-hidden="true"></div>
-            <div class="mx-auto w-[min(calc(100%_-_2rem),1200px)] text-center" data-reveal>
-                <p class="text-sm font-black text-violet-700">استوديو معلّم</p>
-                <h1 class="mt-2 text-[clamp(2rem,5vw,3.6rem)] font-black tracking-tight text-[#111a35]">
-                    صمّم شهادة <span class="bg-linear-to-l from-violet-700 to-amber-500 bg-clip-text text-transparent">جاهزة للطباعة</span>
-                </h1>
-                <p class="mx-auto mt-3 max-w-2xl font-bold leading-7 text-slate-500">اختر قالباً أو ارفع تصميمك، ثم حرّك النصوص ونسّقها مباشرة فوق الشهادة.</p>
-            </div>
-        </section>
+        <x-public.tool-page-header
+            title="أداة إنشاء الشهادات"
+            description="اختر قالباً جاهزاً أو ارفع قالبك، ثم أضف النصوص وحرّكها بحرية قبل الحفظ والطباعة."
+            current="إنشاء الشهادات"
+            icon="fa-award"
+        />
 
         @if ($campaigns['top'])
             <section class="mx-auto w-[min(calc(100%_-_2rem),1040px)] py-6" aria-label="إعلان علوي">

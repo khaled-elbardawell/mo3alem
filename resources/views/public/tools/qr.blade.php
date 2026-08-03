@@ -10,16 +10,12 @@
             data-config="{{ json_encode($qrConfig, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) }}">
         </div>
 
-        <section class="relative isolate overflow-hidden border-b border-violet-100/80 bg-white/80">
-            <div class="pointer-events-none absolute inset-0 -z-10 opacity-40 [background-image:radial-gradient(rgba(109,40,217,0.18)_1px,transparent_1px)] [background-size:24px_24px] [mask-image:linear-gradient(to_bottom,black,transparent)]"
-                aria-hidden="true"></div>
-            <div class="mx-auto w-[min(calc(100%_-_2rem),1100px)] text-center" data-reveal>
-                <h1 class="mt-5 text-[clamp(2rem,5vw,3.6rem)] font-black tracking-tight text-[#111a35]">
-                    أنشئ رمز <span class="bg-linear-to-l from-violet-700 to-indigo-600 bg-clip-text text-transparent">QR
-                        بتصميمك</span>
-                </h1>
-            </div>
-        </section>
+        <x-public.tool-page-header
+            title="أداة إنشاء رمز QR"
+            description="حوّل الروابط والنصوص وبيانات الشبكة إلى رمز QR مخصّص وجاهز للتنزيل والمشاركة."
+            current="إنشاء رمز QR"
+            icon="fa-qrcode"
+        />
 
         @if ($campaigns['top'])
             <section class="mx-auto w-[min(calc(100%_-_2rem),1040px)] py-6" aria-label="إعلان علوي">

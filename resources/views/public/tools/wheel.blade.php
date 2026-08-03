@@ -4,6 +4,13 @@
 @section('canonical', route('tools.wheel'))
 
 @section('content')
+    <x-public.tool-page-header
+        title="أداة عجلة الأسماء العشوائية"
+        description="أضف الأسماء وأدر العجلة لاختيار اسم عشوائي بسرعة ووضوح داخل الصف."
+        current="عجلة الأسماء"
+        icon="fa-dharmachakra"
+    />
+
     <div class="m-0 max-w-full overflow-x-hidden bg-[radial-gradient(circle_at_18%_8%,rgba(124,58,237,0.08),transparent_32%),radial-gradient(circle_at_80%_16%,rgba(99,102,241,0.06),transparent_30%),#fff] font-['Tajawal',system-ui,-apple-system,BlinkMacSystemFont,'Segoe_UI',sans-serif] text-[#111827] before:pointer-events-none before:fixed before:inset-0 before:content-[''] before:bg-[linear-gradient(rgba(109,40,217,0.035)_1px,transparent_1px),linear-gradient(90deg,rgba(109,40,217,0.035)_1px,transparent_1px)] before:bg-[size:44px_44px] before:[mask-image:linear-gradient(to_bottom,#000_0%,transparent_65%)] [&_a]:text-inherit [&_a]:no-underline [&_a]:[-webkit-tap-highlight-color:transparent] [&_button]:font-[inherit] [&_button]:[-webkit-tap-highlight-color:transparent] [&_input]:font-[inherit] [&_summary]:font-[inherit] [&_summary]:[-webkit-tap-highlight-color:transparent] [&_a:focus-visible]:outline-0 [&_a:focus-visible]:shadow-[0_0_0_4px_rgba(124,58,237,0.16)] [&_button:focus-visible]:outline-0 [&_button:focus-visible]:shadow-[0_0_0_4px_rgba(124,58,237,0.16)] [&_input:focus-visible]:outline-0 [&_input:focus-visible]:shadow-[0_0_0_4px_rgba(124,58,237,0.16)] [&_summary:focus-visible]:outline-0 [&_summary:focus-visible]:shadow-[0_0_0_4px_rgba(124,58,237,0.16)] [&_.confetti]:pointer-events-none [&_.confetti]:fixed [&_.confetti]:z-[109] [&_.confetti]:h-[18px] [&_.confetti]:w-2.5 [&_.confetti]:rounded-[3px] [&_.confetti]:opacity-0 [&_.confetti]:animate-confetti-burst min-h-[calc(100vh-5rem)] pb-12">
     <div id="wheelAppConfig" hidden
         data-config="{{ json_encode($wheelConfig, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) }}">
