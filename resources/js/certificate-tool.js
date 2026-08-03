@@ -5,6 +5,7 @@ if (certificateConfigElement) {
   const templates = new Map((config.templates || []).map((template) => [template.key, template]));
   const canvas = document.getElementById("certificateCanvas");
   const canvasSizer = document.getElementById("certificateCanvasSizer");
+  const editorShell = document.getElementById("certificateEditorShell");
   const viewport = document.getElementById("certificateViewport");
   const backgroundImage = document.getElementById("certificateBackground");
   const guideX = document.getElementById("certificateGuideX");
@@ -13,6 +14,8 @@ if (certificateConfigElement) {
   const layersCount = document.getElementById("certificateLayersCount");
   const propertiesEmpty = document.getElementById("certificatePropertiesEmpty");
   const propertiesForm = document.getElementById("certificatePropertiesForm");
+  const sidebarPanels = document.querySelectorAll("[data-certificate-sidebar-panel]");
+  const sidebarTabs = document.querySelectorAll("[data-certificate-sidebar-tab]");
   const textContentInput = document.getElementById("certificateTextContent");
   const fontFamilyInput = document.getElementById("certificateFontFamily");
   const fontSizeInput = document.getElementById("certificateFontSize");
@@ -40,6 +43,7 @@ if (certificateConfigElement) {
   const previewImage = document.getElementById("certificatePreviewImage");
   const undoButton = document.getElementById("certificateUndoBtn");
   const redoButton = document.getElementById("certificateRedoBtn");
+  const fullscreenButton = document.getElementById("certificateFullscreenBtn");
   const baseDraftKey = "muallem-certificate-draft-v1";
   const allowedImageTypes = ["image/jpeg", "image/png", "image/webp"];
   const maximumBackgroundSize = 4 * 1024 * 1024;
@@ -370,6 +374,25 @@ if (certificateConfigElement) {
     });
   }
 
+  function showSidebarPanel(panelName, { scrollOnMobile = false } = {}) {
+    let activePanel = null;
+
+    sidebarPanels.forEach((panel) => {
+      const isActive = panel.dataset.certificateSidebarPanel === panelName;
+      panel.classList.toggle("hidden", !isActive);
+      if (isActive) activePanel = panel;
+    });
+    sidebarTabs.forEach((tab) => {
+      const isActive = tab.dataset.certificateSidebarTab === panelName;
+      tab.toggleAttribute("data-selected", isActive);
+      tab.setAttribute("aria-pressed", String(isActive));
+    });
+
+    if (scrollOnMobile && activePanel && window.matchMedia("(max-width: 1023px)").matches) {
+      activePanel.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }
+
   function renderTemplateSelection() {
     document.querySelectorAll("[data-certificate-template]").forEach((button) => {
       button.toggleAttribute("data-selected", button.dataset.certificateTemplate === templateKey);
@@ -393,6 +416,7 @@ if (certificateConfigElement) {
     });
     renderLayers();
     renderProperties();
+    if (selectedElementId) showSidebarPanel("properties", { scrollOnMobile: true });
   }
 
   function startElementPointerOperation(event) {
@@ -622,6 +646,7 @@ if (certificateConfigElement) {
     renderElements();
     renderLayers();
     renderProperties();
+    showSidebarPanel("properties", { scrollOnMobile: true });
     markChanged({ immediateHistory: true });
     window.setTimeout(() => textContentInput.select(), 40);
   }
@@ -647,17 +672,6 @@ if (certificateConfigElement) {
       y: clamp(element.y + 22, 0, design.height - element.height),
       locked: false
     });
-  }
-
-  function moveLayer(direction) {
-    const index = design.elements.findIndex((element) => element.id === selectedElementId);
-    const target = index + direction;
-    if (index < 0 || target < 0 || target >= design.elements.length) return;
-
-    [design.elements[index], design.elements[target]] = [design.elements[target], design.elements[index]];
-    renderElements();
-    renderLayers();
-    markChanged({ immediateHistory: true });
   }
 
   function updateSelectedElement(event) {
@@ -692,6 +706,15 @@ if (certificateConfigElement) {
     const availableWidth = Math.max(280, viewport.clientWidth - 56);
     const availableHeight = Math.max(300, viewport.clientHeight - 56);
     setZoom(Math.min(1, availableWidth / design.width, availableHeight / design.height));
+  }
+
+  async function toggleFullscreen() {
+    if (document.fullscreenElement) {
+      await document.exitFullscreen();
+      return;
+    }
+
+    await editorShell.requestFullscreen();
   }
 
   function validateDesign() {
@@ -994,6 +1017,10 @@ if (certificateConfigElement) {
   document.querySelectorAll("[data-certificate-template]").forEach((button) => {
     button.addEventListener("click", () => selectTemplate(button.dataset.certificateTemplate));
   });
+  sidebarTabs.forEach((tab) => {
+    if (tab.dataset.certificateSidebarTab === "properties") return;
+    tab.addEventListener("click", () => showSidebarPanel(tab.dataset.certificateSidebarTab, { scrollOnMobile: true }));
+  });
   backgroundInput.addEventListener("change", () => {
     const file = backgroundInput.files?.[0];
     if (file) useUploadedBackground(file);
@@ -1003,11 +1030,16 @@ if (certificateConfigElement) {
   propertiesForm.addEventListener("change", updateSelectedElement);
   document.getElementById("deleteCertificateElementBtn").addEventListener("click", deleteSelectedElement);
   document.getElementById("duplicateCertificateElementBtn").addEventListener("click", duplicateSelectedElement);
-  document.getElementById("certificateLayerUpBtn").addEventListener("click", () => moveLayer(1));
-  document.getElementById("certificateLayerDownBtn").addEventListener("click", () => moveLayer(-1));
   document.getElementById("certificateZoomOutBtn").addEventListener("click", () => setZoom(zoom - 0.1));
   document.getElementById("certificateZoomInBtn").addEventListener("click", () => setZoom(zoom + 0.1));
   document.getElementById("certificateFitBtn").addEventListener("click", fitCanvas);
+  fullscreenButton.addEventListener("click", toggleFullscreen);
+  document.addEventListener("fullscreenchange", () => {
+    const isFullscreen = document.fullscreenElement === editorShell;
+    fullscreenButton.setAttribute("aria-label", isFullscreen ? "إنهاء ملء الشاشة" : "ملء الشاشة");
+    fullscreenButton.querySelector("i").className = `fa-solid ${isFullscreen ? "fa-compress" : "fa-expand"}`;
+    window.requestAnimationFrame(fitCanvas);
+  });
   zoomRange.addEventListener("input", () => setZoom(Number(zoomRange.value) / 100));
   undoButton.addEventListener("click", () => restoreHistory(historyIndex - 1));
   redoButton.addEventListener("click", () => restoreHistory(historyIndex + 1));
@@ -1078,6 +1110,7 @@ if (certificateConfigElement) {
     }
 
     renderEditor();
+    showSidebarPanel("templates");
     window.requestAnimationFrame(fitCanvas);
     pushHistory();
     if (currentCertificate && !useDraft) setSaveIndicator("تم تحميل النسخة المحفوظة", "success");

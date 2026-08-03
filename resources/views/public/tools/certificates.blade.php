@@ -33,84 +33,119 @@
             '2xl:grid-cols-[minmax(0,1fr)_260px]' => $campaigns['side'],
         ]) id="certificateBuilder">
             <div class="min-w-0">
-                <div class="mb-4 grid gap-3 rounded-3xl border border-violet-100 bg-white p-3 shadow-[0_14px_45px_rgba(49,46,129,0.08)] lg:grid-cols-[minmax(220px,1fr)_auto] lg:items-center sm:p-4">
-                    <div class="flex min-w-0 items-center gap-3">
-                        <span class="grid size-11 shrink-0 place-items-center rounded-2xl bg-amber-100 text-xl text-amber-700"><i class="fa-solid fa-award" aria-hidden="true"></i></span>
-                        <div class="min-w-0">
-                            <p class="truncate font-black text-[#111a35]" id="certificateWorkingTitle">شهادة جديدة</p>
-                            <p class="mt-0.5 text-xs font-bold text-slate-500" id="certificateSaveIndicator" role="status" aria-live="polite">مسودة محفوظة على هذا الجهاز</p>
+                <section class="mb-3 rounded-2xl border border-slate-200 bg-white p-2 shadow-[0_12px_35px_rgba(15,23,42,0.08)] sm:p-3" id="certificateRibbon" aria-label="شريط أوامر الشهادة">
+                    <div class="flex items-center gap-3">
+                        <div class="hidden min-w-0 items-center gap-2 border-l border-slate-200 pl-3 sm:flex lg:min-w-52">
+                            <span class="grid size-9 shrink-0 place-items-center rounded-xl bg-amber-100 text-amber-700"><i class="fa-solid fa-award" aria-hidden="true"></i></span>
+                            <div class="min-w-0">
+                                <p class="truncate text-sm font-black text-[#111a35]" id="certificateWorkingTitle">شهادة جديدة</p>
+                                <p class="truncate text-[11px] font-bold text-slate-500" id="certificateSaveIndicator" role="status" aria-live="polite">مسودة محفوظة على هذا الجهاز</p>
+                            </div>
+                        </div>
+                        <div class="grid flex-1 grid-cols-6 gap-1 sm:flex sm:gap-1.5 sm:overflow-x-auto sm:overscroll-x-contain sm:[scrollbar-width:none]" id="certificateRibbonScroller">
+                            <a class="inline-flex min-h-14 min-w-0 flex-col items-center justify-center gap-1 rounded-xl border border-slate-200 px-1 text-[9px] font-black text-slate-700 hover:border-violet-200 hover:bg-violet-50 hover:text-violet-800 sm:min-h-11 sm:shrink-0 sm:flex-row sm:gap-2 sm:px-3 sm:text-xs" id="createNewCertificateLink" href="{{ route('tools.certificates') }}"><i class="fa-regular fa-file" aria-hidden="true"></i> جديد</a>
+                            <a class="inline-flex min-h-14 min-w-0 flex-col items-center justify-center gap-1 rounded-xl border border-slate-200 px-1 text-[9px] font-black text-slate-700 hover:border-violet-200 hover:bg-violet-50 hover:text-violet-800 sm:min-h-11 sm:shrink-0 sm:flex-row sm:gap-2 sm:px-3 sm:text-xs" href="{{ auth()->check() ? route('dashboard', ['section' => 'certificates']) : route('tools.certificates.auth', 'login') }}"><i class="fa-regular fa-folder-open" aria-hidden="true"></i> شهاداتي</a>
+                            <span class="mx-0.5 hidden w-px shrink-0 bg-slate-200 sm:block" aria-hidden="true"></span>
+                            <button class="inline-flex min-h-14 min-w-0 flex-col items-center justify-center rounded-xl border border-slate-200 px-1 text-base text-slate-700 hover:bg-slate-50 disabled:opacity-35 sm:min-h-11 sm:size-11 sm:shrink-0" id="certificateUndoBtn" type="button" aria-label="تراجع" title="تراجع"><i class="fa-solid fa-rotate-right" aria-hidden="true"></i></button>
+                            <button class="hidden size-11 shrink-0 items-center justify-center rounded-xl border border-slate-200 text-base text-slate-700 hover:bg-slate-50 disabled:opacity-35 sm:inline-flex" id="certificateRedoBtn" type="button" aria-label="إعادة" title="إعادة"><i class="fa-solid fa-rotate-left" aria-hidden="true"></i></button>
+                            <button class="inline-flex min-h-14 min-w-0 flex-col items-center justify-center gap-1 rounded-xl border border-slate-200 px-1 text-[9px] font-black text-slate-700 hover:bg-slate-50 sm:min-h-11 sm:shrink-0 sm:flex-row sm:gap-2 sm:px-3 sm:text-xs" id="certificatePreviewBtn" type="button"><i class="fa-regular fa-eye" aria-hidden="true"></i> معاينة</button>
+                            <button class="inline-flex min-h-14 min-w-0 flex-col items-center justify-center gap-1 rounded-xl border border-violet-200 bg-violet-50 px-1 text-[9px] font-black text-violet-800 hover:bg-violet-100 sm:min-h-11 sm:shrink-0 sm:flex-row sm:gap-2 sm:px-3 sm:text-xs" id="saveCertificateBtn" type="button"><i class="fa-regular fa-floppy-disk" aria-hidden="true"></i> حفظ</button>
+                            <button class="inline-flex min-h-14 min-w-0 flex-col items-center justify-center gap-1 rounded-xl bg-violet-700 px-1 text-[9px] font-black text-white shadow-md shadow-violet-900/15 hover:bg-violet-800 sm:min-h-11 sm:shrink-0 sm:flex-row sm:gap-2 sm:px-4 sm:text-xs" id="printCertificateBtn" type="button"><i class="fa-solid fa-print" aria-hidden="true"></i> طباعة</button>
                         </div>
                     </div>
-                    <div class="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
-                        <div class="flex rounded-xl border border-slate-200 bg-slate-50 p-1">
-                            <button class="grid size-10 place-items-center rounded-lg text-slate-600 hover:bg-white disabled:opacity-35" id="certificateUndoBtn" type="button" aria-label="تراجع" title="تراجع"><i class="fa-solid fa-rotate-right" aria-hidden="true"></i></button>
-                            <button class="grid size-10 place-items-center rounded-lg text-slate-600 hover:bg-white disabled:opacity-35" id="certificateRedoBtn" type="button" aria-label="إعادة" title="إعادة"><i class="fa-solid fa-rotate-left" aria-hidden="true"></i></button>
-                        </div>
-                        <button class="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-violet-200 bg-white px-4 text-sm font-black text-violet-800 hover:bg-violet-50" id="certificatePreviewBtn" type="button"><i class="fa-regular fa-eye" aria-hidden="true"></i> معاينة</button>
-                        <button class="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-violet-200 bg-white px-4 text-sm font-black text-violet-800 hover:bg-violet-50" id="saveCertificateBtn" type="button"><i class="fa-regular fa-floppy-disk" aria-hidden="true"></i> حفظ</button>
-                        <button class="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-linear-to-l from-violet-700 to-indigo-700 px-5 text-sm font-black text-white shadow-lg shadow-violet-900/20 hover:-translate-y-0.5 disabled:opacity-50" id="printCertificateBtn" type="button"><i class="fa-solid fa-print" aria-hidden="true"></i> طباعة / تنزيل</button>
-                    </div>
-                </div>
+                </section>
 
-                <div class="grid min-w-0 gap-4 xl:grid-cols-[250px_minmax(0,1fr)_280px]">
-                    <aside class="order-2 min-w-0 rounded-3xl border border-violet-100 bg-white p-4 shadow-[0_14px_45px_rgba(49,46,129,0.07)] xl:order-1 xl:sticky xl:top-24 xl:max-h-[calc(100vh-7rem)] xl:overflow-y-auto" aria-labelledby="certificateToolsTitle">
-                        @auth
-                            <nav class="mb-4 grid grid-cols-2 gap-2" aria-label="إجراءات الشهادات">
-                                <a class="rounded-xl bg-violet-700 px-3 py-2.5 text-center text-sm font-black text-white hover:bg-violet-800" href="{{ route('dashboard', ['section' => 'certificates']) }}"><i class="fa-solid fa-folder-open ml-1" aria-hidden="true"></i> شهاداتي</a>
-                                <a class="rounded-xl border border-violet-200 px-3 py-2.5 text-center text-sm font-black text-violet-800 hover:bg-violet-50" id="createNewCertificateLink" href="{{ route('tools.certificates') }}"><i class="fa-solid fa-plus ml-1" aria-hidden="true"></i> جديد</a>
-                            </nav>
-                        @endauth
-
-                        <div class="flex items-center justify-between gap-3">
-                            <div>
-                                <p class="text-xs font-black text-violet-700">ابدأ من هنا</p>
-                                <h2 class="mt-1 text-xl font-black text-[#111a35]" id="certificateToolsTitle">القوالب والأدوات</h2>
+                <div class="grid min-w-0 grid-cols-1 gap-3 fullscreen:h-screen fullscreen:overflow-auto fullscreen:bg-[#f7f7fb] fullscreen:p-3 lg:grid-cols-[300px_minmax(0,1fr)_68px] lg:rounded-3xl lg:border lg:border-slate-200 lg:bg-[#f7f7fb] lg:p-3 lg:shadow-[0_18px_60px_rgba(15,23,42,0.08)]" id="certificateEditorShell">
+                    <aside class="order-2 hidden scroll-mt-24 rounded-2xl border border-slate-200 bg-white p-3 lg:order-none lg:col-start-1 lg:row-start-1 lg:sticky lg:top-24 lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto" id="certificateTextControls" data-certificate-sidebar-panel="properties" aria-labelledby="certificatePropertiesTitle">
+                        <div class="flex items-center justify-between gap-3 border-b border-slate-100 pb-3">
+                            <div class="flex items-center gap-2">
+                                <span class="grid size-9 place-items-center rounded-xl bg-violet-100 text-violet-700"><i class="fa-solid fa-font" aria-hidden="true"></i></span>
+                                <div>
+                                    <p class="text-[11px] font-black text-violet-700">العنصر المحدد</p>
+                                    <h2 class="text-base font-black text-[#111a35]" id="certificatePropertiesTitle">خصائص النص</h2>
+                                </div>
                             </div>
-                            <span class="grid size-10 place-items-center rounded-xl bg-violet-100 text-violet-700"><i class="fa-solid fa-shapes" aria-hidden="true"></i></span>
+                            <span class="rounded-lg bg-violet-50 px-2 py-1 text-xs font-black text-violet-700">نص</span>
                         </div>
 
-                        <fieldset class="mt-5">
-                            <legend class="text-sm font-black text-slate-700">القوالب الجاهزة</legend>
-                            <div class="mt-3 grid grid-cols-2 gap-2" id="certificateTemplates">
-                                @foreach ($certificateConfig['templates'] as $template)
-                                    <button class="group rounded-xl border border-slate-200 bg-white p-1.5 text-xs font-black text-slate-600 transition hover:border-violet-300 hover:bg-violet-50 data-selected:border-violet-500 data-selected:bg-violet-50 data-selected:text-violet-800 data-selected:ring-3 data-selected:ring-violet-100" type="button" data-certificate-template="{{ $template['key'] }}">
-                                        <img class="aspect-[1.414/1] w-full rounded-lg bg-slate-50 object-cover" src="{{ $template['url'] }}" alt="{{ $template['label'] }}" loading="lazy">
-                                        <span class="mt-1.5 block">{{ $template['label'] }}</span>
-                                    </button>
-                                @endforeach
-                            </div>
-                        </fieldset>
+                        <div class="mt-3 min-h-32 place-items-center rounded-xl border border-dashed border-slate-200 bg-slate-50 px-4 text-center text-sm font-bold leading-6 text-slate-500" id="certificatePropertiesEmpty">
+                            حدد نصاً من الشهادة لتظهر أدواته هنا
+                        </div>
 
-                        <div class="mt-5 border-t border-slate-100 pt-5">
-                            <label class="flex min-h-12 items-center justify-center gap-2 rounded-xl border border-dashed border-violet-300 bg-violet-50 px-3 text-center text-sm font-black text-violet-800 hover:bg-violet-100" for="certificateBackgroundInput">
-                                <i class="fa-solid fa-cloud-arrow-up" aria-hidden="true"></i>
-                                رفع قالب خاص
+                        <form class="mt-3 hidden grid-cols-2 gap-3" id="certificatePropertiesForm">
+                            <label class="col-span-2 grid gap-1.5 text-xs font-black text-slate-600" for="certificateTextContent">النص
+                                <textarea class="min-h-20 resize-y rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-violet-400 focus:ring-3 focus:ring-violet-100" id="certificateTextContent" maxlength="1000"></textarea>
                             </label>
-                            <input class="sr-only" id="certificateBackgroundInput" type="file" accept="image/png,image/jpeg,image/webp">
-                            <p class="mt-2 text-xs font-bold leading-5 text-slate-500" id="certificateBackgroundHint">PNG أو JPG أو WebP، حتى 4 ميجابايت.</p>
-                        </div>
-
-                        <button class="mt-5 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 font-black text-white hover:bg-slate-800" id="addCertificateTextBtn" type="button"><i class="fa-solid fa-plus" aria-hidden="true"></i> إضافة مربع نص</button>
-
-                        <section class="mt-5 border-t border-slate-100 pt-5" aria-labelledby="certificateLayersTitle">
-                            <div class="flex items-center justify-between gap-2">
-                                <h3 class="font-black text-[#111a35]" id="certificateLayersTitle">الطبقات</h3>
-                                <span class="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-black text-slate-500" id="certificateLayersCount">0</span>
+                            <label class="grid gap-1.5 text-xs font-black text-slate-600" for="certificateFontFamily">الخط
+                                <select class="h-11 rounded-xl border border-slate-200 bg-white px-2 text-sm outline-none focus:border-violet-400" id="certificateFontFamily">
+                                    <option value="Tajawal">Tajawal</option>
+                                    <option value="Cairo">Cairo</option>
+                                    <option value="Amiri">Amiri</option>
+                                    <option value="Noto Kufi Arabic">Noto Kufi</option>
+                                </select>
+                            </label>
+                            <label class="grid gap-1.5 text-xs font-black text-slate-600" for="certificateFontWeight">السماكة
+                                <select class="h-11 rounded-xl border border-slate-200 bg-white px-2 text-sm outline-none" id="certificateFontWeight">
+                                    <option value="400">عادي</option>
+                                    <option value="500">متوسط</option>
+                                    <option value="700">عريض</option>
+                                    <option value="800">عريض جداً</option>
+                                    <option value="900">أسود</option>
+                                </select>
+                            </label>
+                            <label class="grid gap-1.5 text-xs font-black text-slate-600" for="certificateFontSize">الحجم
+                                <input class="h-11 rounded-xl border border-slate-200 bg-white px-3 outline-none focus:border-violet-400" id="certificateFontSize" type="number" min="8" max="240">
+                            </label>
+                            <label class="grid gap-1.5 text-xs font-black text-slate-600" for="certificateTextColor">اللون
+                                <span class="flex h-11 items-center gap-2 rounded-xl border border-slate-200 bg-white px-2">
+                                    <input class="size-7 border-0 bg-transparent p-0" id="certificateTextColor" type="color">
+                                    <span class="font-mono text-[10px]" id="certificateTextColorValue" dir="ltr">#172b52</span>
+                                </span>
+                            </label>
+                            <fieldset class="col-span-2">
+                                <legend class="text-xs font-black text-slate-600">محاذاة النص</legend>
+                                <div class="mt-1.5 grid grid-cols-3 gap-1 rounded-xl border border-slate-200 bg-slate-50 p-1" role="radiogroup">
+                                    @foreach ([['right', 'fa-align-right'], ['center', 'fa-align-center'], ['left', 'fa-align-left']] as [$alignment, $icon])
+                                        <label>
+                                            <input class="peer sr-only" type="radio" name="certificate_text_align" value="{{ $alignment }}">
+                                            <span class="grid min-h-10 place-items-center rounded-lg text-slate-500 peer-checked:bg-white peer-checked:text-violet-800 peer-checked:shadow-sm"><i class="fa-solid {{ $icon }}" aria-hidden="true"></i></span>
+                                        </label>
+                                    @endforeach
+                                </div>
+                            </fieldset>
+                            <label class="grid gap-1 text-xs font-black text-slate-600" for="certificateRotation">الدوران <span id="certificateRotationValue">0°</span>
+                                <input class="h-8 w-full accent-violet-700" id="certificateRotation" type="range" min="-180" max="180" value="0">
+                            </label>
+                            <label class="grid gap-1 text-xs font-black text-slate-600" for="certificateOpacity">الشفافية <span id="certificateOpacityValue">100%</span>
+                                <input class="h-8 w-full accent-violet-700" id="certificateOpacity" type="range" min="10" max="100" value="100">
+                            </label>
+                            <label class="col-span-2 flex min-h-11 items-center justify-between rounded-xl border border-slate-200 px-3 text-xs font-black text-slate-600">
+                                قفل العنصر
+                                <input class="size-5 accent-violet-700" id="certificateElementLocked" type="checkbox">
+                            </label>
+                            <div class="col-span-2 grid grid-cols-2 gap-2 border-t border-slate-100 pt-3">
+                                <button class="grid min-h-10 place-items-center rounded-xl border border-violet-200 text-violet-700 hover:bg-violet-50" id="duplicateCertificateElementBtn" type="button" aria-label="نسخ العنصر" title="نسخ"><i class="fa-regular fa-copy" aria-hidden="true"></i></button>
+                                <button class="grid min-h-10 place-items-center rounded-xl border border-red-200 text-red-700 hover:bg-red-50" id="deleteCertificateElementBtn" type="button" aria-label="حذف العنصر" title="حذف"><i class="fa-regular fa-trash-can" aria-hidden="true"></i></button>
                             </div>
-                            <div class="mt-3 grid gap-2" id="certificateLayersList"></div>
-                        </section>
+                        </form>
                     </aside>
 
-                    <section class="order-1 min-w-0 rounded-3xl border border-violet-100 bg-white p-3 shadow-[0_18px_60px_rgba(49,46,129,0.09)] sm:p-5 xl:order-2" aria-labelledby="certificateCanvasTitle">
-                        <div class="flex flex-wrap items-center justify-between gap-3">
-                            <div>
-                                <h2 class="text-xl font-black text-[#111a35]" id="certificateCanvasTitle">مساحة العمل</h2>
-                                <p class="mt-1 text-xs font-bold text-slate-500">اسحب العنصر، واستخدم مقابض الزوايا لتغيير حجمه.</p>
+                    <section class="order-1 w-full max-w-full min-w-0 overflow-hidden rounded-2xl border border-slate-200 bg-white p-2 lg:order-none lg:col-start-2 lg:row-start-1 lg:p-3" aria-labelledby="certificateCanvasTitle">
+                        <div class="flex items-center justify-between gap-2 border-b border-slate-100 pb-2">
+                            <div class="flex items-center gap-1 rounded-xl border border-slate-200 bg-slate-50 p-1">
+                                <button class="grid size-9 place-items-center rounded-lg bg-white text-slate-600 shadow-sm hover:text-violet-700" id="certificateZoomOutBtn" type="button" aria-label="تصغير"><i class="fa-solid fa-minus" aria-hidden="true"></i></button>
+                                <span class="min-w-12 text-center text-xs font-black text-slate-600" id="certificateZoomValue">70%</span>
+                                <input class="sr-only" id="certificateZoomRange" type="range" min="25" max="125" value="70" aria-label="مستوى التكبير">
+                                <button class="grid size-9 place-items-center rounded-lg bg-white text-slate-600 shadow-sm hover:text-violet-700" id="certificateZoomInBtn" type="button" aria-label="تكبير"><i class="fa-solid fa-plus" aria-hidden="true"></i></button>
                             </div>
-                            <span class="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-black text-emerald-700"><i class="fa-solid fa-circle text-[7px]" aria-hidden="true"></i> جاهز للتحرير</span>
+                            <h2 class="sr-only" id="certificateCanvasTitle">مساحة العمل</h2>
+                            <div class="flex items-center gap-1.5">
+                                <button class="grid size-10 place-items-center rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-violet-50 hover:text-violet-700" id="certificateFitBtn" type="button" aria-label="احتواء الشهادة" title="احتواء"><i class="fa-solid fa-up-right-and-down-left-from-center" aria-hidden="true"></i></button>
+                                <button class="grid size-10 place-items-center rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-violet-50 hover:text-violet-700" id="certificateFullscreenBtn" type="button" aria-label="ملء الشاشة" title="ملء الشاشة"><i class="fa-solid fa-expand" aria-hidden="true"></i></button>
+                            </div>
                         </div>
 
-                        <div class="mt-4 min-h-[360px] overflow-auto rounded-2xl border border-violet-100 bg-[radial-gradient(circle_at_50%_45%,rgba(124,58,237,0.11),transparent_42%),#f3f1fb] p-4 sm:min-h-[560px] sm:p-7" id="certificateViewport">
+                        <div class="mt-2 min-h-[300px] w-full max-w-full overflow-auto rounded-xl border border-violet-100 bg-[#f5f5fa] p-2 sm:min-h-[520px] lg:min-h-[610px] lg:p-4" id="certificateViewport">
                             <div class="mx-auto" id="certificateCanvasSizer">
                                 <div class="certificate-canvas" id="certificateCanvas" tabindex="0" aria-label="محرر الشهادة">
                                     <img class="certificate-background" id="certificateBackground" alt="قالب الشهادة">
@@ -120,120 +155,58 @@
                             </div>
                         </div>
 
-                        <div class="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-100 bg-slate-50 p-3">
-                            <div class="flex items-center gap-2">
-                                <button class="grid size-10 place-items-center rounded-xl border border-slate-200 bg-white text-slate-600 hover:text-violet-700" id="certificateZoomOutBtn" type="button" aria-label="تصغير"><i class="fa-solid fa-minus" aria-hidden="true"></i></button>
-                                <input class="w-28 accent-violet-700 sm:w-40" id="certificateZoomRange" type="range" min="25" max="125" value="70" aria-label="مستوى التكبير">
-                                <button class="grid size-10 place-items-center rounded-xl border border-slate-200 bg-white text-slate-600 hover:text-violet-700" id="certificateZoomInBtn" type="button" aria-label="تكبير"><i class="fa-solid fa-plus" aria-hidden="true"></i></button>
-                                <span class="min-w-11 text-center text-sm font-black text-slate-600" id="certificateZoomValue">70%</span>
-                            </div>
-                            <button class="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-black text-slate-700 hover:bg-violet-50 hover:text-violet-800" id="certificateFitBtn" type="button"><i class="fa-solid fa-expand ml-1" aria-hidden="true"></i> احتواء</button>
-                        </div>
+                        <p class="mt-2 rounded-xl bg-slate-50 px-3 py-2 text-center text-xs font-bold text-slate-500"><i class="fa-regular fa-hand-pointer ml-1 text-violet-600" aria-hidden="true"></i> اسحب النص لتحريكه، وانقر عليه مرتين للكتابة.</p>
 
                         @guest
-                            <div class="mt-4 rounded-2xl border border-violet-200 bg-violet-50 p-4" id="guestCertificateSaveCard">
+                            <div class="mt-3 hidden rounded-xl border border-violet-200 bg-violet-50 p-3 lg:block" id="guestCertificateSaveCard">
                                 <div class="flex items-start gap-3">
-                                    <span class="grid size-10 shrink-0 place-items-center rounded-xl bg-white text-violet-700 shadow-sm"><i class="fa-solid fa-cloud-arrow-up" aria-hidden="true"></i></span>
+                                    <span class="grid size-9 shrink-0 place-items-center rounded-xl bg-white text-violet-700 shadow-sm"><i class="fa-solid fa-cloud-arrow-up" aria-hidden="true"></i></span>
                                     <div class="min-w-0">
-                                        <h3 class="font-black text-[#111a35]">تصميمك محفوظ على هذا الجهاز</h3>
-                                        <p class="mt-1 text-sm font-bold leading-6 text-slate-600">أنشئ حساباً مجانياً لحفظ الشهادة وفتحها من أي جهاز.</p>
+                                        <h3 class="text-sm font-black text-[#111a35]">تصميمك محفوظ على هذا الجهاز</h3>
+                                        <p class="mt-0.5 text-xs font-bold leading-5 text-slate-600">أنشئ حساباً مجانياً لحفظ الشهادة وفتحها من أي جهاز.</p>
                                     </div>
                                 </div>
-                                <button class="mt-3 w-full rounded-xl bg-violet-700 px-4 py-3 font-black text-white hover:bg-violet-800" id="guestCertificateSavePromptBtn" type="button">حفظ هذه الشهادة مجاناً</button>
+                                <button class="mt-2 w-full rounded-xl bg-violet-700 px-4 py-2.5 text-sm font-black text-white hover:bg-violet-800" id="guestCertificateSavePromptBtn" type="button">حفظ هذه الشهادة مجاناً</button>
                             </div>
                         @endguest
                     </section>
 
-                    <aside class="order-3 min-w-0 rounded-3xl border border-violet-100 bg-white p-4 shadow-[0_14px_45px_rgba(49,46,129,0.07)] xl:sticky xl:top-24 xl:max-h-[calc(100vh-7rem)] xl:overflow-y-auto" aria-labelledby="certificatePropertiesTitle">
-                        <div class="flex items-center justify-between gap-3">
-                            <div>
-                                <p class="text-xs font-black text-violet-700">العنصر المحدد</p>
-                                <h2 class="mt-1 text-xl font-black text-[#111a35]" id="certificatePropertiesTitle">خصائص النص</h2>
-                            </div>
-                            <span class="grid size-10 place-items-center rounded-xl bg-violet-100 text-violet-700"><i class="fa-solid fa-sliders" aria-hidden="true"></i></span>
+                    <aside class="order-2 scroll-mt-24 rounded-2xl border border-slate-200 bg-white p-3 lg:order-none lg:col-start-1 lg:row-start-1 lg:sticky lg:top-24 lg:max-h-[calc(100vh-7rem)] lg:overflow-hidden" id="certificateTemplatesPanel" data-certificate-sidebar-panel="templates" aria-labelledby="certificateTemplatesTitle">
+                        <div class="flex items-center justify-between gap-2 border-b border-slate-100 pb-3">
+                            <h2 class="font-black text-[#111a35]" id="certificateTemplatesTitle">القوالب الجاهزة</h2>
+                            <span class="rounded-lg bg-violet-50 px-2 py-1 text-[10px] font-black text-violet-700">{{ count($certificateConfig['templates']) }} قالب</span>
                         </div>
-
-                        <div class="mt-6 grid place-items-center gap-3 rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-10 text-center text-slate-500" id="certificatePropertiesEmpty">
-                            <i class="fa-solid fa-arrow-pointer text-2xl text-violet-300" aria-hidden="true"></i>
-                            <p class="text-sm font-bold leading-6">اختر نصاً من الشهادة أو أضف مربعاً جديداً لتعديل خصائصه.</p>
+                        <div class="mt-3 flex snap-x snap-mandatory gap-2 overflow-x-auto pb-2 [scrollbar-width:thin] lg:grid lg:max-h-[470px] lg:grid-cols-1 lg:overflow-y-auto lg:pl-1" id="certificateTemplates">
+                            @foreach ($certificateConfig['templates'] as $template)
+                                <button class="group/template w-28 shrink-0 snap-start rounded-xl border border-slate-200 bg-white p-1.5 text-xs font-black text-slate-600 transition hover:border-violet-300 hover:bg-violet-50 data-selected:border-violet-500 data-selected:bg-violet-50 data-selected:text-violet-800 data-selected:ring-3 data-selected:ring-violet-100 lg:w-full" type="button" data-certificate-template="{{ $template['key'] }}">
+                                    <img class="aspect-[1.414/1] w-full rounded-lg bg-slate-50 object-cover" src="{{ $template['url'] }}" alt="{{ $template['label'] }}" loading="lazy">
+                                    <span class="mt-1.5 block truncate">{{ $template['label'] }}</span>
+                                </button>
+                            @endforeach
                         </div>
+                        <label class="mt-2 flex min-h-12 items-center justify-center gap-2 rounded-xl border border-dashed border-violet-300 bg-violet-50 px-3 text-center text-xs font-black text-violet-800 hover:bg-violet-100" for="certificateBackgroundInput"><i class="fa-solid fa-cloud-arrow-up" aria-hidden="true"></i> رفع قالب خاص</label>
+                        <input class="sr-only" id="certificateBackgroundInput" type="file" accept="image/png,image/jpeg,image/webp">
+                        <p class="mt-1.5 text-[10px] font-bold leading-4 text-slate-500" id="certificateBackgroundHint">PNG أو JPG أو WebP حتى 4 ميجابايت.</p>
 
-                        <form class="mt-5 hidden gap-4" id="certificatePropertiesForm">
-                            <label class="grid gap-2 text-sm font-black text-slate-700" for="certificateTextContent">النص
-                                <textarea class="min-h-24 resize-y rounded-xl border border-slate-200 px-3 py-2 outline-none focus:border-violet-400 focus:ring-4 focus:ring-violet-100" id="certificateTextContent" maxlength="1000"></textarea>
-                            </label>
-
-                            <div class="grid grid-cols-2 gap-3">
-                                <label class="grid gap-2 text-xs font-black text-slate-600" for="certificateFontFamily">الخط
-                                    <select class="min-h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-violet-400" id="certificateFontFamily">
-                                        <option value="Tajawal">Tajawal</option>
-                                        <option value="Cairo">Cairo</option>
-                                        <option value="Amiri">Amiri</option>
-                                        <option value="Noto Kufi Arabic">Noto Kufi</option>
-                                    </select>
-                                </label>
-                                <label class="grid gap-2 text-xs font-black text-slate-600" for="certificateFontSize">الحجم
-                                    <input class="min-h-11 rounded-xl border border-slate-200 px-3 outline-none focus:border-violet-400" id="certificateFontSize" type="number" min="8" max="240">
-                                </label>
-                            </div>
-
-                            <div class="grid grid-cols-[1fr_auto] gap-3">
-                                <label class="grid gap-2 text-xs font-black text-slate-600" for="certificateTextColor">اللون
-                                    <span class="flex min-h-11 items-center gap-2 rounded-xl border border-slate-200 p-2">
-                                        <input class="size-8 border-0 bg-transparent p-0" id="certificateTextColor" type="color">
-                                        <span class="font-mono text-xs" id="certificateTextColorValue" dir="ltr">#172b52</span>
-                                    </span>
-                                </label>
-                                <label class="grid gap-2 text-xs font-black text-slate-600" for="certificateFontWeight">السماكة
-                                    <select class="min-h-11 rounded-xl border border-slate-200 bg-white px-3 outline-none" id="certificateFontWeight">
-                                        <option value="400">عادي</option>
-                                        <option value="500">متوسط</option>
-                                        <option value="700">عريض</option>
-                                        <option value="800">عريض جداً</option>
-                                        <option value="900">أسود</option>
-                                    </select>
-                                </label>
-                            </div>
-
-                            <fieldset>
-                                <legend class="text-xs font-black text-slate-600">المحاذاة</legend>
-                                <div class="mt-2 grid grid-cols-3 gap-2" role="radiogroup">
-                                    @foreach ([['right', 'fa-align-right'], ['center', 'fa-align-center'], ['left', 'fa-align-left']] as [$alignment, $icon])
-                                        <label>
-                                            <input class="peer sr-only" type="radio" name="certificate_text_align" value="{{ $alignment }}">
-                                            <span class="grid min-h-11 place-items-center rounded-xl border border-slate-200 text-slate-500 peer-checked:border-violet-500 peer-checked:bg-violet-50 peer-checked:text-violet-800"><i class="fa-solid {{ $icon }}" aria-hidden="true"></i></span>
-                                        </label>
-                                    @endforeach
-                                </div>
-                            </fieldset>
-
-                            <div class="grid grid-cols-2 gap-3">
-                                <label class="grid gap-2 text-xs font-black text-slate-600" for="certificateRotation">الدوران <span id="certificateRotationValue">0°</span>
-                                    <input class="accent-violet-700" id="certificateRotation" type="range" min="-180" max="180" value="0">
-                                </label>
-                                <label class="grid gap-2 text-xs font-black text-slate-600" for="certificateOpacity">الشفافية <span id="certificateOpacityValue">100%</span>
-                                    <input class="accent-violet-700" id="certificateOpacity" type="range" min="10" max="100" value="100">
-                                </label>
-                            </div>
-
-                            <label class="flex items-center justify-between gap-3 rounded-xl border border-slate-200 px-3 py-3 text-sm font-black text-slate-700">
-                                قفل العنصر
-                                <input class="size-5 accent-violet-700" id="certificateElementLocked" type="checkbox">
-                            </label>
-
-                            <div class="grid grid-cols-4 gap-2 border-t border-slate-100 pt-4">
-                                <button class="grid min-h-11 place-items-center rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50" id="certificateLayerUpBtn" type="button" aria-label="إرسال للأمام" title="إرسال للأمام"><i class="fa-solid fa-arrow-up" aria-hidden="true"></i></button>
-                                <button class="grid min-h-11 place-items-center rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50" id="certificateLayerDownBtn" type="button" aria-label="إرسال للخلف" title="إرسال للخلف"><i class="fa-solid fa-arrow-down" aria-hidden="true"></i></button>
-                                <button class="grid min-h-11 place-items-center rounded-xl border border-slate-200 text-violet-700 hover:bg-violet-50" id="duplicateCertificateElementBtn" type="button" aria-label="نسخ العنصر" title="نسخ"><i class="fa-regular fa-copy" aria-hidden="true"></i></button>
-                                <button class="grid min-h-11 place-items-center rounded-xl border border-red-200 text-red-700 hover:bg-red-50" id="deleteCertificateElementBtn" type="button" aria-label="حذف العنصر" title="حذف"><i class="fa-regular fa-trash-can" aria-hidden="true"></i></button>
-                            </div>
-                        </form>
-
-                        <div class="mt-5 rounded-2xl border border-amber-100 bg-amber-50 p-3 text-xs font-bold leading-6 text-amber-900">
-                            <i class="fa-regular fa-lightbulb ml-1" aria-hidden="true"></i>
-                            انقر مرتين على النص لتحريره داخل الشهادة، واستخدم الأسهم لتحريكه بدقة.
-                        </div>
                     </aside>
+
+                    <aside class="order-2 hidden scroll-mt-24 rounded-2xl border border-slate-200 bg-white p-3 lg:order-none lg:col-start-1 lg:row-start-1 lg:sticky lg:top-24 lg:max-h-[calc(100vh-7rem)] lg:overflow-hidden" id="certificateLayersPanel" data-certificate-sidebar-panel="layers" aria-labelledby="certificateLayersTitle">
+                        <div class="flex items-center justify-between gap-2 border-b border-slate-100 pb-3">
+                            <div class="flex items-center gap-2">
+                                <span class="grid size-9 place-items-center rounded-xl bg-violet-100 text-violet-700"><i class="fa-solid fa-layer-group" aria-hidden="true"></i></span>
+                                <h2 class="font-black text-[#111a35]" id="certificateLayersTitle">طبقات النص</h2>
+                            </div>
+                            <span class="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-black text-slate-500" id="certificateLayersCount">0</span>
+                        </div>
+                        <p class="mt-3 text-xs font-bold leading-5 text-slate-500">اختر عنصراً لتعديله أو اسحبه داخل الشهادة لتغيير مكانه.</p>
+                        <div class="mt-3 grid max-h-[520px] gap-2 overflow-y-auto" id="certificateLayersList"></div>
+                    </aside>
+
+                    <nav class="fixed inset-x-2 bottom-2 z-70 grid grid-cols-3 gap-2 rounded-2xl border border-slate-200 bg-white/95 p-2 shadow-[0_12px_35px_rgba(15,23,42,0.15)] backdrop-blur-xl lg:order-none lg:sticky lg:inset-auto lg:top-24 lg:col-start-3 lg:row-start-1 lg:z-auto lg:flex lg:h-[560px] lg:flex-col lg:gap-2 lg:border-0 lg:bg-slate-950 lg:p-2 lg:text-white lg:shadow-none" id="certificateEditorRail" aria-label="أدوات المحرر">
+                        <button class="flex min-h-12 flex-col items-center justify-center gap-1 rounded-xl px-1 text-[10px] font-black text-slate-600 hover:bg-violet-50 hover:text-violet-800 data-selected:bg-violet-700 data-selected:text-white lg:text-slate-200 lg:hover:bg-white/10 lg:hover:text-white" type="button" data-certificate-sidebar-tab="templates" data-selected><i class="fa-solid fa-grip" aria-hidden="true"></i> القوالب</button>
+                        <button class="flex min-h-12 flex-col items-center justify-center gap-1 rounded-xl px-1 text-[10px] font-black text-slate-600 hover:bg-violet-50 hover:text-violet-800 data-selected:bg-violet-700 data-selected:text-white lg:text-slate-200 lg:hover:bg-white/10 lg:hover:text-white" id="addCertificateTextBtn" type="button" data-certificate-sidebar-tab="properties"><i class="fa-regular fa-square-plus" aria-hidden="true"></i> إضافة نص</button>
+                        <button class="flex min-h-12 flex-col items-center justify-center gap-1 rounded-xl px-1 text-[10px] font-black text-slate-600 hover:bg-violet-50 hover:text-violet-800 data-selected:bg-violet-700 data-selected:text-white lg:text-slate-200 lg:hover:bg-white/10 lg:hover:text-white" type="button" data-certificate-sidebar-tab="layers"><i class="fa-solid fa-layer-group" aria-hidden="true"></i> الطبقات</button>
+                    </nav>
                 </div>
             </div>
 
