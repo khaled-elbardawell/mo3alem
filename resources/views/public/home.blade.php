@@ -129,9 +129,7 @@
         </div>
     </section>
 
-    <section class="relative isolate scroll-mt-24 overflow-hidden border-y border-violet-100 bg-[radial-gradient(circle_at_8%_20%,rgba(244,114,182,0.12),transparent_25%),radial-gradient(circle_at_88%_12%,rgba(139,92,246,0.13),transparent_28%),linear-gradient(180deg,#fbfaff_0%,#f8f7ff_100%)] py-16 sm:py-20" id="features">
-        <span class="pointer-events-none absolute -top-44 -right-36 -z-10 h-[420px] w-[420px] rounded-full border border-violet-200/60" aria-hidden="true"></span>
-        <span class="pointer-events-none absolute -bottom-52 -left-40 -z-10 h-[460px] w-[460px] rounded-full border border-fuchsia-200/50" aria-hidden="true"></span>
+    <section class="scroll-mt-24 border-y border-slate-100 bg-white py-16 sm:py-20" id="features" data-section-surface="plain">
         <div class="relative mx-auto w-[min(calc(100%_-_2rem),1280px)]">
             <div class="text-center" data-reveal>
                 <h2 class="text-4xl font-black tracking-tight text-[#111a35] sm:text-5xl">مميزاتنا</h2>
@@ -162,9 +160,7 @@
         </div>
     </section>
 
-    <section class="relative isolate scroll-mt-24 overflow-hidden border-b border-violet-100 bg-[radial-gradient(circle_at_12%_18%,rgba(244,114,182,0.10),transparent_26%),radial-gradient(circle_at_86%_8%,rgba(99,102,241,0.12),transparent_28%),linear-gradient(180deg,#faf9ff_0%,#f5f2ff_100%)] py-16 sm:py-20" id="activity">
-        <span class="pointer-events-none absolute -top-36 -left-28 -z-10 h-80 w-80 rounded-full border border-violet-200/50" aria-hidden="true"></span>
-        <span class="pointer-events-none absolute -right-20 -bottom-48 -z-10 h-96 w-96 rounded-full border border-indigo-200/50" aria-hidden="true"></span>
+    <section class="scroll-mt-24 border-b border-slate-100 bg-white py-16 sm:py-20" id="activity" data-section-surface="plain">
         <div class="relative mx-auto w-[min(calc(100%_-_2rem),1280px)]">
             <div class="text-center" data-reveal>
                 <h2 class="text-4xl font-black tracking-tight text-[#111a35] sm:text-5xl">نشاط المنصة</h2>

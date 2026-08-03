@@ -37,7 +37,8 @@ test('the features section presents four numbered feature cards', function () {
         $response->assertSee("data-feature-card=\"{$number}\"", false);
     }
 
-    expect(substr_count($response->getContent(), 'data-feature-number'))->toBe(4);
+    expect(substr_count($response->getContent(), 'data-feature-number'))->toBe(4)
+        ->and(substr_count($response->getContent(), 'data-section-surface="plain"'))->toBe(2);
 });
 
 test('the platform activity section presents the four activity metrics', function () {
