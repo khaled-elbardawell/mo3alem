@@ -270,6 +270,10 @@ if (certificateConfigElement) {
     canvasSizer.style.height = `${design.height * zoom}px`;
     zoomRange.value = String(Math.round(zoom * 100));
     zoomValue.textContent = `${Math.round(zoom * 100)}%`;
+    design.elements.forEach((element) => {
+      const actions = elementActions(element.id);
+      if (actions) applyElementActionsStyle(actions, element);
+    });
   }
 
   function applyElementStyle(node, element, index = design.elements.indexOf(element)) {
@@ -289,23 +293,91 @@ if (certificateConfigElement) {
     node.classList.toggle("is-selected", element.id === selectedElementId);
     node.classList.toggle("is-locked", element.locked);
     node.querySelector(".certificate-text-content").textContent = element.text;
+
+    const actions = elementActions(element.id);
+    if (actions) applyElementActionsStyle(actions, element);
+  }
+
+  function applyElementActionsStyle(actions, element) {
+    const toolbarGap = 10 / zoom;
+    const toolbarHeight = 56 / zoom;
+    const toolbarWidth = 156 / zoom;
+    const shouldPlaceBelow = element.y < toolbarHeight + toolbarGap;
+    const shouldAlignRight = element.x + toolbarWidth > design.width;
+    actions.style.setProperty("--certificate-actions-scale", String(1 / zoom));
+    actions.style.top = `${shouldPlaceBelow ? element.y + element.height + toolbarGap : element.y - toolbarGap - toolbarHeight}px`;
+    actions.style.left = shouldAlignRight ? "auto" : `${element.x}px`;
+    actions.style.right = shouldAlignRight ? `${Math.max(0, design.width - element.x - element.width)}px` : "auto";
+    actions.classList.toggle("is-visible", element.id === selectedElementId);
+    actions.classList.toggle("actions-below", shouldPlaceBelow);
+    actions.classList.toggle("actions-align-right", shouldAlignRight);
+
+    const lockButton = actions.querySelector('[data-certificate-element-action="lock"]');
+    lockButton.classList.toggle("is-active", element.locked);
+    lockButton.setAttribute("aria-pressed", String(element.locked));
+    lockButton.setAttribute("aria-label", element.locked ? "فتح قفل العنصر" : "قفل العنصر");
+    lockButton.title = element.locked ? "فتح القفل" : "قفل";
+    lockButton.querySelector("i").className = `fa-solid ${element.locked ? "fa-lock" : "fa-lock-open"}`;
   }
 
   function elementNode(elementId) {
     return canvas.querySelector(`[data-certificate-element="${CSS.escape(elementId)}"]`);
   }
 
+  function elementActions(elementId) {
+    return canvas.querySelector(`[data-certificate-actions-for="${CSS.escape(elementId)}"]`);
+  }
+
   function renderElements() {
-    canvas.querySelectorAll("[data-certificate-element]").forEach((node) => node.remove());
+    canvas.querySelectorAll("[data-certificate-element], [data-certificate-actions-for]").forEach((node) => node.remove());
 
     design.elements.forEach((element, index) => {
       const node = document.createElement("div");
       const content = document.createElement("span");
+      const actions = document.createElement("div");
       node.className = "certificate-text-element";
       node.dataset.certificateElement = element.id;
-      node.setAttribute("role", "button");
+      node.setAttribute("role", "group");
       node.setAttribute("aria-label", `عنصر نص: ${element.text.slice(0, 40)}`);
       content.className = "certificate-text-content w-full";
+      actions.className = "certificate-element-actions";
+      actions.dataset.certificateActionsFor = element.id;
+      actions.setAttribute("role", "toolbar");
+      actions.setAttribute("aria-label", "إجراءات العنصر النصي");
+
+      [
+        ["lock", "fa-solid fa-lock-open", "قفل العنصر"],
+        ["copy", "fa-regular fa-copy", "نسخ العنصر"],
+        ["delete", "fa-regular fa-trash-can", "حذف العنصر"]
+      ].forEach(([action, icon, label]) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "certificate-element-action";
+        button.dataset.certificateElementAction = action;
+        button.setAttribute("aria-label", label);
+        button.title = label.replace(" العنصر", "");
+        button.innerHTML = `<i class="${icon}" aria-hidden="true"></i>`;
+        if (action === "delete") button.classList.add("is-danger");
+        actions.appendChild(button);
+      });
+
+      actions.addEventListener("pointerdown", (event) => event.stopPropagation());
+      actions.addEventListener("dblclick", (event) => event.stopPropagation());
+      actions.querySelector('[data-certificate-element-action="lock"]').addEventListener("click", (event) => {
+        event.stopPropagation();
+        toggleElementLock(element.id);
+      });
+      actions.querySelector('[data-certificate-element-action="copy"]').addEventListener("click", (event) => {
+        event.stopPropagation();
+        selectElement(element.id);
+        duplicateSelectedElement();
+      });
+      actions.querySelector('[data-certificate-element-action="delete"]').addEventListener("click", (event) => {
+        event.stopPropagation();
+        selectElement(element.id);
+        deleteSelectedElement();
+      });
+
       node.appendChild(content);
 
       ["nw", "ne", "se", "sw"].forEach((handleName) => {
@@ -316,10 +388,10 @@ if (certificateConfigElement) {
         node.appendChild(handle);
       });
 
-      applyElementStyle(node, element, index);
       node.addEventListener("pointerdown", startElementPointerOperation);
       node.addEventListener("dblclick", startInlineEditing);
-      canvas.appendChild(node);
+      canvas.append(node, actions);
+      applyElementStyle(node, element, index);
     });
   }
 
@@ -414,6 +486,9 @@ if (certificateConfigElement) {
     canvas.querySelectorAll("[data-certificate-element]").forEach((node) => {
       node.classList.toggle("is-selected", node.dataset.certificateElement === selectedElementId);
     });
+    canvas.querySelectorAll("[data-certificate-actions-for]").forEach((actions) => {
+      actions.classList.toggle("is-visible", actions.dataset.certificateActionsFor === selectedElementId);
+    });
     renderLayers();
     renderProperties();
     if (selectedElementId) showSidebarPanel("properties", { scrollOnMobile: true });
@@ -500,6 +575,8 @@ if (certificateConfigElement) {
     element.y = Math.round(y * 10) / 10;
     node.style.left = `${element.x}px`;
     node.style.top = `${element.y}px`;
+    const actions = elementActions(element.id);
+    if (actions) applyElementActionsStyle(actions, element);
   }
 
   function resizeElement(operation, dx, dy) {
@@ -653,6 +730,8 @@ if (certificateConfigElement) {
 
   function deleteSelectedElement() {
     if (!selectedElementId) return;
+    if (!confirm("هل تريد حذف هذا العنصر النصي؟ لا يمكن التراجع عن الحذف بعد حفظ الشهادة.")) return;
+
     design.elements = design.elements.filter((element) => element.id !== selectedElementId);
     selectedElementId = null;
     renderElements();
@@ -672,6 +751,19 @@ if (certificateConfigElement) {
       y: clamp(element.y + 22, 0, design.height - element.height),
       locked: false
     });
+  }
+
+  function toggleElementLock(elementId = selectedElementId) {
+    const element = design.elements.find((item) => item.id === elementId);
+    if (!element) return;
+
+    selectedElementId = element.id;
+    element.locked = !element.locked;
+    const node = elementNode(element.id);
+    if (node) applyElementStyle(node, element);
+    renderLayers();
+    renderProperties();
+    markChanged({ immediateHistory: true });
   }
 
   function updateSelectedElement(event) {

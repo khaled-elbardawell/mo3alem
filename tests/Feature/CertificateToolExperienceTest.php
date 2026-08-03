@@ -131,6 +131,24 @@ test('the certificate client supports draft handoff manipulation and printable e
         ->toContain('document.fonts?.ready');
 });
 
+test('selected certificate text exposes contextual lock copy and delete actions', function () {
+    $script = file_get_contents(resource_path('js/certificate-tool.js'));
+    $styles = file_get_contents(resource_path('css/app.css'));
+
+    expect($script)
+        ->toContain('certificate-element-actions')
+        ->toContain('data-certificate-element-action')
+        ->toContain('data-certificate-actions-for')
+        ->toContain('--certificate-actions-scale')
+        ->toContain('toggleElementLock')
+        ->toContain('نسخ العنصر')
+        ->toContain('هل تريد حذف هذا العنصر النصي؟')
+        ->and($styles)
+        ->toContain('.certificate-element-actions.is-visible')
+        ->toContain('.certificate-element-action.is-danger:hover')
+        ->toContain('.certificate-element-action:focus-visible');
+});
+
 test('the public hub footer and sitemap link to the certificate tool', function () {
     $this->get(route('home'))
         ->assertSuccessful()
