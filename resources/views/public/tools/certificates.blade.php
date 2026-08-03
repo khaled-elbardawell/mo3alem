@@ -42,12 +42,9 @@
                                 <p class="truncate text-[11px] font-bold text-slate-500" id="certificateSaveIndicator" role="status" aria-live="polite">مسودة محفوظة على هذا الجهاز</p>
                             </div>
                         </div>
-                        <div class="grid flex-1 grid-cols-6 gap-1 sm:flex sm:gap-1.5 sm:overflow-x-auto sm:overscroll-x-contain sm:[scrollbar-width:none]" id="certificateRibbonScroller">
+                        <div class="grid flex-1 grid-cols-5 gap-1 sm:flex sm:gap-1.5 sm:overflow-x-auto sm:overscroll-x-contain sm:[scrollbar-width:none]" id="certificateRibbonScroller">
                             <a class="inline-flex min-h-14 min-w-0 flex-col items-center justify-center gap-1 rounded-xl border border-slate-200 px-1 text-[9px] font-black text-slate-700 hover:border-violet-200 hover:bg-violet-50 hover:text-violet-800 sm:min-h-11 sm:shrink-0 sm:flex-row sm:gap-2 sm:px-3 sm:text-xs" id="createNewCertificateLink" href="{{ route('tools.certificates') }}"><i class="fa-regular fa-file" aria-hidden="true"></i> جديد</a>
                             <a class="inline-flex min-h-14 min-w-0 flex-col items-center justify-center gap-1 rounded-xl border border-slate-200 px-1 text-[9px] font-black text-slate-700 hover:border-violet-200 hover:bg-violet-50 hover:text-violet-800 sm:min-h-11 sm:shrink-0 sm:flex-row sm:gap-2 sm:px-3 sm:text-xs" href="{{ auth()->check() ? route('dashboard', ['section' => 'certificates']) : route('tools.certificates.auth', 'login') }}"><i class="fa-regular fa-folder-open" aria-hidden="true"></i> شهاداتي</a>
-                            <span class="mx-0.5 hidden w-px shrink-0 bg-slate-200 sm:block" aria-hidden="true"></span>
-                            <button class="inline-flex min-h-14 min-w-0 flex-col items-center justify-center rounded-xl border border-slate-200 px-1 text-base text-slate-700 hover:bg-slate-50 disabled:opacity-35 sm:min-h-11 sm:size-11 sm:shrink-0" id="certificateUndoBtn" type="button" aria-label="تراجع" title="تراجع"><i class="fa-solid fa-rotate-right" aria-hidden="true"></i></button>
-                            <button class="hidden size-11 shrink-0 items-center justify-center rounded-xl border border-slate-200 text-base text-slate-700 hover:bg-slate-50 disabled:opacity-35 sm:inline-flex" id="certificateRedoBtn" type="button" aria-label="إعادة" title="إعادة"><i class="fa-solid fa-rotate-left" aria-hidden="true"></i></button>
                             <button class="inline-flex min-h-14 min-w-0 flex-col items-center justify-center gap-1 rounded-xl border border-slate-200 px-1 text-[9px] font-black text-slate-700 hover:bg-slate-50 sm:min-h-11 sm:shrink-0 sm:flex-row sm:gap-2 sm:px-3 sm:text-xs" id="certificatePreviewBtn" type="button"><i class="fa-regular fa-eye" aria-hidden="true"></i> معاينة</button>
                             <button class="inline-flex min-h-14 min-w-0 flex-col items-center justify-center gap-1 rounded-xl border border-violet-200 bg-violet-50 px-1 text-[9px] font-black text-violet-800 hover:bg-violet-100 sm:min-h-11 sm:shrink-0 sm:flex-row sm:gap-2 sm:px-3 sm:text-xs" id="saveCertificateBtn" type="button"><i class="fa-regular fa-floppy-disk" aria-hidden="true"></i> حفظ</button>
                             <button class="inline-flex min-h-14 min-w-0 flex-col items-center justify-center gap-1 rounded-xl bg-violet-700 px-1 text-[9px] font-black text-white shadow-md shadow-violet-900/15 hover:bg-violet-800 sm:min-h-11 sm:shrink-0 sm:flex-row sm:gap-2 sm:px-4 sm:text-xs" id="printCertificateBtn" type="button"><i class="fa-solid fa-print" aria-hidden="true"></i> طباعة</button>
@@ -131,12 +128,18 @@
                     </aside>
 
                     <section class="order-1 w-full max-w-full min-w-0 overflow-hidden rounded-2xl border border-slate-200 bg-white p-2 lg:order-none lg:col-start-2 lg:row-start-1 lg:p-3" aria-labelledby="certificateCanvasTitle">
-                        <div class="flex items-center justify-between gap-2 border-b border-slate-100 pb-2">
-                            <div class="flex items-center gap-1 rounded-xl border border-slate-200 bg-slate-50 p-1">
-                                <button class="grid size-9 place-items-center rounded-lg bg-white text-slate-600 shadow-sm hover:text-violet-700" id="certificateZoomOutBtn" type="button" aria-label="تصغير"><i class="fa-solid fa-minus" aria-hidden="true"></i></button>
-                                <span class="min-w-12 text-center text-xs font-black text-slate-600" id="certificateZoomValue">70%</span>
-                                <input class="sr-only" id="certificateZoomRange" type="range" min="25" max="125" value="70" aria-label="مستوى التكبير">
-                                <button class="grid size-9 place-items-center rounded-lg bg-white text-slate-600 shadow-sm hover:text-violet-700" id="certificateZoomInBtn" type="button" aria-label="تكبير"><i class="fa-solid fa-plus" aria-hidden="true"></i></button>
+                        <div class="flex items-center justify-between gap-2 border-b border-slate-100 pb-2" id="certificateCanvasToolbar">
+                            <div class="flex items-center gap-1.5">
+                                <div class="flex items-center gap-1 rounded-xl border border-slate-200 bg-slate-50 p-1">
+                                    <button class="grid size-9 place-items-center rounded-lg bg-white text-slate-600 shadow-sm hover:text-violet-700" id="certificateZoomOutBtn" type="button" aria-label="تصغير"><i class="fa-solid fa-minus" aria-hidden="true"></i></button>
+                                    <span class="min-w-12 text-center text-xs font-black text-slate-600" id="certificateZoomValue">70%</span>
+                                    <input class="sr-only" id="certificateZoomRange" type="range" min="25" max="125" value="70" aria-label="مستوى التكبير">
+                                    <button class="grid size-9 place-items-center rounded-lg bg-white text-slate-600 shadow-sm hover:text-violet-700" id="certificateZoomInBtn" type="button" aria-label="تكبير"><i class="fa-solid fa-plus" aria-hidden="true"></i></button>
+                                </div>
+                                <div class="flex items-center gap-1 rounded-xl border border-slate-200 bg-slate-50 p-1" data-certificate-history-controls>
+                                    <button class="grid size-9 place-items-center rounded-lg bg-white text-slate-600 shadow-sm hover:text-violet-700 disabled:opacity-35" id="certificateUndoBtn" type="button" aria-label="تراجع" title="تراجع"><i class="fa-solid fa-rotate-right" aria-hidden="true"></i></button>
+                                    <button class="grid size-9 place-items-center rounded-lg bg-white text-slate-600 shadow-sm hover:text-violet-700 disabled:opacity-35" id="certificateRedoBtn" type="button" aria-label="إعادة" title="إعادة"><i class="fa-solid fa-rotate-left" aria-hidden="true"></i></button>
+                                </div>
                             </div>
                             <h2 class="sr-only" id="certificateCanvasTitle">مساحة العمل</h2>
                             <div class="flex items-center gap-1.5">

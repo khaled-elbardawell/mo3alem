@@ -31,6 +31,8 @@ test('the certificate tool presents templates upload editing preview and print c
         ->assertSee('id="certificatePropertiesForm"', false)
         ->assertDontSee('id="certificateLayerUpBtn"', false)
         ->assertDontSee('id="certificateLayerDownBtn"', false)
+        ->assertSee('id="certificateCanvasToolbar"', false)
+        ->assertSee('data-certificate-history-controls', false)
         ->assertSee('id="certificateUndoBtn"', false)
         ->assertSee('aria-label="تراجع"', false)
         ->assertSee('id="certificateRedoBtn"', false)
