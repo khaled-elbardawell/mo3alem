@@ -22,14 +22,16 @@
                     وفّر وقتك وأنشئ أنشطة صفية، رموز QR وشهادات تعليمية بنتائج احترافية وسهلة المشاركة.
                 </p>
                 <div class="mt-6 flex flex-col justify-center gap-3 sm:flex-row lg:justify-start">
-                    <a class="inline-flex min-h-13 items-center justify-center gap-2.5 rounded-xl bg-linear-to-l from-violet-700 to-indigo-700 px-7 font-black text-white shadow-xl shadow-violet-900/20 transition-transform hover:-translate-y-0.5" href="{{ route('tools.wheel') }}">
-                        ابدأ مجانًا
-                        <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
-                    </a>
-                    <a class="inline-flex min-h-13 items-center justify-center gap-2.5 rounded-xl border border-violet-200 bg-white px-7 font-black text-violet-800 shadow-sm transition-colors hover:bg-violet-50" href="#tools">
+                    <a class="inline-flex min-h-13 items-center justify-center gap-2.5 rounded-xl bg-linear-to-l from-violet-700 to-indigo-700 px-7 font-black text-white shadow-xl shadow-violet-900/20 transition-transform hover:-translate-y-0.5" href="#tools" data-primary-tools-action>
                         استكشف الأدوات
                         <i class="fa-solid fa-border-all" aria-hidden="true"></i>
                     </a>
+                    @guest
+                        <a class="inline-flex min-h-13 items-center justify-center gap-2.5 rounded-xl border border-violet-200 bg-white px-7 font-black text-violet-800 shadow-sm transition-colors hover:bg-violet-50" href="{{ route('login') }}" data-guest-start>
+                            ابدأ مجانًا
+                            <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+                        </a>
+                    @endguest
                 </div>
                 <div class="mt-6 flex flex-wrap items-center justify-center gap-x-7 gap-y-3 text-sm font-bold text-slate-600 lg:justify-start">
                     <span class="inline-flex items-center gap-2"><i class="fa-solid fa-circle-check text-emerald-500" aria-hidden="true"></i> مجاني للبدء</span>
@@ -39,9 +41,21 @@
             </div>
 
             <div class="relative mx-auto h-[400px] w-full max-w-[590px] max-sm:h-[350px]" data-reveal="scale">
-                <img class="absolute top-3 right-1/2 z-20 h-auto w-[215px] translate-x-1/2 drop-shadow-[0_30px_40px_rgba(76,29,149,0.22)] sm:w-[245px] lg:w-[265px]" src="{{ asset('assets/wheel-card.png') }}" alt="معاينة أداة عجلة الأسماء العشوائية" fetchpriority="high">
-                <img class="absolute top-16 right-0 z-10 h-auto w-[165px] rotate-6 drop-shadow-[0_22px_30px_rgba(30,41,59,0.14)] sm:right-3 sm:w-[215px]" src="{{ asset('assets/qr-card.png') }}" alt="معاينة أداة إنشاء رمز QR" decoding="async">
-                <img class="absolute top-16 left-0 z-10 h-auto w-[170px] -rotate-6 drop-shadow-[0_22px_30px_rgba(30,41,59,0.14)] sm:left-3 sm:w-[220px]" src="{{ asset('assets/certificate-card.png') }}" alt="معاينة أداة إنشاء الشهادات" decoding="async">
+                <a class="group absolute top-3 right-1/2 z-20 w-[215px] translate-x-1/2 rounded-[2rem] focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-violet-600 sm:w-[245px] lg:w-[265px]" href="{{ route('tools.wheel') }}" aria-label="فتح أداة عجلة الأسماء العشوائية" data-hero-tool="wheel">
+                    <span class="block motion-safe:animate-hero-tool-pulse">
+                        <img class="block h-auto w-full drop-shadow-[0_30px_40px_rgba(76,29,149,0.22)] transition-transform duration-300 group-hover:scale-[1.04]" src="{{ asset('assets/wheel-card.png') }}" alt="معاينة أداة عجلة الأسماء العشوائية" fetchpriority="high">
+                    </span>
+                </a>
+                <a class="group absolute top-16 right-0 z-10 w-[165px] rounded-[2rem] focus-visible:z-30 focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-violet-600 sm:right-3 sm:w-[215px]" href="{{ route('tools.qr') }}" aria-label="فتح أداة إنشاء رمز QR" data-hero-tool="qr">
+                    <span class="block motion-safe:animate-hero-tool-pulse motion-safe:[animation-delay:-1.2s]">
+                        <img class="block h-auto w-full rotate-6 drop-shadow-[0_22px_30px_rgba(30,41,59,0.14)] transition-transform duration-300 group-hover:scale-[1.04] group-hover:rotate-3" src="{{ asset('assets/qr-card.png') }}" alt="معاينة أداة إنشاء رمز QR" decoding="async">
+                    </span>
+                </a>
+                <a class="group absolute top-16 left-0 z-10 w-[170px] rounded-[2rem] focus-visible:z-30 focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-violet-600 sm:left-3 sm:w-[220px]" href="{{ route('tools.certificates') }}" aria-label="فتح أداة إنشاء الشهادات" data-hero-tool="certificates">
+                    <span class="block motion-safe:animate-hero-tool-pulse motion-safe:[animation-delay:-2.4s]">
+                        <img class="block h-auto w-full -rotate-6 drop-shadow-[0_22px_30px_rgba(30,41,59,0.14)] transition-transform duration-300 group-hover:scale-[1.04] group-hover:-rotate-3" src="{{ asset('assets/certificate-card.png') }}" alt="معاينة أداة إنشاء الشهادات" decoding="async">
+                    </span>
+                </a>
             </div>
         </div>
     </section>
@@ -61,51 +75,51 @@
             </div>
 
             <div @class(['mt-10 grid gap-5', 'lg:grid-cols-[1fr_260px]' => $campaigns['side']])>
-                <div class="grid gap-5 sm:grid-cols-2 xl:grid-cols-3" data-reveal-group>
-                    <article class="group flex flex-col rounded-3xl border border-violet-200 bg-white p-4 shadow-[0_16px_50px_rgba(49,46,129,0.08)] transition-[transform,box-shadow] hover:-translate-y-1 hover:shadow-[0_24px_65px_rgba(76,29,149,0.14)] sm:p-5" data-reveal data-lift-card>
-                        <div class="flex min-h-12 items-center gap-3">
+                <div class="grid items-start gap-5 sm:grid-cols-2 xl:grid-cols-3" data-reveal-group>
+                    <a class="group flex h-fit flex-col rounded-2xl border border-violet-200 bg-white p-4 shadow-[0_16px_50px_rgba(49,46,129,0.08)] transition-[transform,box-shadow,border-color] hover:-translate-y-1 hover:border-violet-300 hover:shadow-[0_24px_65px_rgba(76,29,149,0.14)] focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-violet-600" href="{{ route('tools.wheel') }}" data-tool-card="wheel" data-reveal data-lift-card>
+                        <div class="flex items-center gap-3">
                             <span class="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-violet-100 text-xl text-violet-700"><i class="fa-solid fa-dharmachakra" aria-hidden="true"></i></span>
                             <h3 class="text-lg font-black text-[#111a35]">عجلة الأسماء العشوائية</h3>
                         </div>
-                        <p class="mt-3 text-sm font-medium leading-7 text-slate-500 md:min-h-16">أدخل أسماء طلابك واختر اسمًا عشوائيًا بطريقة ممتعة وشفافة داخل الصف.</p>
-                        <div class="my-4 grid h-40 min-h-0 shrink-0 place-items-center overflow-hidden rounded-2xl bg-slate-50/70 p-2 sm:h-44">
-                            <img class="block h-auto max-h-36 w-auto max-w-full object-contain sm:max-h-40" src="{{ asset('assets/wheel-small-card.png') }}" alt="واجهة عجلة الأسماء العشوائية" loading="lazy">
+                        <p class="mt-2.5 text-sm font-medium leading-7 text-slate-500">أدخل أسماء طلابك واختر اسمًا عشوائيًا بطريقة ممتعة وشفافة داخل الصف.</p>
+                        <div class="mt-3 mb-3 grid h-32 shrink-0 place-items-center overflow-hidden rounded-xl bg-slate-50/70 p-2 sm:h-36">
+                            <img class="block h-auto max-h-28 w-auto max-w-full object-contain transition-transform duration-300 group-hover:scale-[1.03] sm:max-h-32" src="{{ asset('assets/wheel-small-card.png') }}" alt="واجهة عجلة الأسماء العشوائية" loading="lazy">
                         </div>
-                        <a class="mt-auto inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-violet-700 px-5 font-black text-white transition-colors hover:bg-violet-800" href="{{ route('tools.wheel') }}">
+                        <span class="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-xl bg-violet-700 px-5 font-black text-white transition-colors group-hover:bg-violet-800">
                             استخدم الأداة
                             <i class="fa-solid fa-arrow-left text-xs" aria-hidden="true"></i>
-                        </a>
-                    </article>
+                        </span>
+                    </a>
 
-                    <article class="flex flex-col rounded-3xl border border-violet-100 bg-white p-4 shadow-[0_16px_50px_rgba(49,46,129,0.06)] sm:p-5" data-reveal data-lift-card>
-                        <div class="flex min-h-12 items-center gap-3">
+                    <a class="group flex h-fit flex-col rounded-2xl border border-violet-100 bg-white p-4 shadow-[0_16px_50px_rgba(49,46,129,0.06)] transition-[transform,box-shadow,border-color] hover:-translate-y-1 hover:border-violet-300 hover:shadow-[0_24px_65px_rgba(76,29,149,0.14)] focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-violet-600" href="{{ route('tools.qr') }}" data-tool-card="qr" data-reveal data-lift-card>
+                        <div class="flex items-center gap-3">
                             <span class="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-indigo-100 text-xl text-indigo-700"><i class="fa-solid fa-qrcode" aria-hidden="true"></i></span>
                             <h3 class="text-lg font-black text-[#111a35]">إنشاء QR احترافي</h3>
                         </div>
-                        <p class="mt-3 text-sm font-medium leading-7 text-slate-500 md:min-h-16">حوّل الروابط والنصوص إلى رمز QR مخصص بالألوان والشعار، جاهز للطباعة والمشاركة.</p>
-                        <div class="my-4 grid h-40 min-h-0 shrink-0 place-items-center overflow-hidden rounded-2xl bg-slate-50/70 p-2 sm:h-44">
-                            <img class="block h-auto max-h-36 w-auto max-w-full object-contain sm:max-h-40" src="{{ asset('assets/qr-small-card.png') }}" alt="واجهة أداة إنشاء رمز QR" loading="lazy">
+                        <p class="mt-2.5 text-sm font-medium leading-7 text-slate-500">حوّل الروابط والنصوص إلى رمز QR مخصص بالألوان والشعار، جاهز للطباعة والمشاركة.</p>
+                        <div class="mt-3 mb-3 grid h-32 shrink-0 place-items-center overflow-hidden rounded-xl bg-slate-50/70 p-2 sm:h-36">
+                            <img class="block h-auto max-h-28 w-auto max-w-full object-contain transition-transform duration-300 group-hover:scale-[1.03] sm:max-h-32" src="{{ asset('assets/qr-small-card.png') }}" alt="واجهة أداة إنشاء رمز QR" loading="lazy">
                         </div>
-                        <a class="mt-auto inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-violet-700 px-5 font-black text-white transition-colors hover:bg-violet-800" href="{{ route('tools.qr') }}">
+                        <span class="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-xl bg-violet-700 px-5 font-black text-white transition-colors group-hover:bg-violet-800">
                             استخدم الأداة
                             <i class="fa-solid fa-arrow-left text-xs" aria-hidden="true"></i>
-                        </a>
-                    </article>
+                        </span>
+                    </a>
 
-                    <article class="flex flex-col rounded-3xl border border-violet-100 bg-white p-4 shadow-[0_16px_50px_rgba(49,46,129,0.06)] sm:p-5" data-reveal data-lift-card>
-                        <div class="flex min-h-12 items-center gap-3">
+                    <a class="group flex h-fit flex-col rounded-2xl border border-violet-100 bg-white p-4 shadow-[0_16px_50px_rgba(49,46,129,0.06)] transition-[transform,box-shadow,border-color] hover:-translate-y-1 hover:border-violet-300 hover:shadow-[0_24px_65px_rgba(76,29,149,0.14)] focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-violet-600" href="{{ route('tools.certificates') }}" data-tool-card="certificates" data-reveal data-lift-card>
+                        <div class="flex items-center gap-3">
                             <span class="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-amber-100 text-xl text-amber-600"><i class="fa-solid fa-award" aria-hidden="true"></i></span>
                             <h3 class="text-lg font-black text-[#111a35]">إنشاء الشهادات</h3>
                         </div>
-                        <p class="mt-3 text-sm font-medium leading-7 text-slate-500 md:min-h-16">صمّم شهادات أنيقة من قوالب عربية جاهزة، وأنشئ شهادات طلابك دفعة واحدة.</p>
-                        <div class="my-4 grid h-40 min-h-0 shrink-0 place-items-center overflow-hidden rounded-2xl bg-slate-50/70 p-2 sm:h-44">
-                            <img class="block h-auto max-h-36 w-auto max-w-full object-contain sm:max-h-40" src="{{ asset('assets/certificate-small-card.png') }}" alt="واجهة أداة إنشاء الشهادات" loading="lazy">
+                        <p class="mt-2.5 text-sm font-medium leading-7 text-slate-500">صمّم شهادات أنيقة من قوالب عربية جاهزة، وأنشئ شهادات طلابك دفعة واحدة.</p>
+                        <div class="mt-3 mb-3 grid h-32 shrink-0 place-items-center overflow-hidden rounded-xl bg-slate-50/70 p-2 sm:h-36">
+                            <img class="block h-auto max-h-28 w-auto max-w-full object-contain transition-transform duration-300 group-hover:scale-[1.03] sm:max-h-32" src="{{ asset('assets/certificate-small-card.png') }}" alt="واجهة أداة إنشاء الشهادات" loading="lazy">
                         </div>
-                        <a class="mt-auto inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-violet-700 px-5 font-black text-white transition-colors hover:bg-violet-800" href="{{ route('tools.certificates') }}">
+                        <span class="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-xl bg-violet-700 px-5 font-black text-white transition-colors group-hover:bg-violet-800">
                             استخدم الأداة
                             <i class="fa-solid fa-arrow-left text-xs" aria-hidden="true"></i>
-                        </a>
-                    </article>
+                        </span>
+                    </a>
                 </div>
 
                 @if($campaigns['side'])
@@ -208,33 +222,40 @@
                 <p class="mx-auto mt-2 max-w-2xl font-medium leading-7 text-slate-500">إجابات واضحة عن الأدوات والحساب وطريقة استخدام المنصة.</p>
             </div>
             <div class="faq-list mt-9 grid gap-3" data-reveal-group>
-                <details class="group rounded-2xl border border-violet-100 bg-[#fbfbff] p-5 open:bg-white open:shadow-sm" data-reveal open>
-                    <summary class="flex list-none items-center justify-between gap-4 font-black text-[#111a35] [&::-webkit-details-marker]:hidden">
-                        هل منصة معلم مجانية؟
-                        <i class="fa-solid fa-plus text-sm text-violet-600 transition-transform group-open:rotate-45" aria-hidden="true"></i>
+                <details class="group overflow-hidden rounded-2xl border border-violet-100 bg-[#fbfbff] p-5 transition-[transform,border-color,background-color,box-shadow] duration-300 open:-translate-y-0.5 open:border-violet-200 open:bg-white open:shadow-[0_16px_38px_rgba(76,29,149,0.09)]" data-reveal open>
+                    <summary class="flex cursor-pointer list-none items-center justify-between gap-4 font-black text-[#111a35] select-none [&::-webkit-details-marker]:hidden">
+                        ما الأدوات المتوفرة في منصة معلم، ومتى أستخدم كل أداة؟
+                        <span class="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-violet-100 text-sm text-violet-700 transition-[transform,background-color,color] duration-300 group-open:rotate-45 group-open:bg-violet-700 group-open:text-white [.is-closing_&]:rotate-0"><i class="fa-solid fa-plus" aria-hidden="true"></i></span>
                     </summary>
-                    <p class="mt-4 font-medium leading-8 text-slate-600">يمكنك استخدام الأدوات الأساسية مجانًا، وستتوفر لاحقًا مزايا وقوالب إضافية للحسابات المسجلة.</p>
+                    <p class="mt-4 overflow-hidden border-t border-violet-100 pt-4 font-medium leading-8 text-slate-600">استخدم عجلة الأسماء للاختيارات والمسابقات الصفية العشوائية، وأداة QR لتحويل الروابط والنصوص إلى رموز قابلة للمسح، وأداة الشهادات لإنشاء شهادات عربية جاهزة للطباعة أو المشاركة.</p>
                 </details>
-                <details class="group rounded-2xl border border-violet-100 bg-[#fbfbff] p-5 open:bg-white open:shadow-sm" data-reveal>
-                    <summary class="flex list-none items-center justify-between gap-4 font-black text-[#111a35] [&::-webkit-details-marker]:hidden">
-                        هل يجب إنشاء حساب لاستخدام العجلة؟
-                        <i class="fa-solid fa-plus text-sm text-violet-600 transition-transform group-open:rotate-45" aria-hidden="true"></i>
+                <details class="group overflow-hidden rounded-2xl border border-violet-100 bg-[#fbfbff] p-5 transition-[transform,border-color,background-color,box-shadow] duration-300 open:-translate-y-0.5 open:border-violet-200 open:bg-white open:shadow-[0_16px_38px_rgba(76,29,149,0.09)]" data-reveal>
+                    <summary class="flex cursor-pointer list-none items-center justify-between gap-4 font-black text-[#111a35] select-none [&::-webkit-details-marker]:hidden">
+                        ما فائدة إنشاء حساب في المنصة؟
+                        <span class="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-violet-100 text-sm text-violet-700 transition-[transform,background-color,color] duration-300 group-open:rotate-45 group-open:bg-violet-700 group-open:text-white [.is-closing_&]:rotate-0"><i class="fa-solid fa-plus" aria-hidden="true"></i></span>
                     </summary>
-                    <p class="mt-4 font-medium leading-8 text-slate-600">لا. تستطيع تجربة عجلة الأسماء مباشرة، ويمنحك الحساب إمكانية حفظ قوائمك ومسابقاتك والوصول إليها لاحقًا.</p>
+                    <p class="mt-4 overflow-hidden border-t border-violet-100 pt-4 font-medium leading-8 text-slate-600">يتيح لك الحساب حفظ قوائم العجلة ونتائجها ومسابقاتك ورموز QR والشهادات، ثم الرجوع إليها وتعديلها من لوحة التحكم بدل البدء من جديد في كل مرة.</p>
                 </details>
-                <details class="group rounded-2xl border border-violet-100 bg-[#fbfbff] p-5 open:bg-white open:shadow-sm" data-reveal>
-                    <summary class="flex list-none items-center justify-between gap-4 font-black text-[#111a35] [&::-webkit-details-marker]:hidden">
-                        ماذا يمكنني إنشاء بأداتي QR والشهادات؟
-                        <i class="fa-solid fa-plus text-sm text-violet-600 transition-transform group-open:rotate-45" aria-hidden="true"></i>
+                <details class="group overflow-hidden rounded-2xl border border-violet-100 bg-[#fbfbff] p-5 transition-[transform,border-color,background-color,box-shadow] duration-300 open:-translate-y-0.5 open:border-violet-200 open:bg-white open:shadow-[0_16px_38px_rgba(76,29,149,0.09)]" data-reveal>
+                    <summary class="flex cursor-pointer list-none items-center justify-between gap-4 font-black text-[#111a35] select-none [&::-webkit-details-marker]:hidden">
+                        هل أستطيع استخدام الأدوات الثلاث بدون حساب؟
+                        <span class="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-violet-100 text-sm text-violet-700 transition-[transform,background-color,color] duration-300 group-open:rotate-45 group-open:bg-violet-700 group-open:text-white [.is-closing_&]:rotate-0"><i class="fa-solid fa-plus" aria-hidden="true"></i></span>
                     </summary>
-                    <p class="mt-4 font-medium leading-8 text-slate-600">يمكنك إنشاء رموز QR مخصصة وجاهزة للطباعة، وتصميم شهادات عربية احترافية وتنزيلها أو مشاركتها بسهولة.</p>
+                    <p class="mt-4 overflow-hidden border-t border-violet-100 pt-4 font-medium leading-8 text-slate-600">نعم، يمكنك فتح عجلة الأسماء وأداة QR وأداة الشهادات وتجربتها مباشرة. تحتاج إلى تسجيل الدخول عندما تريد حفظ عملك في حسابك والعودة إليه لاحقًا.</p>
                 </details>
-                <details class="group rounded-2xl border border-violet-100 bg-[#fbfbff] p-5 open:bg-white open:shadow-sm" data-reveal>
-                    <summary class="flex list-none items-center justify-between gap-4 font-black text-[#111a35] [&::-webkit-details-marker]:hidden">
-                        هل تعمل المنصة على الهاتف؟
-                        <i class="fa-solid fa-plus text-sm text-violet-600 transition-transform group-open:rotate-45" aria-hidden="true"></i>
+                <details class="group overflow-hidden rounded-2xl border border-violet-100 bg-[#fbfbff] p-5 transition-[transform,border-color,background-color,box-shadow] duration-300 open:-translate-y-0.5 open:border-violet-200 open:bg-white open:shadow-[0_16px_38px_rgba(76,29,149,0.09)]" data-reveal>
+                    <summary class="flex cursor-pointer list-none items-center justify-between gap-4 font-black text-[#111a35] select-none [&::-webkit-details-marker]:hidden">
+                        كيف تُحفظ بياناتي ومن يستطيع رؤيتها؟
+                        <span class="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-violet-100 text-sm text-violet-700 transition-[transform,background-color,color] duration-300 group-open:rotate-45 group-open:bg-violet-700 group-open:text-white [.is-closing_&]:rotate-0"><i class="fa-solid fa-plus" aria-hidden="true"></i></span>
                     </summary>
-                    <p class="mt-4 font-medium leading-8 text-slate-600">نعم، صُممت واجهة معلم لتعمل على الهاتف والجهاز اللوحي والحاسوب مع تجربة عربية متجاوبة.</p>
+                    <p class="mt-4 overflow-hidden border-t border-violet-100 pt-4 font-medium leading-8 text-slate-600">الأعمال التي تحفظها ترتبط بحسابك ولا تظهر داخل حسابات المستخدمين الآخرين. أدخل فقط البيانات اللازمة لإنجاز المهمة، وتجنب إضافة معلومات شخصية حساسة لا تحتاجها الأداة.</p>
+                </details>
+                <details class="group overflow-hidden rounded-2xl border border-violet-100 bg-[#fbfbff] p-5 transition-[transform,border-color,background-color,box-shadow] duration-300 open:-translate-y-0.5 open:border-violet-200 open:bg-white open:shadow-[0_16px_38px_rgba(76,29,149,0.09)]" data-reveal>
+                    <summary class="flex cursor-pointer list-none items-center justify-between gap-4 font-black text-[#111a35] select-none [&::-webkit-details-marker]:hidden">
+                        هل يمكنني تعديل ما حفظته بدل إنشائه من جديد؟
+                        <span class="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-violet-100 text-sm text-violet-700 transition-[transform,background-color,color] duration-300 group-open:rotate-45 group-open:bg-violet-700 group-open:text-white [.is-closing_&]:rotate-0"><i class="fa-solid fa-plus" aria-hidden="true"></i></span>
+                    </summary>
+                    <p class="mt-4 overflow-hidden border-t border-violet-100 pt-4 font-medium leading-8 text-slate-600">نعم. بعد تسجيل الدخول يمكنك فتح العناصر المحفوظة من لوحة التحكم، تحديث القوائم أو التصميم والإعدادات، ثم حفظ النسخة المعدلة ومتابعة العمل عليها لاحقًا.</p>
                 </details>
             </div>
         </div>

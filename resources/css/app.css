@@ -216,6 +216,7 @@
     --animate-soft-float: soft-float 5.2s ease-in-out infinite;
     --animate-lock-pulse: lock-pulse 2.8s ease-in-out infinite;
     --animate-faq-open: faq-open 0.28s ease both;
+    --animate-hero-tool-pulse: hero-tool-pulse 3.6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
 
     @keyframes pop {
         from {
@@ -322,6 +323,19 @@
 
         to {
             transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    @keyframes hero-tool-pulse {
+        0%,
+        100% {
+            transform: translateY(0) scale(1);
+            opacity: 0.94;
+        }
+
+        50% {
+            transform: translateY(-8px) scale(1.035);
             opacity: 1;
         }
     }

@@ -520,50 +520,6 @@
         </section>
 
         <section
-            class="stats-section mx-auto mt-16 w-[min(calc(100%_-_44px),1320px)] max-[900px]:mt-[52px] max-[900px]:w-[min(calc(100%_-_28px),1320px)]">
-            <h2 class="m-0 text-center text-[clamp(24px,3vw,32px)] font-black text-[#101828] max-[620px]:text-2xl">
-                نشاط المنصة</h2>
-            <div class="stats-grid mt-6 grid grid-cols-4 gap-[18px] max-[1180px]:grid-cols-2 max-[620px]:grid-cols-1">
-                <article
-                    class="stat-card group grid min-h-28 grid-cols-[auto_1fr] items-center gap-x-4 rounded-[18px] border border-[#e7e2f0] bg-white/[0.92] p-[22px] shadow-[0_8px_30px_rgba(15,23,42,0.04)] max-[620px]:min-h-24">
-                    <span
-                        class="stat-icon row-span-3 grid h-14 w-14 place-items-center rounded-full bg-[#f4efff] text-[22px] font-black text-[#7c3aed] transition-transform duration-200 group-hover:scale-[1.08] group-hover:-rotate-4"><i
-                            class="fa-solid fa-rotate"></i></span>
-                    <small class="font-extrabold text-[#344054]">عدد مرات الدوران</small>
-                    <strong
-                        class="text-[25px] font-black text-[#6d28d9]">{{ number_format($publicStats['spins']) }}</strong>
-                </article>
-                <article
-                    class="stat-card group grid min-h-28 grid-cols-[auto_1fr] items-center gap-x-4 rounded-[18px] border border-[#e7e2f0] bg-white/[0.92] p-[22px] shadow-[0_8px_30px_rgba(15,23,42,0.04)] max-[620px]:min-h-24">
-                    <span
-                        class="stat-icon row-span-3 grid h-14 w-14 place-items-center rounded-full bg-[#ecfeff] text-[22px] font-black text-[#06b6d4] transition-transform duration-200 group-hover:scale-[1.08] group-hover:-rotate-4"><i
-                            class="fa-regular fa-bookmark"></i></span>
-                    <small class="font-extrabold text-[#344054]">العجلات المحفوظة</small>
-                    <strong
-                        class="text-[25px] font-black text-[#6d28d9]">{{ number_format($publicStats['wheels']) }}</strong>
-                </article>
-                <article
-                    class="stat-card group grid min-h-28 grid-cols-[auto_1fr] items-center gap-x-4 rounded-[18px] border border-[#e7e2f0] bg-white/[0.92] p-[22px] shadow-[0_8px_30px_rgba(15,23,42,0.04)] max-[620px]:min-h-24">
-                    <span
-                        class="stat-icon row-span-3 grid h-14 w-14 place-items-center rounded-full bg-[#fffbeb] text-[22px] font-black text-[#f59e0b] transition-transform duration-200 group-hover:scale-[1.08] group-hover:-rotate-4"><i
-                            class="fa-regular fa-clock"></i></span>
-                    <small class="font-extrabold text-[#344054]">المستخدمون المسجلون</small>
-                    <strong
-                        class="text-[25px] font-black text-[#6d28d9]">{{ number_format($publicStats['users']) }}</strong>
-                </article>
-                <article
-                    class="stat-card group grid min-h-28 grid-cols-[auto_1fr] items-center gap-x-4 rounded-[18px] border border-[#e7e2f0] bg-white/[0.92] p-[22px] shadow-[0_8px_30px_rgba(15,23,42,0.04)] max-[620px]:min-h-24">
-                    <span
-                        class="stat-icon row-span-3 grid h-14 w-14 place-items-center rounded-full bg-[#ecfdf5] text-[22px] font-black text-[#22c55e] transition-transform duration-200 group-hover:scale-[1.08] group-hover:-rotate-4"><i
-                            class="fa-solid fa-users"></i></span>
-                    <small class="font-extrabold text-[#344054]">الأسماء المضافة</small>
-                    <strong
-                        class="text-[25px] font-black text-[#6d28d9]">{{ number_format($publicStats['names']) }}</strong>
-                </article>
-            </div>
-        </section>
-
-        <section
             class="section-block mx-auto mt-[78px] w-[min(calc(100%_-_44px),1320px)] max-[900px]:mt-[62px] max-[900px]:w-[min(calc(100%_-_28px),1320px)]"
             id="how">
             <div class="section-heading text-center">
@@ -687,62 +643,6 @@
           </article>
         </div>
       </section> -->
-
-        <section
-            class="faq-section mx-auto mt-[76px] w-[min(calc(100%_-_44px),860px)] max-[900px]:mt-[62px] max-[900px]:w-[min(calc(100%_-_28px),860px)]"
-            id="faq">
-            <div class="section-heading text-center">
-                <h2 class="m-0 text-center text-[clamp(24px,3vw,32px)] font-black text-[#101828] max-[620px]:text-2xl">
-                    الأسئلة الشائعة</h2>
-            </div>
-
-            <div class="faq-list mt-[22px] mb-[50px] grid gap-2.5">
-                <details
-                    class="group overflow-hidden rounded-[14px] border border-[#e7e2f0] bg-white/[0.92] shadow-[0_8px_30px_rgba(15,23,42,0.04)]"
-                    open>
-                    <summary
-                        class="flex min-h-[54px] cursor-pointer list-none items-center justify-between gap-4 px-[18px] text-right font-black text-[#101828] after:shrink-0 after:text-[15px] after:font-black after:text-[#6d28d9] after:content-['\f078'] after:transition-transform after:duration-200 after:[font-family:'Font_Awesome_6_Free'] group-open:after:rotate-180 [.is-closing_&]:after:rotate-0 max-[620px]:px-3.5 max-[620px]:py-3 max-[620px]:text-[15px] max-[620px]:leading-relaxed [&::-webkit-details-marker]:hidden">
-                        هل يمكنني استخدام العجلة بدون تسجيل دخول؟</summary>
-                    <p
-                        class="m-0 px-[18px] pb-[18px] text-right leading-[1.8] font-bold text-[#667085] group-open:animate-faq-open">
-                        نعم، يمكنك استخدام العجلة مباشرة. تسجيل الدخول مطلوب فقط لحفظ
-                        القوائم والنتائج.
-                    </p>
-                </details>
-                <details
-                    class="group overflow-hidden rounded-[14px] border border-[#e7e2f0] bg-white/[0.92] shadow-[0_8px_30px_rgba(15,23,42,0.04)]">
-                    <summary
-                        class="flex min-h-[54px] cursor-pointer list-none items-center justify-between gap-4 px-[18px] text-right font-black text-[#101828] after:shrink-0 after:text-[15px] after:font-black after:text-[#6d28d9] after:content-['\f078'] after:transition-transform after:duration-200 after:[font-family:'Font_Awesome_6_Free'] group-open:after:rotate-180 [.is-closing_&]:after:rotate-0 max-[620px]:px-3.5 max-[620px]:py-3 max-[620px]:text-[15px] max-[620px]:leading-relaxed [&::-webkit-details-marker]:hidden">
-                        هل بياناتي آمنة؟</summary>
-                    <p
-                        class="m-0 px-[18px] pb-[18px] text-right leading-[1.8] font-bold text-[#667085] group-open:animate-faq-open">
-                        نعم، يتم حفظ القوائم الخاصة بحسابك ولا تظهر للمستخدمين الآخرين.
-                    </p>
-                </details>
-                <details
-                    class="group overflow-hidden rounded-[14px] border border-[#e7e2f0] bg-white/[0.92] shadow-[0_8px_30px_rgba(15,23,42,0.04)]">
-                    <summary
-                        class="flex min-h-[54px] cursor-pointer list-none items-center justify-between gap-4 px-[18px] text-right font-black text-[#101828] after:shrink-0 after:text-[15px] after:font-black after:text-[#6d28d9] after:content-['\f078'] after:transition-transform after:duration-200 after:[font-family:'Font_Awesome_6_Free'] group-open:after:rotate-180 [.is-closing_&]:after:rotate-0 max-[620px]:px-3.5 max-[620px]:py-3 max-[620px]:text-[15px] max-[620px]:leading-relaxed [&::-webkit-details-marker]:hidden">
-                        هل يمكن استيراد ملف أسماء؟</summary>
-                    <p
-                        class="m-0 px-[18px] pb-[18px] text-right leading-[1.8] font-bold text-[#667085] group-open:animate-faq-open">
-                        نعم، يمكنك استيراد ملف TXT أو CSV، وكل سطر يتم التعامل معه كاسم
-                        مستقل.
-                    </p>
-                </details>
-                <details
-                    class="group overflow-hidden rounded-[14px] border border-[#e7e2f0] bg-white/[0.92] shadow-[0_8px_30px_rgba(15,23,42,0.04)]">
-                    <summary
-                        class="flex min-h-[54px] cursor-pointer list-none items-center justify-between gap-4 px-[18px] text-right font-black text-[#101828] after:shrink-0 after:text-[15px] after:font-black after:text-[#6d28d9] after:content-['\f078'] after:transition-transform after:duration-200 after:[font-family:'Font_Awesome_6_Free'] group-open:after:rotate-180 [.is-closing_&]:after:rotate-0 max-[620px]:px-3.5 max-[620px]:py-3 max-[620px]:text-[15px] max-[620px]:leading-relaxed [&::-webkit-details-marker]:hidden">
-                        هل أستطيع تخصيص العجلة؟</summary>
-                    <p
-                        class="m-0 px-[18px] pb-[18px] text-right leading-[1.8] font-bold text-[#667085] group-open:animate-faq-open">
-                        نعم، يمكن تخصيص الأسماء، خلط القائمة، وتشغيل أو إيقاف الصوت والوضع
-                        التلقائي.
-                    </p>
-                </details>
-            </div>
-        </section>
 
         @if ($campaigns['bottom'])
             <section

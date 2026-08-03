@@ -2410,33 +2410,41 @@ function setupFaqToggleAnimations() {
       if (reduceMotion) return;
 
       event.preventDefault();
+
+      if (content.getAnimations().some((animation) => animation.playState === "running")) {
+        return;
+      }
+
       details.classList.remove("is-closing");
+      content.style.overflow = "hidden";
 
       if (details.open) {
         details.classList.add("is-closing");
         content.animate([
-          { height: `${content.scrollHeight}px`, opacity: 1, transform: "translateY(0)" },
-          { height: "0px", opacity: 0, transform: "translateY(-6px)" }
+          { height: `${content.scrollHeight}px`, opacity: 1, transform: "translateY(0) scaleY(1)", clipPath: "inset(0 0 0 0)" },
+          { height: "0px", opacity: 0, transform: "translateY(-8px) scaleY(0.96)", clipPath: "inset(0 0 100% 0)" }
         ], {
-          duration: 240,
-          easing: "ease"
+          duration: 260,
+          easing: "cubic-bezier(0.4, 0, 0.2, 1)"
         }).finished.finally(() => {
           details.open = false;
           details.classList.remove("is-closing");
           content.style.height = "";
+          content.style.overflow = "";
         });
         return;
       }
 
       details.open = true;
       content.animate([
-        { height: "0px", opacity: 0, transform: "translateY(-6px)" },
-        { height: `${content.scrollHeight}px`, opacity: 1, transform: "translateY(0)" }
+        { height: "0px", opacity: 0, transform: "translateY(-8px) scaleY(0.96)", clipPath: "inset(0 0 100% 0)" },
+        { height: `${content.scrollHeight}px`, opacity: 1, transform: "translateY(0) scaleY(1)", clipPath: "inset(0 0 0 0)" }
       ], {
-        duration: 280,
-        easing: "ease"
+        duration: 320,
+        easing: "cubic-bezier(0.16, 1, 0.3, 1)"
       }).finished.finally(() => {
         content.style.height = "";
+        content.style.overflow = "";
       });
     });
   });

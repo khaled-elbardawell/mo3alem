@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\User;
+
 test('the home page presents the muallem tools hub', function () {
     $this->get(route('home'))
         ->assertSuccessful()
@@ -18,10 +20,37 @@ test('the home page presents the muallem tools hub', function () {
         ->assertSee('شهادات تم تصميمها')
         ->assertSee('خصّص الإعدادات')
         ->assertSee('أنشئ وشارك')
+        ->assertSee('ما الأدوات المتوفرة في منصة معلم، ومتى أستخدم كل أداة؟')
+        ->assertSee('ما فائدة إنشاء حساب في المنصة؟')
+        ->assertSee('كيف تُحفظ بياناتي ومن يستطيع رؤيتها؟')
+        ->assertDontSee('هل تعمل المنصة على الهاتف؟')
         ->assertDontSee('متى تتوفر أداتا QR والشهادات؟')
         ->assertDontSee('قريبًا')
         ->assertSee(route('tools.wheel'), false)
         ->assertDontSee('id="wheelCanvas"', false);
+});
+
+test('the home hero and tool cards link directly to the three tools', function () {
+    $response = $this->get(route('home'))
+        ->assertSuccessful()
+        ->assertSeeInOrder(['data-primary-tools-action', 'data-guest-start'], false)
+        ->assertSee('href="'.route('login').'" data-guest-start', false);
+
+    foreach (['wheel', 'qr', 'certificates'] as $tool) {
+        $response
+            ->assertSee("data-hero-tool=\"{$tool}\"", false)
+            ->assertSee("data-tool-card=\"{$tool}\"", false);
+    }
+
+    expect(substr_count($response->getContent(), 'motion-safe:animate-hero-tool-pulse'))->toBe(3);
+});
+
+test('the free start action is hidden from authenticated users', function () {
+    $this->actingAs(User::factory()->create())
+        ->get(route('home'))
+        ->assertSuccessful()
+        ->assertSee('data-primary-tools-action', false)
+        ->assertDontSee('data-guest-start', false);
 });
 
 test('the public header does not promote the wheel as a primary navigation item', function () {
@@ -50,9 +79,13 @@ test('the home page includes scroll-aware navigation and reveal animation hooks'
     expect($script)
         ->toContain('function setupPublicScrollSpy()')
         ->toContain('function setupPageRevealAnimations()')
+        ->toContain('function setupFaqToggleAnimations()')
+        ->toContain('cubic-bezier(0.16, 1, 0.3, 1)')
         ->toContain('link.toggleAttribute("data-active", isActive)')
         ->toContain('new IntersectionObserver((entries) => {')
         ->and($styles)
+        ->toContain('--animate-hero-tool-pulse')
+        ->toContain('@keyframes hero-tool-pulse')
         ->toContain('html.reveal-ready [data-reveal]')
         ->toContain('@media (prefers-reduced-motion: reduce)');
 });
@@ -62,6 +95,9 @@ test('the wheel uses the shared public site shell', function () {
         ->assertSuccessful()
         ->assertViewIs('public.tools.wheel')
         ->assertSee('id="wheelCanvas"', false)
+        ->assertDontSee('class="stats-section', false)
+        ->assertDontSee('class="faq-section', false)
+        ->assertDontSee('id="faq"', false)
         ->assertSee('aria-label="التنقل الرئيسي"', false)
         ->assertSee('صُممت لتجعل يوم المعلم أسهل.')
         ->assertSee(asset('assets/logo.png'), false);
