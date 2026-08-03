@@ -129,47 +129,64 @@
         </div>
     </section>
 
-    <section class="scroll-mt-24 border-y border-violet-100 bg-white py-16 sm:py-20" id="features">
-        <div class="mx-auto w-[min(calc(100%_-_2rem),1280px)]">
+    <section class="relative isolate scroll-mt-24 overflow-hidden border-y border-violet-100 bg-[radial-gradient(circle_at_8%_20%,rgba(244,114,182,0.12),transparent_25%),radial-gradient(circle_at_88%_12%,rgba(139,92,246,0.13),transparent_28%),linear-gradient(180deg,#fbfaff_0%,#f8f7ff_100%)] py-16 sm:py-20" id="features">
+        <span class="pointer-events-none absolute -top-44 -right-36 -z-10 h-[420px] w-[420px] rounded-full border border-violet-200/60" aria-hidden="true"></span>
+        <span class="pointer-events-none absolute -bottom-52 -left-40 -z-10 h-[460px] w-[460px] rounded-full border border-fuchsia-200/50" aria-hidden="true"></span>
+        <div class="relative mx-auto w-[min(calc(100%_-_2rem),1280px)]">
             <div class="text-center" data-reveal>
                 <h2 class="text-4xl font-black tracking-tight text-[#111a35] sm:text-5xl">مميزاتنا</h2>
                 <p class="mt-3 text-xl font-black text-violet-700">تجربة صُممت لتسهّل يومك</p>
             </div>
-            <div class="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4" data-reveal-group>
+            <div class="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4" data-reveal-group>
                 @foreach([
-                    ['icon' => 'fa-rocket', 'color' => 'text-violet-700 bg-violet-100', 'title' => 'سرعة وكفاءة', 'text' => 'أنجز مهامك التعليمية في دقائق بدلًا من ساعات.'],
-                    ['icon' => 'fa-folder-open', 'color' => 'text-amber-600 bg-amber-100', 'title' => 'قوالب جاهزة', 'text' => 'ابدأ من نماذج مدروسة ثم خصّصها كما تريد.'],
-                    ['icon' => 'fa-crown', 'color' => 'text-indigo-700 bg-indigo-100', 'title' => 'نتائج احترافية', 'text' => 'مخرجات أنيقة وجاهزة للطباعة أو العرض والمشاركة.'],
-                    ['icon' => 'fa-share-nodes', 'color' => 'text-rose-600 bg-rose-100', 'title' => 'مشاركة سهلة', 'text' => 'نزّل أعمالك وشاركها مع الطلاب والزملاء بسرعة.'],
+                    ['number' => '01', 'icon' => 'fa-rocket', 'iconStyle' => 'from-violet-50 via-violet-100 to-fuchsia-100 text-violet-700 shadow-[0_16px_34px_rgba(124,58,237,0.20)]', 'sparkle' => 'text-violet-300', 'badge' => 'bg-violet-100 text-violet-700', 'dots' => 'text-violet-200', 'title' => 'سرعة وكفاءة', 'text' => 'أنجز مهامك التعليمية في دقائق بدلًا من ساعات.'],
+                    ['number' => '02', 'icon' => 'fa-folder-open', 'iconStyle' => 'from-amber-50 via-amber-100 to-yellow-100 text-amber-600 shadow-[0_16px_34px_rgba(245,158,11,0.20)]', 'sparkle' => 'text-amber-400', 'badge' => 'bg-amber-100 text-amber-600', 'dots' => 'text-amber-200', 'title' => 'قوالب جاهزة', 'text' => 'ابدأ من نماذج مدروسة ثم خصّصها كما تريد.'],
+                    ['number' => '03', 'icon' => 'fa-crown', 'iconStyle' => 'from-indigo-50 via-indigo-100 to-blue-100 text-indigo-700 shadow-[0_16px_34px_rgba(79,70,229,0.20)]', 'sparkle' => 'text-indigo-300', 'badge' => 'bg-indigo-100 text-indigo-700', 'dots' => 'text-indigo-200', 'title' => 'نتائج احترافية', 'text' => 'مخرجات أنيقة وجاهزة للطباعة أو العرض والمشاركة.'],
+                    ['number' => '04', 'icon' => 'fa-share-nodes', 'iconStyle' => 'from-rose-50 via-rose-100 to-pink-100 text-rose-600 shadow-[0_16px_34px_rgba(225,29,72,0.18)]', 'sparkle' => 'text-rose-300', 'badge' => 'bg-rose-100 text-rose-600', 'dots' => 'text-rose-200', 'title' => 'مشاركة سهلة', 'text' => 'نزّل أعمالك وشاركها مع الطلاب والزملاء بسرعة.'],
                 ] as $feature)
-                    <article class="rounded-2xl border border-slate-100 bg-[#fbfbff] p-5" data-reveal data-lift-card>
-                        <span class="grid h-11 w-11 place-items-center rounded-xl {{ $feature['color'] }}"><i class="fa-solid {{ $feature['icon'] }}" aria-hidden="true"></i></span>
-                        <h3 class="mt-4 text-lg font-black text-[#111a35]">{{ $feature['title'] }}</h3>
-                        <p class="mt-2 text-sm font-medium leading-7 text-slate-500">{{ $feature['text'] }}</p>
+                    <article class="group relative flex min-h-[330px] flex-col items-center overflow-hidden rounded-[28px] border border-white/90 bg-white/85 px-6 py-6 text-center shadow-[0_20px_55px_rgba(76,29,149,0.10)] backdrop-blur-sm transition-[transform,box-shadow,border-color] duration-300 hover:border-violet-200 hover:shadow-[0_28px_70px_rgba(76,29,149,0.16)]" data-feature-card="{{ $feature['number'] }}" data-reveal data-lift-card>
+                        <span class="relative grid h-24 w-20 shrink-0 place-items-center rounded-[27px] border border-white bg-linear-to-b text-[34px] transition-transform duration-300 group-hover:-translate-y-1 group-hover:scale-105 {{ $feature['iconStyle'] }}">
+                            <i class="fa-solid {{ $feature['icon'] }}" aria-hidden="true"></i>
+                            <i class="fa-solid fa-star absolute top-3 right-3 text-[10px] {{ $feature['sparkle'] }}" aria-hidden="true"></i>
+                        </span>
+                        <h3 class="mt-6 text-[22px] font-black tracking-tight text-[#111a35]">{{ $feature['title'] }}</h3>
+                        <p class="mt-3 max-w-[230px] text-[15px] font-medium leading-7 text-slate-500">{{ $feature['text'] }}</p>
+                        <div class="mt-auto flex w-full items-center gap-3 pt-6 {{ $feature['dots'] }}" aria-hidden="true">
+                            <span class="h-1 flex-1 bg-[radial-gradient(circle,currentColor_1.5px,transparent_1.6px)] bg-[size:12px_4px] bg-repeat-x"></span>
+                            <strong class="grid h-11 w-11 shrink-0 place-items-center rounded-full text-sm font-black {{ $feature['badge'] }}" data-feature-number>{{ $feature['number'] }}</strong>
+                            <span class="h-1 flex-1 bg-[radial-gradient(circle,currentColor_1.5px,transparent_1.6px)] bg-[size:12px_4px] bg-repeat-x"></span>
+                        </div>
                     </article>
                 @endforeach
             </div>
         </div>
     </section>
 
-    <section class="scroll-mt-24 bg-violet-50/40 py-16 sm:py-20" id="activity">
-        <div class="mx-auto w-[min(calc(100%_-_2rem),1120px)]">
+    <section class="relative isolate scroll-mt-24 overflow-hidden border-b border-violet-100 bg-[radial-gradient(circle_at_12%_18%,rgba(244,114,182,0.10),transparent_26%),radial-gradient(circle_at_86%_8%,rgba(99,102,241,0.12),transparent_28%),linear-gradient(180deg,#faf9ff_0%,#f5f2ff_100%)] py-16 sm:py-20" id="activity">
+        <span class="pointer-events-none absolute -top-36 -left-28 -z-10 h-80 w-80 rounded-full border border-violet-200/50" aria-hidden="true"></span>
+        <span class="pointer-events-none absolute -right-20 -bottom-48 -z-10 h-96 w-96 rounded-full border border-indigo-200/50" aria-hidden="true"></span>
+        <div class="relative mx-auto w-[min(calc(100%_-_2rem),1280px)]">
             <div class="text-center" data-reveal>
                 <h2 class="text-4xl font-black tracking-tight text-[#111a35] sm:text-5xl">نشاط المنصة</h2>
                 <p class="mt-3 text-xl font-black text-violet-700">أرقام تنمو معكم</p>
                 <p class="mx-auto mt-2 max-w-2xl font-medium leading-7 text-slate-500">نظرة سريعة على ما ينجزه مجتمع معلم باستخدام أدوات المنصة.</p>
             </div>
-            <div class="mt-10 grid grid-cols-2 gap-4 lg:grid-cols-4" data-reveal-group>
+            <div class="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4" data-reveal-group>
                 @foreach([
-                    ['value' => $platformActivity['qrCodes'], 'label' => 'رموز QR تم إنشاؤها', 'icon' => 'fa-qrcode', 'color' => 'text-indigo-700 bg-indigo-100'],
-                    ['value' => $platformActivity['certificates'], 'label' => 'شهادات تم تصميمها', 'icon' => 'fa-award', 'color' => 'text-amber-600 bg-amber-100'],
-                    ['value' => $platformActivity['competitions'], 'label' => 'مسابقات', 'icon' => 'fa-trophy', 'color' => 'text-rose-600 bg-rose-100'],
-                    ['value' => $platformActivity['activeUsers'], 'label' => 'مستخدمون نشطون', 'icon' => 'fa-users', 'color' => 'text-violet-700 bg-violet-100'],
+                    ['key' => 'qr', 'value' => $platformActivity['qrCodes'], 'label' => 'رموز QR تم إنشاؤها', 'icon' => 'fa-qrcode', 'iconStyle' => 'from-indigo-50 via-indigo-100 to-blue-100 text-indigo-700 shadow-[0_14px_32px_rgba(79,70,229,0.20)]', 'sparkle' => 'text-indigo-300', 'dots' => 'text-indigo-200', 'accent' => 'bg-indigo-400'],
+                    ['key' => 'certificates', 'value' => $platformActivity['certificates'], 'label' => 'شهادات تم تصميمها', 'icon' => 'fa-award', 'iconStyle' => 'from-amber-50 via-amber-100 to-yellow-100 text-amber-600 shadow-[0_14px_32px_rgba(245,158,11,0.20)]', 'sparkle' => 'text-amber-400', 'dots' => 'text-amber-200', 'accent' => 'bg-amber-400'],
+                    ['key' => 'competitions', 'value' => $platformActivity['competitions'], 'label' => 'مسابقات', 'icon' => 'fa-trophy', 'iconStyle' => 'from-rose-50 via-rose-100 to-pink-100 text-rose-600 shadow-[0_14px_32px_rgba(225,29,72,0.18)]', 'sparkle' => 'text-rose-300', 'dots' => 'text-rose-200', 'accent' => 'bg-rose-400'],
+                    ['key' => 'users', 'value' => $platformActivity['activeUsers'], 'label' => 'مستخدمون نشطون', 'icon' => 'fa-users', 'iconStyle' => 'from-violet-50 via-violet-100 to-fuchsia-100 text-violet-700 shadow-[0_14px_32px_rgba(124,58,237,0.20)]', 'sparkle' => 'text-violet-300', 'dots' => 'text-violet-200', 'accent' => 'bg-violet-500'],
                 ] as $stat)
-                    <article class="flex min-h-40 flex-col items-center justify-center rounded-3xl border border-violet-100 bg-white p-5 text-center shadow-[0_16px_45px_rgba(49,46,129,0.07)]" data-reveal data-lift-card>
-                        <span class="grid h-12 w-12 place-items-center rounded-2xl text-xl {{ $stat['color'] }}"><i class="fa-solid {{ $stat['icon'] }}" aria-hidden="true"></i></span>
-                        <strong class="mt-3 block text-3xl font-black text-violet-700 sm:text-4xl">{{ number_format($stat['value']) }}</strong>
-                        <span class="mt-1 text-sm font-bold text-slate-600">{{ $stat['label'] }}</span>
+                    <article class="group relative flex min-h-[250px] flex-col items-center overflow-hidden rounded-[28px] border border-white/90 bg-white/85 px-5 pt-6 pb-7 text-center shadow-[0_20px_55px_rgba(76,29,149,0.10)] backdrop-blur-sm transition-[transform,box-shadow,border-color] duration-300 hover:border-violet-200 hover:shadow-[0_28px_70px_rgba(76,29,149,0.16)]" data-activity-card="{{ $stat['key'] }}" data-reveal data-lift-card>
+                        <span class="relative grid h-20 w-20 shrink-0 place-items-center rounded-[25px] border border-white bg-linear-to-b text-[28px] transition-transform duration-300 group-hover:-translate-y-1 group-hover:scale-105 {{ $stat['iconStyle'] }}">
+                            <i class="fa-solid {{ $stat['icon'] }}" aria-hidden="true"></i>
+                            <i class="fa-solid fa-star absolute top-3 right-3 text-[9px] {{ $stat['sparkle'] }}" aria-hidden="true"></i>
+                        </span>
+                        <strong class="mt-4 block text-[42px] leading-none font-black tracking-tight text-violet-700">{{ number_format($stat['value']) }}</strong>
+                        <span class="mt-3 text-[17px] font-black leading-7 text-[#111a35]">{{ $stat['label'] }}</span>
+                        <span class="absolute right-5 bottom-7 h-5 w-16 bg-[radial-gradient(circle,currentColor_1.5px,transparent_1.6px)] bg-[size:12px_8px] {{ $stat['dots'] }}" aria-hidden="true"></span>
+                        <span class="absolute bottom-0 left-1/2 h-1 w-20 -translate-x-1/2 rounded-t-full {{ $stat['accent'] }}" aria-hidden="true"></span>
                     </article>
                 @endforeach
             </div>

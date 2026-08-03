@@ -30,6 +30,24 @@ test('the home page presents the muallem tools hub', function () {
         ->assertDontSee('id="wheelCanvas"', false);
 });
 
+test('the features section presents four numbered feature cards', function () {
+    $response = $this->get(route('home'))->assertSuccessful();
+
+    foreach (['01', '02', '03', '04'] as $number) {
+        $response->assertSee("data-feature-card=\"{$number}\"", false);
+    }
+
+    expect(substr_count($response->getContent(), 'data-feature-number'))->toBe(4);
+});
+
+test('the platform activity section presents the four activity metrics', function () {
+    $response = $this->get(route('home'))->assertSuccessful();
+
+    foreach (['qr', 'certificates', 'competitions', 'users'] as $metric) {
+        $response->assertSee("data-activity-card=\"{$metric}\"", false);
+    }
+});
+
 test('the home hero and tool cards link directly to the three tools', function () {
     $response = $this->get(route('home'))
         ->assertSuccessful()
