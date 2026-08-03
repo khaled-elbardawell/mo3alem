@@ -2,18 +2,18 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Certificate;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
-class ActivityMetricRequest extends FormRequest
+class IndexCertificateRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        return true;
+        return $this->user()?->can('viewAny', Certificate::class) ?? false;
     }
 
     /**
@@ -24,7 +24,8 @@ class ActivityMetricRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'event' => ['required', Rule::in(['spin', 'import', 'qr_generate', 'certificate_generate'])],
+            'search' => ['nullable', 'string', 'max:120'],
+            'cursor' => ['nullable', 'string', 'max:2048'],
         ];
     }
 }

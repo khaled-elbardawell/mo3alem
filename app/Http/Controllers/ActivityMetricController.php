@@ -14,6 +14,7 @@ class ActivityMetricController extends Controller
             'spin' => 'spins',
             'import' => 'imports',
             'qr_generate' => 'qr_generated',
+            'certificate_generate' => 'certificate_generated',
         };
 
         $metrics->increment($metric);

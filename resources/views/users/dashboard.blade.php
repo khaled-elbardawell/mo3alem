@@ -1,16 +1,24 @@
 @extends('layouts.app')
 
-@section('title', 'مسابقاتي وقوائمي')
+@section('title', 'مسابقاتي وقوائمي وشهاداتي')
 
 @section('content')
     <div class="flex flex-wrap items-end justify-between gap-4">
         <div>
-            <h1 class="text-3xl font-black">مسابقاتي وقوائمي</h1>
-            <p class="mt-2 text-slate-500">أدر مسابقاتك وقوائم الأسماء وتصاميم QR المحفوظة من مكان واحد.</p>
+            <h1 class="text-3xl font-black">مسابقاتي وقوائمي وشهاداتي</h1>
+            <p class="mt-2 text-slate-500">أدر مسابقاتك وقوائمك وتصاميم QR وشهاداتك من مكان واحد.</p>
         </div>
         <a class="rounded-xl bg-violet-700 px-5 py-3 font-black text-white hover:bg-violet-800"
-            href="{{ $section === 'qr' ? route('tools.qr') : route('tools.wheel') }}">
-            {{ $section === 'qr' ? 'إنشاء QR جديد' : 'مسابقة جديدة' }}
+            href="{{ match ($section) {
+                'qr' => route('tools.qr'),
+                'certificates' => route('tools.certificates'),
+                default => route('tools.wheel'),
+            } }}">
+            {{ match ($section) {
+                'qr' => 'إنشاء QR جديد',
+                'certificates' => 'إنشاء شهادة جديدة',
+                default => 'مسابقة جديدة',
+            } }}
         </a>
     </div>
 
@@ -21,12 +29,13 @@
         </div>
     @endunless
 
-    <nav class="mt-7 grid grid-cols-3 gap-2 rounded-2xl border border-violet-100 bg-violet-50 p-2"
+    <nav class="mt-7 grid grid-cols-2 gap-2 rounded-2xl border border-violet-100 bg-violet-50 p-2 sm:grid-cols-4"
         aria-label="أقسام حسابي">
         @foreach([
             ['section' => 'competitions', 'label' => 'مسابقاتي', 'icon' => 'fa-trophy'],
             ['section' => 'lists', 'label' => 'قوائم الأسماء', 'icon' => 'fa-list'],
             ['section' => 'qr', 'label' => 'رموز QR', 'icon' => 'fa-qrcode'],
+            ['section' => 'certificates', 'label' => 'شهاداتي', 'icon' => 'fa-award'],
         ] as $tab)
             <a @class([
                 'inline-flex min-h-12 items-center justify-center gap-2 rounded-xl px-2 text-center text-sm font-black transition sm:px-4 sm:text-base',
@@ -42,11 +51,16 @@
     <form class="mt-4 grid gap-3 rounded-2xl border border-slate-200 bg-white p-4 sm:grid-cols-[1fr_220px_auto]" method="GET">
         <input type="hidden" name="section" value="{{ $section }}">
         <input class="rounded-xl border border-slate-200 px-4 py-3" type="search" name="search" value="{{ $search }}"
-            placeholder="{{ $section === 'competitions' ? 'ابحث باسم المسابقة' : ($section === 'lists' ? 'ابحث باسم القائمة' : 'ابحث باسم تصميم QR') }}">
+            placeholder="{{ match ($section) {
+                'competitions' => 'ابحث باسم المسابقة',
+                'lists' => 'ابحث باسم القائمة',
+                'qr' => 'ابحث باسم تصميم QR',
+                default => 'ابحث باسم الشهادة',
+            } }}">
         <select class="rounded-xl border border-slate-200 px-4 py-3" name="sort">
             <option value="">آخر تعديل</option>
             <option value="title" @selected($sort === 'title')>الاسم</option>
-            @if($section !== 'qr')
+            @if(in_array($section, ['competitions', 'lists'], true))
                 <option value="names" @selected($sort === 'names')>عدد الأسماء</option>
             @endif
             @if($section === 'competitions')
@@ -60,13 +74,27 @@
     @if($items->isEmpty())
         <div class="mt-7 rounded-3xl border border-dashed border-violet-200 bg-white p-10 text-center">
             <span class="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-violet-100 text-xl text-violet-700">
-                <i class="fa-solid {{ $section === 'qr' ? 'fa-qrcode' : ($section === 'lists' ? 'fa-list' : 'fa-trophy') }}" aria-hidden="true"></i>
+                <i class="fa-solid {{ match ($section) {
+                    'qr' => 'fa-qrcode',
+                    'certificates' => 'fa-award',
+                    'lists' => 'fa-list',
+                    default => 'fa-trophy',
+                } }}" aria-hidden="true"></i>
             </span>
             <p class="mt-4 text-xl font-black">
-                {{ $section === 'competitions' ? 'لا توجد مسابقات بعد' : ($section === 'lists' ? 'لا توجد قوائم أسماء بعد' : 'لم تحفظ أي رمز QR بعد') }}
+                {{ match ($section) {
+                    'competitions' => 'لا توجد مسابقات بعد',
+                    'lists' => 'لا توجد قوائم أسماء بعد',
+                    'qr' => 'لم تحفظ أي رمز QR بعد',
+                    default => 'لم تحفظ أي شهادة بعد',
+                } }}
             </p>
             <p class="mt-2 text-slate-500">
-                {{ $section === 'qr' ? 'أنشئ رمزك الأول ثم اضغط حفظ لإبقائه داخل حسابك.' : 'ابدأ من أدوات معلّم وأنشئ أول عنصر لك.' }}
+                {{ match ($section) {
+                    'qr' => 'أنشئ رمزك الأول ثم اضغط حفظ لإبقائه داخل حسابك.',
+                    'certificates' => 'صمّم شهادتك الأولى ثم احفظها لتعديلها أو طباعتها لاحقاً.',
+                    default => 'ابدأ من أدوات معلّم وأنشئ أول عنصر لك.',
+                } }}
             </p>
         </div>
     @else
@@ -76,7 +104,8 @@
                     $primaryUrl = match ($section) {
                         'competitions' => route('user.competitions.show', $item),
                         'lists' => route('user.saved-wheels.show', $item),
-                        default => route('tools.qr', ['qr' => $item]),
+                        'qr' => route('tools.qr', ['qr' => $item]),
+                        default => route('tools.certificates', ['certificate' => $item]),
                     };
                 @endphp
                 <article class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-violet-200 hover:shadow-md">
@@ -94,13 +123,19 @@
                             <span class="shrink-0 rounded-full bg-violet-50 px-2.5 py-1 text-xs font-black text-violet-700">
                                 {{ ['url' => 'رابط', 'text' => 'نص', 'wifi' => 'Wi-Fi'][$item->content_type] ?? 'QR' }}
                             </span>
+                        @elseif($section === 'certificates')
+                            <span class="shrink-0 rounded-full bg-amber-50 px-2.5 py-1 text-xs font-black text-amber-700">
+                                {{ $item->template_key === 'custom' ? 'قالب مرفوع' : 'قالب '.str_replace('b', '', $item->template_key) }}
+                            </span>
                         @endif
                     </div>
                     <div class="mt-3 flex flex-wrap justify-between gap-3 text-sm text-slate-500">
-                        @if($section !== 'qr')
+                        @if(in_array($section, ['competitions', 'lists'], true))
                             <span>{{ number_format($item->names_count) }} اسم</span>
-                        @else
+                        @elseif($section === 'qr')
                             <span class="inline-flex items-center gap-1.5"><i class="fa-solid fa-palette text-violet-500" aria-hidden="true"></i> {{ ['classic' => 'كلاسيكي', 'dots' => 'نقاط', 'rounded' => 'مستديرة'][$item->design['style']] ?? 'مخصص' }}</span>
+                        @else
+                            <span class="inline-flex items-center gap-1.5"><i class="fa-solid fa-font text-amber-500" aria-hidden="true"></i> {{ count($item->design['elements'] ?? []) }} عناصر نصية</span>
                         @endif
                         @if($section === 'competitions')
                             <span>{{ number_format($item->results_count) }} لفة</span>
@@ -109,9 +144,9 @@
                     </div>
                     <div class="mt-5 grid gap-2">
                         <a class="rounded-xl bg-violet-700 px-4 py-2.5 text-center font-bold text-white hover:bg-violet-800" href="{{ $primaryUrl }}">
-                            {{ $section === 'qr' ? 'فتح وتعديل التصميم' : 'عرض التفاصيل' }}
+                            {{ in_array($section, ['qr', 'certificates'], true) ? 'فتح وتعديل التصميم' : 'عرض التفاصيل' }}
                         </a>
-                        @if($section !== 'qr')
+                        @if(in_array($section, ['competitions', 'lists'], true))
                             <a class="rounded-xl border border-violet-200 px-4 py-2.5 text-center font-bold text-violet-700 hover:bg-violet-50"
                                 href="{{ $section === 'competitions' ? route('tools.wheel', ['competition' => $item]) : route('tools.wheel', ['wheel' => $item]) }}">
                                 {{ $section === 'competitions' ? 'متابعة المسابقة' : 'استخدام القائمة' }}
@@ -121,7 +156,8 @@
                             <form method="POST" action="{{ match ($section) {
                                 'competitions' => route('competitions.destroy', $item),
                                 'lists' => route('saved-wheels.destroy', $item),
-                                default => route('qr-codes.destroy', $item),
+                                'qr' => route('qr-codes.destroy', $item),
+                                default => route('certificates.destroy', $item),
                             } }}" data-confirm="هل تريد حذف هذا العنصر؟">
                                 @csrf
                                 @method('DELETE')

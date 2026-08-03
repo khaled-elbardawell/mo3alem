@@ -1,4 +1,5 @@
 import "./qr-tool";
+import "./certificate-tool";
 
 function setupAdImpressionTracking() {
   const advertisements = [...document.querySelectorAll("[data-ad-impression-url]")];

@@ -4,6 +4,9 @@ use App\Http\Controllers\ActivityMetricController;
 use App\Http\Controllers\AdClickController;
 use App\Http\Controllers\AdImpressionController;
 use App\Http\Controllers\Admin;
+use App\Http\Controllers\CertificateAuthRedirectController;
+use App\Http\Controllers\CertificateBackgroundController;
+use App\Http\Controllers\CertificateController;
 use App\Http\Controllers\CompetitionController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\QrAuthRedirectController;
@@ -12,6 +15,7 @@ use App\Http\Controllers\QrLogoController;
 use App\Http\Controllers\QrPreviewController;
 use App\Http\Controllers\RobotsController;
 use App\Http\Controllers\SavedWheelController;
+use App\Http\Controllers\Site\CertificateToolController;
 use App\Http\Controllers\Site\HomeController;
 use App\Http\Controllers\Site\QrToolController;
 use App\Http\Controllers\Site\WheelController;
@@ -31,6 +35,10 @@ Route::post('/tools/qr/render', QrPreviewController::class)
 Route::get('/tools/qr/auth/{action}', QrAuthRedirectController::class)
     ->whereIn('action', ['login', 'register'])
     ->name('tools.qr.auth');
+Route::get('/tools/certificates', CertificateToolController::class)->name('tools.certificates');
+Route::get('/tools/certificates/auth/{action}', CertificateAuthRedirectController::class)
+    ->whereIn('action', ['login', 'register'])
+    ->name('tools.certificates.auth');
 Route::get('/sitemap.xml', SitemapController::class)->name('sitemap');
 Route::get('/robots.txt', RobotsController::class)->name('robots');
 Route::get('/ads/{adCampaign}/click', AdClickController::class)
@@ -78,6 +86,14 @@ Route::middleware(['auth', 'active'])->group(function (): void {
     Route::get('/qr-codes/{qrCode}/logo', QrLogoController::class)->name('qr-codes.logo');
     Route::resource('qr-codes', QrCodeController::class)
         ->parameters(['qr-codes' => 'qrCode'])
+        ->only(['index', 'show', 'update', 'destroy']);
+
+    Route::post('/certificates', [CertificateController::class, 'store'])
+        ->middleware('throttle:certificate-creation')
+        ->name('certificates.store');
+    Route::get('/certificates/{certificate}/background', CertificateBackgroundController::class)
+        ->name('certificates.background');
+    Route::resource('certificates', CertificateController::class)
         ->only(['index', 'show', 'update', 'destroy']);
 
     Route::post('/competitions', [CompetitionController::class, 'store'])

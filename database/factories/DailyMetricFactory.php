@@ -28,6 +28,8 @@ class DailyMetricFactory extends Factory
             'imports' => fake()->numberBetween(0, 100),
             'qr_generated' => fake()->numberBetween(0, 1000),
             'qr_saved' => fake()->numberBetween(0, 100),
+            'certificate_generated' => fake()->numberBetween(0, 1000),
+            'certificate_saved' => fake()->numberBetween(0, 100),
             'ad_impressions' => fake()->numberBetween(0, 10000),
             'ad_clicks' => fake()->numberBetween(0, 500),
         ];

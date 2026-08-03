@@ -22,6 +22,8 @@ class MetricService
         'imports',
         'qr_generated',
         'qr_saved',
+        'certificate_generated',
+        'certificate_saved',
         'ad_impressions',
         'ad_clicks',
     ];

@@ -43,7 +43,7 @@ class HomeController extends Controller
         $seo = (new SeoSetting)->forceFill($seoValues);
         $platformActivity = Cache::remember('public:platform-activity', 300, fn (): array => [
             'qrCodes' => (int) DailyMetric::query()->sum('qr_generated'),
-            'certificates' => 0,
+            'certificates' => (int) DailyMetric::query()->sum('certificate_generated'),
             'competitions' => Competition::query()->count(),
             'activeUsers' => User::query()->where('status', UserStatus::Active)->count(),
         ]);
