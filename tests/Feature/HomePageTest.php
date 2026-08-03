@@ -37,7 +37,10 @@ test('the features section presents four numbered feature cards', function () {
         $response->assertSee("data-feature-card=\"{$number}\"", false);
     }
 
+    $featuresSection = (string) str($response->getContent())->after('id="features"')->before('id="activity"');
+
     expect(substr_count($response->getContent(), 'data-feature-number'))->toBe(4)
+        ->and(substr_count($featuresSection, 'data-icon-tone="soft"'))->toBe(4)
         ->and(substr_count($response->getContent(), 'data-section-surface="plain"'))->toBe(2);
 });
 
@@ -47,6 +50,10 @@ test('the platform activity section presents the four activity metrics', functio
     foreach (['qr', 'certificates', 'competitions', 'users'] as $metric) {
         $response->assertSee("data-activity-card=\"{$metric}\"", false);
     }
+
+    $activitySection = (string) str($response->getContent())->after('id="activity"')->before('id="how"');
+
+    expect(substr_count($activitySection, 'data-icon-tone="soft"'))->toBe(4);
 });
 
 test('the home hero and tool cards link directly to the three tools', function () {
