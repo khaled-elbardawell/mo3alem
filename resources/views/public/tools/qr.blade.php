@@ -5,7 +5,7 @@
 
 @section('content')
     <div
-        class="min-h-[calc(100vh-5rem)] overflow-hidden bg-[radial-gradient(circle_at_12%_10%,rgba(124,58,237,0.1),transparent_26%),radial-gradient(circle_at_88%_18%,rgba(59,130,246,0.07),transparent_24%),#fbfbff] pb-16">
+        class="min-h-[calc(100vh-5rem)] overflow-hidden bg-[radial-gradient(circle_at_12%_10%,rgba(124,58,237,0.1),transparent_26%),radial-gradient(circle_at_88%_18%,rgba(59,130,246,0.07),transparent_24%),#fbfbff] pb-28 lg:pb-16">
         <div id="qrAppConfig" hidden
             data-config="{{ json_encode($qrConfig, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) }}">
         </div>
@@ -24,25 +24,72 @@
         @endif
 
         <main @class([
-            'mx-auto grid w-[min(calc(100%_-_2rem),1380px)] items-start gap-5 py-7',
-            'lg:grid-cols-[minmax(0,1fr)_260px]' => $campaigns['side'],
+            'mx-auto grid w-[min(calc(100%_-_1rem),1600px)] items-start gap-4 py-6 sm:w-[min(calc(100%_-_2rem),1600px)]',
+            '2xl:grid-cols-[minmax(0,1fr)_260px]' => $campaigns['side'],
         ]) id="qrBuilder">
-            <div class="grid min-w-0 gap-5 xl:grid-cols-[minmax(340px,0.92fr)_minmax(420px,1.08fr)]">
+            <div class="min-w-0">
                 <section
-                    class="order-2 min-w-0 rounded-3xl border border-violet-100 bg-white p-4 shadow-[0_18px_60px_rgba(49,46,129,0.09)] sm:p-6 xl:order-1"
+                    class="mb-3 rounded-2xl border border-slate-200 bg-white p-2 shadow-[0_12px_35px_rgba(15,23,42,0.08)] sm:p-3"
+                    id="qrRibbon" aria-label="شريط أوامر رمز QR">
+                    <div class="flex items-center gap-3">
+                        <div class="hidden min-w-0 items-center gap-2 border-l border-slate-200 pl-3 sm:flex lg:min-w-52">
+                            <span class="grid size-9 shrink-0 place-items-center rounded-xl bg-violet-100 text-violet-700"><i
+                                    class="fa-solid fa-qrcode" aria-hidden="true"></i></span>
+                            <div class="min-w-0">
+                                <p class="truncate text-sm font-black text-[#111a35]" id="qrWorkingTitle">رمز QR جديد</p>
+                                <p class="truncate text-[11px] font-bold text-slate-500" id="qrDraftIndicator">مسودة محفوظة على هذا الجهاز</p>
+                            </div>
+                        </div>
+
+                        <div class="grid flex-1 grid-cols-2 gap-1.5 sm:flex sm:justify-end sm:overflow-x-auto sm:overscroll-x-contain sm:[scrollbar-width:none]">
+                            @auth
+                                <nav class="contents sm:flex sm:gap-1.5" id="qrAuthenticatedActions"
+                                    aria-label="إجراءات رموز QR">
+                                    <a class="hidden min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl border border-slate-200 px-3 text-xs font-black text-slate-700 transition hover:border-violet-200 hover:bg-violet-50 hover:text-violet-800 sm:inline-flex"
+                                        id="createNewQrLink" href="{{ route('tools.qr') }}">
+                                        <i class="fa-regular fa-file" aria-hidden="true"></i>
+                                        جديد
+                                    </a>
+                                    <a class="hidden min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl border border-slate-200 px-3 text-xs font-black text-slate-700 transition hover:border-violet-200 hover:bg-violet-50 hover:text-violet-800 sm:inline-flex"
+                                        id="qrMyCodesLink" href="{{ route('dashboard', ['section' => 'qr']) }}">
+                                        <i class="fa-regular fa-folder-open" aria-hidden="true"></i>
+                                        رموزي
+                                    </a>
+                                </nav>
+                            @endauth
+                            <button
+                                class="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-violet-200 bg-violet-50 px-3 text-xs font-black text-violet-800 transition hover:bg-violet-100 disabled:opacity-50 sm:min-h-11 sm:shrink-0"
+                                id="saveQrBtn" type="button">
+                                <i class="fa-regular fa-floppy-disk" aria-hidden="true"></i>
+                                حفظ
+                            </button>
+                            <button
+                                class="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-violet-700 px-4 text-xs font-black text-white shadow-md shadow-violet-900/15 transition hover:bg-violet-800 disabled:cursor-wait disabled:opacity-60 sm:min-h-11 sm:shrink-0"
+                                id="generateQrBtn" type="button" data-open-qr-export>
+                                <i class="fa-solid fa-download" aria-hidden="true"></i>
+                                تنزيل ومشاركة
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <div class="grid min-w-0 grid-cols-1 gap-3 lg:grid-cols-[320px_minmax(0,1fr)_68px] lg:rounded-3xl lg:border lg:border-slate-200 lg:bg-[#f7f7fb] lg:p-3 lg:shadow-[0_18px_60px_rgba(15,23,42,0.08)]"
+                    id="qrEditorShell">
+                <section
+                    class="order-2 min-w-0 scroll-mt-24 rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 lg:order-none lg:col-start-1 lg:row-start-1 lg:sticky lg:top-24 lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto"
                     aria-labelledby="qrSettingsTitle">
                     <div class="flex items-center justify-between gap-3">
                         <div>
-                            <p class="text-sm font-black text-violet-700">خصّص الرمز</p>
-                            <h2 class="mt-1 text-2xl font-black text-[#111a35]" id="qrSettingsTitle">إعدادات QR</h2>
+                            <p class="text-sm font-black text-violet-700" id="qrSettingsKicker">الخطوة الأساسية</p>
+                            <h2 class="mt-1 text-xl font-black text-[#111a35]" id="qrSettingsTitle">محتوى الرمز</h2>
                         </div>
                         <span class="grid h-11 w-11 place-items-center rounded-2xl bg-violet-100 text-xl text-violet-700"><i
                                 class="fa-solid fa-sliders" aria-hidden="true"></i></span>
                     </div>
 
-                    <form class="mt-6 grid gap-6" id="qrForm" novalidate>
-                        <fieldset class="grid gap-3">
-                            <legend class="text-sm font-black text-slate-800">1. نوع المحتوى</legend>
+                    <form class="mt-5 grid gap-5" id="qrForm" novalidate>
+                        <fieldset class="grid gap-3" data-qr-sidebar-panel="content">
+                            <legend class="text-sm font-black text-slate-800">نوع المحتوى</legend>
                             <div class="grid grid-cols-3 gap-2" role="radiogroup" aria-label="نوع محتوى الرمز">
                                 @foreach ([['value' => 'url', 'label' => 'رابط', 'icon' => 'fa-link'], ['value' => 'text', 'label' => 'نص', 'icon' => 'fa-align-right'], ['value' => 'wifi', 'label' => 'Wi-Fi', 'icon' => 'fa-wifi']] as $type)
                                     <label class="group relative">
@@ -100,8 +147,10 @@
                             </div>
                         </fieldset>
 
-                        <fieldset class="grid gap-3 border-t border-slate-100 pt-5">
-                            <legend class="text-sm font-black text-slate-800">2. نمط الرمز</legend>
+                        <fieldset class="hidden gap-5" data-qr-sidebar-panel="appearance">
+                            <legend class="sr-only">مظهر الرمز</legend>
+                            <div class="grid gap-3">
+                            <h3 class="text-sm font-black text-slate-800">نمط الرمز</h3>
                             <div class="grid grid-cols-2 gap-2 sm:grid-cols-3" role="radiogroup" aria-label="نمط الرمز">
                                 @foreach ([['value' => 'classic', 'label' => 'كلاسيكي', 'image' => 'مربع كلاسيكي.png'], ['value' => 'dots', 'label' => 'نقاط', 'image' => 'نقاط ودوائر.png'], ['value' => 'rounded', 'label' => 'مستديرة', 'image' => 'مستديرة ناعم.png']] as $style)
                                     <label class="cursor-pointer">
@@ -117,11 +166,11 @@
                                     </label>
                                 @endforeach
                             </div>
-                        </fieldset>
+                            </div>
 
-                        <fieldset class="grid gap-3 border-t border-slate-100 pt-5">
-                            <legend class="text-sm font-black text-slate-800">3. الألوان</legend>
-                            <div class="grid gap-3 sm:grid-cols-3">
+                            <div class="grid gap-3 border-t border-slate-100 pt-5">
+                            <h3 class="text-sm font-black text-slate-800">الألوان</h3>
+                            <div class="grid gap-3 sm:grid-cols-3 lg:grid-cols-1">
                                 @foreach ([['id' => 'qrForegroundColor', 'label' => 'لون الرمز', 'value' => '#111827'], ['id' => 'qrEyeColor', 'label' => 'لون الزوايا', 'value' => '#6d28d9'], ['id' => 'qrBackgroundColor', 'label' => 'الخلفية', 'value' => '#ffffff']] as $color)
                                     <label class="grid gap-2 text-xs font-black text-slate-600" for="{{ $color['id'] }}">
                                         {{ $color['label'] }}
@@ -139,10 +188,11 @@
                                 id="qrContrastWarning" role="status">
                                 التباين منخفض وقد يصعب مسح الرمز. اختر لون رمز أغمق أو خلفية أفتح.
                             </p>
+                            </div>
                         </fieldset>
 
-                        <fieldset class="grid gap-3 border-t border-slate-100 pt-5">
-                            <legend class="text-sm font-black text-slate-800">4. العنصر في المنتصف</legend>
+                        <fieldset class="hidden gap-3" data-qr-sidebar-panel="center">
+                            <legend class="text-sm font-black text-slate-800">العنصر في المنتصف</legend>
                             <div class="grid grid-cols-3 gap-2" role="radiogroup" aria-label="العنصر في منتصف الرمز">
                                 @foreach ([['value' => 'none', 'label' => 'بدون', 'icon' => 'fa-ban'], ['value' => 'image', 'label' => 'صورة', 'icon' => 'fa-image'], ['value' => 'text', 'label' => 'نص', 'icon' => 'fa-font']] as $center)
                                     <label>
@@ -176,14 +226,15 @@
                             </div>
                         </fieldset>
 
-                        <fieldset class="grid gap-3 border-t border-slate-100 pt-5">
-                            <legend class="text-sm font-black text-slate-800">5. قالب الإطار</legend>
-                            <div class="grid grid-cols-2 gap-2 sm:grid-cols-3" role="radiogroup"
-                                aria-label="قالب الإطار">
-                                <label class="cursor-pointer">
+                        <fieldset class="hidden min-w-0 gap-3 overflow-hidden" data-qr-sidebar-panel="frames">
+                            <legend class="text-sm font-black text-slate-800">قالب الإطار</legend>
+                            <p class="text-xs font-bold leading-5 text-slate-500">اختر إطارًا جاهزًا أو اترك الرمز دون قالب.</p>
+                            <div class="flex w-full max-w-full min-w-0 snap-x snap-mandatory gap-2 overflow-x-auto overscroll-x-contain pb-2 [scrollbar-width:thin] lg:grid lg:max-h-[560px] lg:grid-cols-2 lg:overflow-y-auto lg:pl-1" role="radiogroup"
+                                dir="ltr" aria-label="قالب الإطار">
+                                <label class="cursor-pointer" dir="rtl">
                                     <input class="peer sr-only" type="radio" name="qr_frame" value="none" checked>
                                     <span
-                                        class="grid min-h-40 place-items-center gap-2 rounded-2xl border border-slate-200 bg-white p-2 text-xs font-black text-slate-700 shadow-sm transition hover:border-violet-300 hover:bg-violet-50/40 peer-checked:border-violet-500 peer-checked:bg-violet-50 peer-checked:text-violet-800 peer-checked:ring-4 peer-checked:ring-violet-100 peer-focus-visible:ring-4 peer-focus-visible:ring-violet-100">
+                                        class="grid min-h-36 w-32 shrink-0 snap-start place-items-center gap-2 rounded-2xl border border-slate-200 bg-white p-2 text-xs font-black text-slate-700 shadow-sm transition hover:border-violet-300 hover:bg-violet-50/40 peer-checked:border-violet-500 peer-checked:bg-violet-50 peer-checked:text-violet-800 peer-checked:ring-4 peer-checked:ring-violet-100 peer-focus-visible:ring-4 peer-focus-visible:ring-violet-100 lg:w-full">
                                         <span
                                             class="grid aspect-square w-full max-w-24 place-items-center rounded-xl border border-dashed border-slate-200 bg-slate-50 text-2xl text-slate-400"
                                             aria-hidden="true"><i class="fa-solid fa-xmark"></i></span>
@@ -191,12 +242,12 @@
                                     </span>
                                 </label>
                                 @foreach (range(1, 11) as $templateNumber)
-                                    <label class="cursor-pointer">
+                                    <label class="cursor-pointer" dir="rtl">
                                         <input class="peer sr-only" type="radio" name="qr_frame"
                                             value="template-{{ $templateNumber }}"
                                             data-template-url="{{ asset('assets/qr-templates/' . $templateNumber . '.png') }}">
                                         <span
-                                            class="grid min-h-40 place-items-center gap-2 rounded-2xl border border-slate-200 bg-white p-2 text-xs font-black text-slate-700 shadow-sm transition hover:border-violet-300 hover:bg-violet-50/40 peer-checked:border-violet-500 peer-checked:bg-violet-50 peer-checked:text-violet-800 peer-checked:ring-4 peer-checked:ring-violet-100 peer-focus-visible:ring-4 peer-focus-visible:ring-violet-100">
+                                            class="grid min-h-36 w-32 shrink-0 snap-start place-items-center gap-2 rounded-2xl border border-slate-200 bg-white p-2 text-xs font-black text-slate-700 shadow-sm transition hover:border-violet-300 hover:bg-violet-50/40 peer-checked:border-violet-500 peer-checked:bg-violet-50 peer-checked:text-violet-800 peer-checked:ring-4 peer-checked:ring-violet-100 peer-focus-visible:ring-4 peer-focus-visible:ring-violet-100 lg:w-full">
                                             <img class="aspect-square w-full max-w-24 rounded-xl object-contain"
                                                 src="{{ asset('assets/qr-templates/' . $templateNumber . '.png') }}"
                                                 alt="معاينة قالب {{ $templateNumber }}" loading="lazy">
@@ -207,43 +258,15 @@
                             </div>
                         </fieldset>
 
-                        <div class="grid gap-3 border-t border-slate-100 pt-5 sm:grid-cols-[1fr_auto]">
-                            <button
-                                class="inline-flex min-h-13 items-center justify-center gap-2 rounded-xl bg-linear-to-l from-violet-700 to-indigo-700 px-6 font-black text-white shadow-lg shadow-violet-900/20 transition hover:-translate-y-0.5 disabled:cursor-wait disabled:opacity-60"
-                                id="generateQrBtn" type="submit">
-                                <i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i>
-                                إنشاء رمز QR
-                            </button>
-                            <button
-                                class="inline-flex min-h-13 items-center justify-center gap-2 rounded-xl border border-violet-200 bg-white px-5 font-black text-violet-800 hover:bg-violet-50 disabled:opacity-50"
-                                id="saveQrBtn" type="button">
-                                <i class="fa-regular fa-floppy-disk" aria-hidden="true"></i>
-                                حفظ
-                            </button>
-                        </div>
                         <p class="min-h-5 text-sm font-bold text-slate-500" id="qrFormStatus" role="status"
                             aria-live="polite"></p>
+                        <button class="sr-only" type="submit">تنزيل ومشاركة</button>
                     </form>
                 </section>
 
-                <section class="order-1 min-w-0 xl:order-2" aria-labelledby="qrPreviewTitle">
+                <section class="order-1 min-w-0 lg:order-none lg:col-start-2 lg:row-start-1" aria-labelledby="qrPreviewTitle">
                     <div
-                        class="rounded-3xl border border-violet-100 bg-white p-4 shadow-[0_18px_60px_rgba(49,46,129,0.09)] sm:p-6 xl:sticky xl:top-25">
-                        @auth
-                            <nav class="mb-5 grid gap-2 sm:grid-cols-2" id="qrAuthenticatedActions"
-                                aria-label="إجراءات رموز QR">
-                                <a class="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-violet-700 px-5 font-black text-white shadow-lg shadow-violet-900/20 transition hover:-translate-y-0.5 hover:bg-violet-800"
-                                    id="qrMyCodesLink" href="{{ route('dashboard', ['section' => 'qr']) }}">
-                                    <i class="fa-solid fa-qrcode" aria-hidden="true"></i>
-                                    رموزي
-                                </a>
-                                <a class="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-violet-200 bg-white px-5 font-black text-violet-800 shadow-sm transition hover:-translate-y-0.5 hover:border-violet-300 hover:bg-violet-50"
-                                    id="createNewQrLink" href="{{ route('tools.qr') }}">
-                                    <i class="fa-solid fa-plus" aria-hidden="true"></i>
-                                    إنشاء رمز جديد
-                                </a>
-                            </nav>
-                        @endauth
+                        class="rounded-2xl border border-slate-200 bg-white p-3 sm:p-4 lg:sticky lg:top-24">
                         <div class="flex items-center justify-between gap-3">
                             <div>
                                 <h2 class="mt-1 text-2xl font-black text-[#111a35]" id="qrPreviewTitle">المعاينة</h2>
@@ -258,7 +281,7 @@
                                 جاهز للمسح</span>
                         </div>
 
-                        <div class="mt-5 grid min-h-[380px] place-items-center overflow-hidden rounded-3xl border border-violet-100 bg-[radial-gradient(circle_at_50%_45%,rgba(124,58,237,0.1),transparent_42%),#f8f7ff] p-4 sm:min-h-[500px] sm:p-8"
+                        <div class="mt-3 grid min-h-[300px] place-items-center overflow-hidden rounded-2xl border border-violet-100 bg-[radial-gradient(circle_at_50%_45%,rgba(124,58,237,0.1),transparent_42%),#f8f7ff] p-4 sm:min-h-[500px] sm:p-8 lg:min-h-[610px]"
                             id="qrPreviewStage">
                             <div class="grid w-full max-w-[470px] place-items-center">
                                 <div class="grid place-items-center gap-4 py-20 text-center text-slate-500"
@@ -282,23 +305,8 @@
                             </div>
                         </div>
 
-                        <div class="mt-4 hidden grid-cols-2 gap-2 sm:grid-cols-3" id="qrDownloadActions">
-                            <button
-                                class="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 text-sm font-black text-white hover:bg-slate-800"
-                                id="downloadQrPng" type="button"><i class="fa-solid fa-image" aria-hidden="true"></i>
-                                PNG</button>
-                            <button
-                                class="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-black text-slate-700 hover:bg-slate-50"
-                                id="downloadQrSvg" type="button"><i class="fa-solid fa-bezier-curve"
-                                    aria-hidden="true"></i> SVG</button>
-                            <button
-                                class="col-span-2 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-violet-200 bg-white px-4 text-sm font-black text-violet-800 hover:bg-violet-50 sm:col-span-1"
-                                id="copyQrImage" type="button"><i class="fa-regular fa-copy" aria-hidden="true"></i>
-                                نسخ</button>
-                        </div>
-
                         @guest
-                            <div class="mt-5 rounded-2xl border border-violet-200 bg-violet-50 p-4" id="guestCloudSaveCard">
+                            <div class="mt-3 hidden rounded-2xl border border-violet-200 bg-violet-50 p-4 lg:block" id="guestCloudSaveCard">
                                 <div class="flex items-start gap-3">
                                     <span
                                         class="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-white text-violet-700 shadow-sm"><i
@@ -316,13 +324,13 @@
                         @else
                             @if (auth()->user()->hasVerifiedEmail())
                                 <div
-                                    class="mt-5 flex items-center justify-center gap-3 rounded-2xl border border-emerald-100 bg-emerald-50 p-4 text-sm font-bold text-emerald-900">
+                                    class="mt-3 hidden items-center justify-center gap-3 rounded-2xl border border-emerald-100 bg-emerald-50 p-4 text-sm font-bold text-emerald-900 lg:flex">
                                     <span class="inline-flex items-center gap-2"><i class="fa-solid fa-cloud"
                                             aria-hidden="true"></i> حسابك جاهز للحفظ السحابي</span>
                                 </div>
                             @else
                                 <div
-                                    class="mt-5 flex items-center justify-between gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm font-bold text-amber-900">
+                                    class="mt-3 hidden items-center justify-between gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm font-bold text-amber-900 lg:flex">
                                     <span class="inline-flex items-center gap-2"><i class="fa-solid fa-envelope-circle-check"
                                             aria-hidden="true"></i> فعّل بريدك لتبدأ الحفظ السحابي</span>
                                     <a class="font-black underline" href="{{ route('verification.notice') }}">التفعيل</a>
@@ -331,10 +339,29 @@
                         @endguest
                     </div>
                 </section>
+
+                <nav class="fixed inset-x-2 bottom-2 z-90 grid grid-cols-5 gap-1 rounded-2xl border border-slate-200 bg-white/95 p-2 shadow-[0_12px_35px_rgba(15,23,42,0.15)] backdrop-blur-xl lg:order-none lg:sticky lg:inset-auto lg:top-24 lg:col-start-3 lg:row-start-1 lg:z-auto lg:flex lg:flex-col lg:gap-2 lg:border-0 lg:bg-slate-950 lg:p-2 lg:text-white lg:shadow-none"
+                    id="qrEditorRail" aria-label="أدوات محرر QR">
+                    @foreach ([['content', 'fa-link', 'المحتوى'], ['appearance', 'fa-palette', 'المظهر'], ['center', 'fa-image', 'الوسط'], ['frames', 'fa-border-all', 'الإطار']] as [$panel, $icon, $label])
+                        <button
+                            class="flex min-h-12 flex-col items-center justify-center gap-1 rounded-xl px-1 text-[10px] font-black text-slate-600 transition hover:bg-violet-50 hover:text-violet-800 data-selected:bg-violet-700 data-selected:text-white lg:text-slate-200 lg:hover:bg-white/10 lg:hover:text-white"
+                            type="button" data-qr-sidebar-tab="{{ $panel }}" @if ($panel === 'content') data-selected aria-selected="true" @else aria-selected="false" @endif>
+                            <i class="fa-solid {{ $icon }}" aria-hidden="true"></i>
+                            {{ $label }}
+                        </button>
+                    @endforeach
+                    <button
+                        class="flex min-h-12 flex-col items-center justify-center gap-1 rounded-xl bg-violet-700 px-1 text-[10px] font-black text-white lg:hidden"
+                        type="button" data-open-qr-export>
+                        <i class="fa-solid fa-download" aria-hidden="true"></i>
+                        تنزيل
+                    </button>
+                </nav>
+                </div>
             </div>
 
             @if ($campaigns['side'])
-                <x-public.advertisement class="min-h-72 lg:sticky lg:top-25 lg:h-[620px]" :campaign="$campaigns['side']"
+                <x-public.advertisement class="min-h-72 2xl:sticky 2xl:top-25 2xl:h-[620px]" :campaign="$campaigns['side']"
                     placement="side" />
             @endif
         </main>
@@ -355,6 +382,47 @@
                 <x-public.advertisement :campaign="$campaigns['bottom']" placement="bottom" />
             </section>
         @endif
+
+        <dialog
+            class="fixed inset-x-0 bottom-0 top-auto m-0 max-h-[calc(100vh_-_1rem)] w-full overflow-auto rounded-t-3xl border-0 bg-white p-0 text-right shadow-[0_30px_100px_rgba(17,24,39,0.3)] backdrop:bg-slate-950/45 backdrop:backdrop-blur-[4px] sm:inset-0 sm:m-auto sm:w-[min(520px,calc(100vw_-_32px))] sm:rounded-3xl"
+            id="qrExportDialog" aria-labelledby="qrExportDialogTitle">
+            <div class="p-5 sm:p-6">
+                <div class="flex items-start justify-between gap-4">
+                    <div>
+                        <span class="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-xs font-black text-emerald-700"><i
+                                class="fa-solid fa-circle-check" aria-hidden="true"></i> جاهز للاستخدام</span>
+                        <h2 class="mt-3 text-2xl font-black text-[#111a35]" id="qrExportDialogTitle">تنزيل ومشاركة الرمز</h2>
+                        <p class="mt-1 text-sm font-bold leading-6 text-slate-500">اختر الصيغة المناسبة، أو انسخ الصورة مباشرة.</p>
+                    </div>
+                    <button
+                        class="grid size-9 shrink-0 place-items-center rounded-full border border-slate-200 text-slate-500 hover:bg-slate-50"
+                        type="button" data-close-qr-export aria-label="إغلاق"><i class="fa-solid fa-xmark"
+                            aria-hidden="true"></i></button>
+                </div>
+
+                <div class="mt-5 hidden grid-cols-2 gap-2 sm:grid-cols-3" id="qrDownloadActions">
+                    <button
+                        class="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 text-sm font-black text-white hover:bg-slate-800"
+                        id="downloadQrPng" type="button"><i class="fa-solid fa-image" aria-hidden="true"></i>
+                        تنزيل PNG</button>
+                    <button
+                        class="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-black text-slate-700 hover:bg-slate-50"
+                        id="downloadQrSvg" type="button"><i class="fa-solid fa-bezier-curve"
+                            aria-hidden="true"></i> تنزيل SVG</button>
+                    <button
+                        class="col-span-2 inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-violet-200 bg-white px-4 text-sm font-black text-violet-800 hover:bg-violet-50 sm:col-span-1"
+                        id="copyQrImage" type="button"><i class="fa-regular fa-copy" aria-hidden="true"></i>
+                        نسخ الصورة</button>
+                </div>
+
+                <button
+                    class="mt-3 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-violet-50 px-4 text-sm font-black text-violet-800 hover:bg-violet-100"
+                    type="button" data-save-from-qr-export>
+                    <i class="fa-regular fa-floppy-disk" aria-hidden="true"></i>
+                    حفظ التصميم للعودة إليه لاحقًا
+                </button>
+            </div>
+        </dialog>
 
         <dialog
             class="fixed inset-0 m-auto rounded-3xl border-0 p-0 text-right shadow-[0_30px_100px_rgba(17,24,39,0.3)] backdrop:bg-slate-950/45 backdrop:backdrop-blur-[4px]"

@@ -19,6 +19,7 @@ if (qrForm) {
   const centerTextInput = document.getElementById("qrCenterText");
   const guestDialog = document.getElementById("guestQrDialog");
   const saveDialog = document.getElementById("saveQrDialog");
+  const exportDialog = document.getElementById("qrExportDialog");
   const saveForm = document.getElementById("saveQrForm");
   const saveTitleInput = document.getElementById("qrSaveTitle");
   const saveStatus = document.getElementById("qrSaveStatus");
@@ -45,6 +46,14 @@ if (qrForm) {
   let currentQrCode = config.savedQrCode || null;
   let renderTimer = null;
   let renderSequence = 0;
+  const sidebarPanels = [...document.querySelectorAll("[data-qr-sidebar-panel]")];
+  const sidebarTabs = [...document.querySelectorAll("[data-qr-sidebar-tab]")];
+  const panelDetails = {
+    content: { kicker: "الخطوة الأساسية", title: "محتوى الرمز" },
+    appearance: { kicker: "خصّص التصميم", title: "مظهر الرمز" },
+    center: { kicker: "أضف هويتك", title: "وسط الرمز" },
+    frames: { kicker: "اختر قالبًا", title: "إطار الرمز" }
+  };
 
   const selectedValue = (name) => qrForm.querySelector(`[name="${name}"]:checked`)?.value;
 
@@ -58,6 +67,32 @@ if (qrForm) {
     saveStatus.textContent = message;
     saveStatus.className = "mt-2 min-h-5 text-xs font-bold";
     saveStatus.classList.add(tone === "error" ? "text-red-700" : tone === "success" ? "text-emerald-700" : "text-slate-500");
+  }
+
+  function activateSidebarPanel(panelName, { scroll = false } = {}) {
+    const activePanel = sidebarPanels.find((panel) => panel.dataset.qrSidebarPanel === panelName);
+    if (!activePanel) return;
+
+    sidebarPanels.forEach((panel) => {
+      const isActive = panel === activePanel;
+      panel.classList.toggle("hidden", !isActive);
+      panel.classList.toggle("grid", isActive);
+    });
+    sidebarTabs.forEach((tab) => {
+      const isActive = tab.dataset.qrSidebarTab === panelName;
+      tab.toggleAttribute("data-selected", isActive);
+      tab.setAttribute("aria-selected", String(isActive));
+    });
+
+    const details = panelDetails[panelName];
+    if (details) {
+      document.getElementById("qrSettingsKicker").textContent = details.kicker;
+      document.getElementById("qrSettingsTitle").textContent = details.title;
+    }
+
+    if (scroll && window.matchMedia("(max-width: 1023px)").matches) {
+      document.querySelector('[aria-labelledby="qrSettingsTitle"]')?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
   }
 
   function currentPayload() {
@@ -586,14 +621,32 @@ if (qrForm) {
     window.setTimeout(() => saveTitleInput.select(), 50);
   }
 
+  async function openExportFlow() {
+    const state = currentState();
+    const validationMessage = validateState(state);
+    if (validationMessage) {
+      const hasInvalidCenter = (state.design.center_type === "text" && !state.design.center_text)
+        || (state.design.center_type === "image" && !logoDataUrl && !currentQrCode?.has_logo);
+      activateSidebarPanel(
+        hasInvalidCenter ? "center" : "content",
+        { scroll: true }
+      );
+    }
+
+    const rendered = await renderPreview({ track: true });
+    if (rendered && !exportDialog.open) exportDialog.showModal();
+  }
+
   qrForm.addEventListener("submit", async (event) => {
     event.preventDefault();
     window.clearTimeout(renderTimer);
-    await renderPreview({ track: true });
+    await openExportFlow();
   });
 
   qrForm.addEventListener("input", schedulePreview);
   qrForm.addEventListener("change", schedulePreview);
+  sidebarTabs.forEach((tab) => tab.addEventListener("click", () => activateSidebarPanel(tab.dataset.qrSidebarTab)));
+  document.querySelectorAll("[data-open-qr-export]").forEach((button) => button.addEventListener("click", openExportFlow));
   saveButton.addEventListener("click", openSaveFlow);
   document.getElementById("createNewQrLink")?.addEventListener("click", () => localStorage.removeItem(draftKey));
   document.getElementById("guestSavePromptBtn")?.addEventListener("click", openSaveFlow);
@@ -621,6 +674,11 @@ if (qrForm) {
   });
   saveDialog?.querySelectorAll("[data-close-save-dialog]").forEach((button) => button.addEventListener("click", () => saveDialog.close()));
   guestDialog?.querySelectorAll("[data-close-guest-dialog]").forEach((button) => button.addEventListener("click", () => guestDialog.close()));
+  exportDialog?.querySelectorAll("[data-close-qr-export]").forEach((button) => button.addEventListener("click", () => exportDialog.close()));
+  exportDialog?.querySelector("[data-save-from-qr-export]")?.addEventListener("click", () => {
+    exportDialog.close();
+    openSaveFlow();
+  });
 
   document.getElementById("downloadQrSvg").addEventListener("click", async () => {
     await loadTemplateDataUrl(currentDesign().frame);

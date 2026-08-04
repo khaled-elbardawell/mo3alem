@@ -9,7 +9,15 @@ use App\Models\User;
 test('the qr tool presents an easy guest flow and all customization controls', function () {
     $response = $this->get(route('tools.qr'))
         ->assertSuccessful()
+        ->assertSee('id="qrRibbon"', false)
+        ->assertSee('id="qrEditorShell"', false)
+        ->assertSee('id="qrEditorRail"', false)
         ->assertSee('id="qrForm"', false)
+        ->assertSee('data-qr-sidebar-panel="content"', false)
+        ->assertSee('data-qr-sidebar-panel="appearance"', false)
+        ->assertSee('data-qr-sidebar-panel="center"', false)
+        ->assertSee('data-qr-sidebar-panel="frames"', false)
+        ->assertSee('data-qr-sidebar-tab="content"', false)
         ->assertSee('name="content_type"', false)
         ->assertSee('value="url"', false)
         ->assertSee('value="text"', false)
@@ -35,6 +43,8 @@ test('the qr tool presents an easy guest flow and all customization controls', f
         ->assertDontSee('id="qrMyCodesLink"', false)
         ->assertDontSee('id="createNewQrLink"', false)
         ->assertSee('id="generateQrBtn"', false)
+        ->assertSee('تنزيل ومشاركة')
+        ->assertSee('id="qrExportDialog"', false)
         ->assertSee('id="guestCloudSaveCard"', false)
         ->assertSee('حفظ هذا التصميم مجانًا')
         ->assertSee('PNG')
@@ -76,7 +86,7 @@ test('a saved qr can be reopened in the editor by its owner', function () {
         ->assertSee('id="createNewQrLink"', false)
         ->assertSee(route('dashboard', ['section' => 'qr']), false)
         ->assertSee('رموزي')
-        ->assertSee('إنشاء رمز جديد');
+        ->assertSee('جديد');
     expect($response->viewData('qrConfig')['savedQrCode'])
         ->toMatchArray([
             'id' => $qrCode->id,
@@ -120,6 +130,11 @@ test('the qr client keeps the draft through registration and supports both downl
         ->toContain('loadTemplateDataUrl')
         ->toContain('appendTemplate')
         ->toContain('getElementById("createNewQrLink")')
+        ->toContain('activateSidebarPanel')
+        ->toContain('activateSidebarPanel(tab.dataset.qrSidebarTab)')
+        ->not->toContain('activateSidebarPanel(tab.dataset.qrSidebarTab, { scroll: true })')
+        ->toContain('openExportFlow')
+        ->toContain('exportDialog.showModal()')
         ->toContain('localStorage.removeItem(draftKey)')
         ->not->toContain('افتح النشاط');
 });
