@@ -57,6 +57,10 @@ class CreateNewUser implements CreatesNewUsers
             'password' => Hash::make($input['password']),
         ]);
 
+        $user->forceFill([
+            'email_verified_at' => now(),
+        ])->save();
+
         $this->metrics->increment('registrations');
         $this->metrics->recordActiveUser($user);
 

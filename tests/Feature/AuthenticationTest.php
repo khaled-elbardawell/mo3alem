@@ -6,7 +6,7 @@ use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Support\Facades\Notification;
 
-test('a guest may register and receives an email verification notification', function () {
+test('a guest may register without email verification', function () {
     Notification::fake();
 
     $response = $this->post(route('register'), [
@@ -18,10 +18,10 @@ test('a guest may register and receives an email verification notification', fun
 
     $user = User::query()->where('email', 'ahmad@example.com')->firstOrFail();
 
-    $response->assertRedirect(route('verification.notice'));
+    $response->assertRedirect(route('home'));
     $this->assertAuthenticatedAs($user);
-    expect($user->hasVerifiedEmail())->toBeFalse();
-    Notification::assertSentTo($user, VerifyEmail::class);
+    expect($user->hasVerifiedEmail())->toBeTrue();
+    Notification::assertNotSentTo($user, VerifyEmail::class);
 });
 
 test('an active user may login and a suspended user may not', function () {
