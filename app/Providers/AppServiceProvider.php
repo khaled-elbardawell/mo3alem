@@ -25,6 +25,13 @@ class AppServiceProvider extends ServiceProvider
     {
         Model::preventLazyLoading(! app()->isProduction());
 
+        RateLimiter::for('social-authentication', function (Request $request): array {
+            return [
+                Limit::perMinute(10)->by('minute:'.$request->ip()),
+                Limit::perHour(50)->by('hour:'.$request->ip()),
+            ];
+        });
+
         RateLimiter::for('saved-wheel-creation', function (Request $request): array {
             $userIdentifier = $request->user()?->getAuthIdentifier() ?? $request->ip();
 

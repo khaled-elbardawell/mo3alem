@@ -6,7 +6,9 @@
     <h1 class="text-2xl font-black">تسجيل الدخول</h1>
     <p class="mt-2 text-sm text-slate-500">ادخل لحفظ أعمالك ومتابعتها من أي جهاز.</p>
 
-    <form class="mt-6 grid gap-4" method="POST" action="{{ route('login') }}">
+    <x-auth.social-authentication />
+
+    <form class="grid gap-4" method="POST" action="{{ route('login') }}">
         @csrf
         <label class="grid gap-2 font-bold">
             البريد الإلكتروني

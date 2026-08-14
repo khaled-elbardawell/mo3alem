@@ -4,6 +4,7 @@ use App\Http\Controllers\ActivityMetricController;
 use App\Http\Controllers\AdClickController;
 use App\Http\Controllers\AdImpressionController;
 use App\Http\Controllers\Admin;
+use App\Http\Controllers\Auth\SocialAuthenticationController;
 use App\Http\Controllers\CertificateAuthRedirectController;
 use App\Http\Controllers\CertificateBackgroundController;
 use App\Http\Controllers\CertificateController;
@@ -50,6 +51,16 @@ Route::post('/ads/{adCampaign}/impression', AdImpressionController::class)
 Route::post('/activity-metrics', ActivityMetricController::class)
     ->middleware('throttle:240,1')
     ->name('activity-metrics.store');
+
+Route::middleware(['guest', 'throttle:social-authentication'])
+    ->prefix('auth/{provider}')
+    ->whereIn('provider', ['google', 'facebook'])
+    ->group(function (): void {
+        Route::get('/redirect', [SocialAuthenticationController::class, 'redirect'])
+            ->name('social.redirect');
+        Route::get('/callback', [SocialAuthenticationController::class, 'callback'])
+            ->name('social.callback');
+    });
 
 Route::middleware(['auth', 'active'])->group(function (): void {
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
