@@ -54,7 +54,7 @@ Route::post('/activity-metrics', ActivityMetricController::class)
 
 Route::middleware(['guest', 'throttle:social-authentication'])
     ->prefix('auth/{provider}')
-    ->whereIn('provider', ['google', 'facebook'])
+    ->whereIn('provider', ['google'])
     ->group(function (): void {
         Route::get('/redirect', [SocialAuthenticationController::class, 'redirect'])
             ->name('social.redirect');

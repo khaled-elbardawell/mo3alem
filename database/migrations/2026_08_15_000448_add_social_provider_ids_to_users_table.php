@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             $table->string('google_id')->nullable()->unique()->after('last_login_at');
-            $table->string('facebook_id')->nullable()->unique()->after('google_id');
         });
     }
 
@@ -24,8 +23,7 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             $table->dropUnique(['google_id']);
-            $table->dropUnique(['facebook_id']);
-            $table->dropColumn(['google_id', 'facebook_id']);
+            $table->dropColumn(['google_id']);
         });
     }
 };

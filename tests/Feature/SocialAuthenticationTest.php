@@ -16,12 +16,11 @@ beforeEach(function () {
     }
 });
 
-test('authentication pages offer google and facebook login', function () {
+test('authentication pages offer google', function () {
     foreach (['login', 'register'] as $page) {
         $this->get(route($page))
             ->assertSuccessful()
-            ->assertSee(route('social.redirect', ['provider' => 'google']), false)
-            ->assertSee(route('social.redirect', ['provider' => 'facebook']), false);
+            ->assertSee(route('social.redirect', ['provider' => 'google']), false);
     }
 });
 
