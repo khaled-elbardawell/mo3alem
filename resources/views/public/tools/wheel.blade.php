@@ -851,21 +851,39 @@
         @endauth
 
         <div class="celebration pointer-events-none fixed inset-0 z-[110] hidden place-items-center bg-[radial-gradient(circle_at_50%_42%,rgba(245,158,11,0.16),transparent_34%),radial-gradient(circle,rgba(51,65,85,0.2),transparent_50%)] [&.is-show]:pointer-events-auto [&.is-show]:grid"
-            id="celebration" aria-hidden="true">
+            id="celebration" role="dialog" aria-modal="true" aria-labelledby="celebrationTitle"
+            aria-describedby="celebrationPrompt" aria-hidden="true">
             <div
                 class="celebration__box relative min-w-[min(440px,calc(100vw_-_36px))] animate-celebration rounded-[26px] border border-[rgba(51,65,85,0.18)] bg-white/[0.94] p-7 text-center shadow-[0_30px_90px_rgba(30,41,59,0.25)]">
                 <button
                     class="celebration__close absolute top-3 left-3 grid h-[38px] w-[38px] cursor-pointer place-items-center rounded-full border border-[rgba(51,65,85,0.14)] bg-white text-lg text-[#1e293b] shadow-[0_10px_24px_rgba(30,41,59,0.12)] hover:border-[rgba(220,38,38,0.22)] hover:text-[#dc2626]"
-                    type="button" id="celebrationCloseBtn" aria-label="إيقاف الاحتفال">
+                    type="button" id="celebrationCloseBtn" aria-label="إبقاء الفائز وإغلاق النافذة">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
                 <div
                     class="celebration__icon mx-auto mb-3 grid h-[76px] w-[76px] animate-trophy-pulse place-items-center rounded-full bg-linear-to-br from-[#fbbf24] to-[#f59e0b] text-[34px] text-white">
                     <i class="fa-solid fa-trophy"></i>
                 </div>
-                <span class="block font-black text-[#667085]">مبروك للفائز</span>
+                <span class="block font-black text-[#667085]" id="celebrationTitle">مبروك للفائز</span>
                 <strong class="mt-1.5 block text-[clamp(28px,5vw,44px)] font-black text-[#6d28d9]"
                     id="celebrationName">—</strong>
+                <p class="mt-3 text-sm leading-6 font-bold text-slate-600" id="celebrationPrompt">
+                    هل تريد حذف الفائز من العجلة أم إبقاءه للسحب مرة أخرى؟
+                </p>
+                <div class="mt-5 grid grid-cols-2 gap-3 max-[460px]:grid-cols-1">
+                    <button
+                        class="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 font-black text-red-700 transition hover:border-red-300 hover:bg-red-100 focus:outline-2 focus:outline-offset-2 focus:outline-red-500"
+                        type="button" id="removeCelebrationWinnerBtn">
+                        <i class="fa-solid fa-trash-can" aria-hidden="true"></i>
+                        حذف الفائز
+                    </button>
+                    <button
+                        class="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-violet-700 px-4 font-black text-white transition hover:bg-violet-800 focus:outline-2 focus:outline-offset-2 focus:outline-violet-600"
+                        type="button" id="keepCelebrationWinnerBtn">
+                        <i class="fa-solid fa-user-check" aria-hidden="true"></i>
+                        إبقاء الفائز
+                    </button>
+                </div>
             </div>
         </div>
 

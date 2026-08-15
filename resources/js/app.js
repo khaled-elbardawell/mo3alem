@@ -302,6 +302,8 @@ const restoreAllResultsBtn = document.getElementById("restoreAllResultsBtn");
 const celebration = document.getElementById("celebration");
 const celebrationName = document.getElementById("celebrationName");
 const celebrationCloseBtn = document.getElementById("celebrationCloseBtn");
+const removeCelebrationWinnerBtn = document.getElementById("removeCelebrationWinnerBtn");
+const keepCelebrationWinnerBtn = document.getElementById("keepCelebrationWinnerBtn");
 const celebrationAudio = new Audio("/assets/voice.m4a");
 const siteHeader = document.querySelector(".site-header");
 const navSectionLinks = document.querySelectorAll(
@@ -380,8 +382,8 @@ let rotation = 0;
 let spinning = false;
 let muted = false;
 let autoTimer = null;
-let celebrationTimer = null;
 let confettiTimers = [];
+let pendingWinnerDecision = null;
 let draggedNameIndex = null;
 let idleSpinFrame = null;
 let lastIdleSpinTime = null;
@@ -421,7 +423,6 @@ const overscan = 8;
 const maximumNames = 2000;
 const maximumImportFileSize = 20 * 1024 * 1024;
 const spinDurationMs = 5100;
-const celebrationDurationMs = 5200;
 const idleSpinSpeedDegPerSecond = 8;
 const wheelSpinTransition = "transform 5s cubic-bezier(0.11, 0.75, 0.13, 1)";
 
@@ -1369,11 +1370,11 @@ function updateControlStates() {
     : activeMode === "guest";
   const hasNames = hasEditableWorkspace && names.length > 0;
   const canRunCompetition = !wheelConfig.authenticated || Boolean(currentCompetition);
-  const controlsLocked = spinning || importingNames;
+  const controlsLocked = spinning || importingNames || celebration.classList.contains("is-show");
   const spinDisabled = controlsLocked || !hasNames || !canRunCompetition;
 
-  if (!hasNames) stopIdleSpin();
-  else if (!spinning) startIdleSpin();
+  if (!hasNames || controlsLocked) stopIdleSpin();
+  else startIdleSpin();
 
   setDisabled([spinBtn, centerSpinBtn], spinDisabled);
   setDisabled(
@@ -1388,7 +1389,8 @@ function updateControlStates() {
   setDisabled([autoSpin, autoSpinDelay], !canRunCompetition || controlsLocked);
   setDisabled([clearResultsBtn], winners.length === 0 || controlsLocked);
   setDisabled([restoreAllResultsBtn], winners.length === 0 || controlsLocked);
-  syncNameRowControls();
+  setDisabled(Array.from(winnersList.querySelectorAll("button")), controlsLocked);
+  syncNameRowControls(controlsLocked);
 
   spinBtn.classList.toggle("is-loading", spinning);
   centerSpinBtn.classList.toggle("is-loading", spinning);
@@ -1411,13 +1413,13 @@ function updateControlStates() {
   );
 }
 
-function syncNameRowControls() {
+function syncNameRowControls(controlsLocked) {
   virtualItems.querySelectorAll("input, button").forEach((control) => {
-    control.disabled = spinning;
+    control.disabled = controlsLocked;
   });
 
   virtualItems.querySelectorAll(".name-row").forEach((row) => {
-    row.draggable = !spinning;
+    row.draggable = !controlsLocked;
   });
 }
 
@@ -1742,11 +1744,8 @@ function spinWheel() {
     resultCard.hidden = false;
 
     selectedIds.clear();
-    addWinner(winner, selectedIndex + 1);
-    removeWinnerFromNames(selectedIndex, winner);
-    showCelebration(winner);
+    showCelebration(winner, selectedIndex);
     updateControlStates();
-    startIdleSpin();
   }, spinDurationMs);
 }
 
@@ -1970,12 +1969,18 @@ function celebrationSound() {
   } catch (_) {}
 }
 
-function showCelebration(name) {
+function showCelebration(name, selectedIndex) {
   stopCelebration();
+  pendingWinnerDecision = {
+    name,
+    nameNumber: selectedIndex + 1,
+    selectedIndex
+  };
   celebrationName.textContent = name;
   celebration.classList.add("is-show");
   celebration.setAttribute("aria-hidden", "false");
   celebrationSound();
+  keepCelebrationWinnerBtn.focus();
   launchConfetti();
   confettiTimers = [
     setTimeout(launchConfetti, 360),
@@ -1983,18 +1988,12 @@ function showCelebration(name) {
     setTimeout(launchConfetti, 1240),
     setTimeout(launchConfetti, 1760)
   ];
-
-  celebrationTimer = setTimeout(stopCelebration, celebrationDurationMs);
 }
 
 function stopCelebration() {
   celebration.classList.remove("is-show");
   celebration.setAttribute("aria-hidden", "true");
-
-  if (celebrationTimer) {
-    clearTimeout(celebrationTimer);
-    celebrationTimer = null;
-  }
+  pendingWinnerDecision = null;
 
   confettiTimers.forEach((timer) => clearTimeout(timer));
   confettiTimers = [];
@@ -2005,6 +2004,24 @@ function stopCelebration() {
   } catch (_) {}
 
   document.querySelectorAll(".confetti").forEach((piece) => piece.remove());
+}
+
+function removeCelebrationWinner() {
+  const winnerDecision = pendingWinnerDecision;
+
+  stopCelebration();
+  if (winnerDecision) {
+    addWinner(winnerDecision.name, winnerDecision.nameNumber);
+    removeWinnerFromNames(winnerDecision.selectedIndex, winnerDecision.name);
+  }
+  updateControlStates();
+  spinBtn.focus();
+}
+
+function keepCelebrationWinner() {
+  stopCelebration();
+  updateControlStates();
+  spinBtn.focus();
 }
 
 function launchConfetti() {
@@ -2711,7 +2728,12 @@ document.querySelector('label.wheel-tool[for="importInput"]')?.addEventListener(
   }
 );
 
-celebrationCloseBtn.addEventListener("click", stopCelebration);
+celebrationCloseBtn.addEventListener("click", keepCelebrationWinner);
+removeCelebrationWinnerBtn.addEventListener("click", removeCelebrationWinner);
+keepCelebrationWinnerBtn.addEventListener("click", keepCelebrationWinner);
+celebration.addEventListener("keydown", (event) => {
+  if (event.key === "Escape") keepCelebrationWinner();
+});
 
 autoSpin.addEventListener("change", (event) => setAutoSpin(event.target.checked));
 autoSpinDelay.addEventListener("change", () => {

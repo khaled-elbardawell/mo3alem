@@ -207,6 +207,51 @@ test('celebration sound uses the public asset path', function () {
         ->not->toContain('new Audio("./assets/voice.m4a")');
 });
 
+test('celebration asks whether to remove or keep the winner', function () {
+    $response = $this->get(route('tools.wheel'));
+
+    $response
+        ->assertSuccessful()
+        ->assertSee('id="celebrationPrompt"', false)
+        ->assertSee('id="removeCelebrationWinnerBtn"', false)
+        ->assertSee('حذف الفائز')
+        ->assertSee('id="keepCelebrationWinnerBtn"', false)
+        ->assertSee('إبقاء الفائز');
+
+    $script = file_get_contents(resource_path('js/app.js'));
+    $spinFunction = substr(
+        $script,
+        strpos($script, 'function spinWheel()'),
+        strpos($script, 'function addWinner(') - strpos($script, 'function spinWheel()'),
+    );
+    $removeWinnerDecisionFunction = substr(
+        $script,
+        strpos($script, 'function removeCelebrationWinner()'),
+        strpos($script, 'function keepCelebrationWinner()') - strpos($script, 'function removeCelebrationWinner()'),
+    );
+    $keepWinnerDecisionFunction = substr(
+        $script,
+        strpos($script, 'function keepCelebrationWinner()'),
+        strpos($script, 'function launchConfetti()') - strpos($script, 'function keepCelebrationWinner()'),
+    );
+
+    expect($script)
+        ->toContain('showCelebration(winner, selectedIndex);')
+        ->not->toContain('removeWinnerFromNames(selectedIndex, winner);')
+        ->toContain('function removeCelebrationWinner()')
+        ->toContain('addWinner(winnerDecision.name, winnerDecision.nameNumber);')
+        ->toContain('function keepCelebrationWinner()')
+        ->not->toContain('celebrationTimer = setTimeout')
+        ->and($spinFunction)
+        ->not->toContain('addWinner(')
+        ->and($removeWinnerDecisionFunction)
+        ->toContain('addWinner(winnerDecision.name, winnerDecision.nameNumber);')
+        ->toContain('removeWinnerFromNames(winnerDecision.selectedIndex, winnerDecision.name);')
+        ->and($keepWinnerDecisionFunction)
+        ->not->toContain('addWinner(')
+        ->not->toContain('removeWinnerFromNames(');
+});
+
 test('the client enforces the agreed list and autosave safeguards', function () {
     $script = file_get_contents(resource_path('js/app.js'));
 
