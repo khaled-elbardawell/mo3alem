@@ -69,6 +69,13 @@ class WheelController extends Controller
         $wheelConfig = [
             'authenticated' => (bool) $request->user(),
             'verified' => $request->user()?->hasVerifiedEmail() ?? false,
+            'limits' => [
+                'savedWheels' => (int) config('resource_limits.saved_wheels'),
+                'namesPerSavedWheel' => (int) config('resource_limits.names_per_saved_wheel'),
+            ],
+            'usage' => [
+                'savedWheels' => $request->user()?->savedWheels()->count() ?? 0,
+            ],
             'competition' => $loadedCompetition
                 ? CompetitionResource::make($loadedCompetition)->resolve($request)
                 : null,

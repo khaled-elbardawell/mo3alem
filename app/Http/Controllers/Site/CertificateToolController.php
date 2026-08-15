@@ -50,6 +50,12 @@ class CertificateToolController extends Controller
         $certificateConfig = [
             'authenticated' => (bool) $request->user(),
             'verified' => $request->user()?->hasVerifiedEmail() ?? false,
+            'limits' => [
+                'savedCertificates' => (int) config('resource_limits.certificates'),
+            ],
+            'usage' => [
+                'savedCertificates' => $request->user()?->certificates()->count() ?? 0,
+            ],
             'savedCertificate' => $loadedCertificate
                 ? CertificateResource::make($loadedCertificate)->resolve($request)
                 : null,

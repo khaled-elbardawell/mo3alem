@@ -38,7 +38,7 @@ class SavedWheelUpdateRequest extends FormRequest
         return [
             'title' => ['required', 'string', 'max:120'],
             'names_text' => ['nullable', 'string'],
-            'names' => ['present', 'array', 'max:2000'],
+            'names' => ['present', 'array', 'max:'.config('resource_limits.names_per_saved_wheel')],
             'names.*' => ['required', 'string', 'max:120'],
         ];
     }

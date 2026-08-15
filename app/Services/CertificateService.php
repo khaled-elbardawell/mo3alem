@@ -25,9 +25,11 @@ class CertificateService
             return DB::transaction(function () use ($user, $data, $backgroundPath): Certificate {
                 $lockedUser = User::query()->whereKey($user)->lockForUpdate()->firstOrFail();
 
-                if ($lockedUser->certificates()->count() >= 100) {
+                $maximumCertificates = (int) config('resource_limits.certificates');
+
+                if ($lockedUser->certificates()->count() >= $maximumCertificates) {
                     throw ValidationException::withMessages([
-                        'title' => 'وصلت إلى الحد الأقصى وهو 100 شهادة محفوظة.',
+                        'title' => "وصلت إلى الحد الأقصى وهو {$maximumCertificates} شهادات محفوظة.",
                     ]);
                 }
 

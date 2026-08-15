@@ -50,6 +50,12 @@ class QrToolController extends Controller
         $qrConfig = [
             'authenticated' => (bool) $request->user(),
             'verified' => $request->user()?->hasVerifiedEmail() ?? false,
+            'limits' => [
+                'savedQrCodes' => (int) config('resource_limits.qr_codes'),
+            ],
+            'usage' => [
+                'savedQrCodes' => $request->user()?->qrCodes()->count() ?? 0,
+            ],
             'savedQrCode' => $loadedQrCode
                 ? QrCodeResource::make($loadedQrCode)->resolve($request)
                 : null,

@@ -17,12 +17,16 @@ class SavedWheelService
      */
     public function create(User $user, array $data): SavedWheel
     {
+        $this->ensureNamesAreWithinLimit($data['names']);
+
         return DB::transaction(function () use ($user, $data): SavedWheel {
             $lockedUser = User::query()->whereKey($user)->lockForUpdate()->firstOrFail();
 
-            if ($lockedUser->savedWheels()->count() >= 100) {
+            $maximumSavedWheels = (int) config('resource_limits.saved_wheels');
+
+            if ($lockedUser->savedWheels()->count() >= $maximumSavedWheels) {
                 throw ValidationException::withMessages([
-                    'title' => 'وصلت إلى الحد الأقصى وهو 100 قائمة.',
+                    'title' => "وصلت إلى الحد الأقصى وهو {$maximumSavedWheels} قوائم محفوظة.",
                 ]);
             }
 
@@ -59,6 +63,10 @@ class SavedWheelService
      */
     public function update(SavedWheel $savedWheel, array $data): ?SavedWheel
     {
+        if (array_key_exists('names', $data)) {
+            $this->ensureNamesAreWithinLimit($data['names']);
+        }
+
         $attributes = [
             'version' => DB::raw('version + 1'),
             'last_opened_at' => now(),
@@ -113,9 +121,11 @@ class SavedWheelService
     {
         $names = $savedWheel->names;
 
-        if (count($names) >= 2000) {
+        $maximumNames = (int) config('resource_limits.names_per_saved_wheel');
+
+        if (count($names) >= $maximumNames) {
             throw ValidationException::withMessages([
-                'name' => 'وصلت القائمة إلى الحد الأقصى وهو 2000 اسم.',
+                'name' => "وصلت القائمة إلى الحد الأقصى وهو {$maximumNames} اسم.",
             ]);
         }
 
@@ -143,5 +153,41 @@ class SavedWheelService
             'names' => $names,
             'version' => $version,
         ]);
+    }
+
+    public function restore(SavedWheel $savedWheel): SavedWheel
+    {
+        return DB::transaction(function () use ($savedWheel): SavedWheel {
+            $lockedUser = User::query()->whereKey($savedWheel->user_id)->lockForUpdate()->firstOrFail();
+            $maximumSavedWheels = (int) config('resource_limits.saved_wheels');
+
+            if ($lockedUser->savedWheels()->count() >= $maximumSavedWheels) {
+                throw ValidationException::withMessages([
+                    'title' => "لا يمكن استعادة القائمة لأن المستخدم وصل إلى الحد الأقصى وهو {$maximumSavedWheels} قوائم محفوظة.",
+                ]);
+            }
+
+            if ($lockedUser->savedWheels()->where('active_title', $savedWheel->title)->exists()) {
+                throw ValidationException::withMessages([
+                    'title' => 'لا يمكن الاستعادة لأن لدى المستخدم قائمة نشطة بالاسم نفسه.',
+                ]);
+            }
+
+            $savedWheel->restore();
+
+            return $savedWheel->refresh();
+        });
+    }
+
+    /** @param array<int, string> $names */
+    private function ensureNamesAreWithinLimit(array $names): void
+    {
+        $maximumNames = (int) config('resource_limits.names_per_saved_wheel');
+
+        if (count($names) > $maximumNames) {
+            throw ValidationException::withMessages([
+                'names' => "الحد الأقصى للقائمة هو {$maximumNames} اسم.",
+            ]);
+        }
     }
 }

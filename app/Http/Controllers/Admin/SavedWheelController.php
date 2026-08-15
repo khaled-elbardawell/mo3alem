@@ -6,10 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\SavedWheelUpdateRequest;
 use App\Models\SavedWheel;
 use App\Services\AdminAuditService;
+use App\Services\SavedWheelService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class SavedWheelController extends Controller
@@ -70,18 +70,13 @@ class SavedWheelController extends Controller
         return back()->with('status', 'تم حذف القائمة.');
     }
 
-    public function restore(Request $request, SavedWheel $savedWheel, AdminAuditService $audit): RedirectResponse
-    {
-        if (SavedWheel::query()
-            ->where('user_id', $savedWheel->user_id)
-            ->where('active_title', $savedWheel->title)
-            ->exists()) {
-            throw ValidationException::withMessages([
-                'title' => 'لا يمكن الاستعادة لأن لدى المستخدم قائمة نشطة بالاسم نفسه.',
-            ]);
-        }
-
-        $savedWheel->restore();
+    public function restore(
+        Request $request,
+        SavedWheel $savedWheel,
+        AdminAuditService $audit,
+        SavedWheelService $service,
+    ): RedirectResponse {
+        $savedWheel = $service->restore($savedWheel);
         $audit->record($request, 'saved-wheel.restored', $savedWheel, null, $savedWheel->fresh()->toArray());
 
         return back()->with('status', 'تمت استعادة القائمة.');

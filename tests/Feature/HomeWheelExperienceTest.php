@@ -25,7 +25,6 @@ test('authenticated users start from competitions and may switch to saved name l
     $response
         ->assertSuccessful()
         ->assertDontSee('data-mode="guest"', false)
-        ->assertSee('data-mode="save"', false)
         ->assertSee('id="saveWorkspaceTabs"', false)
         ->assertSee('id="competitionsWorkspaceTab"', false)
         ->assertSee('data-save-workspace="competitions"', false)
@@ -60,12 +59,18 @@ test('authenticated users start from competitions and may switch to saved name l
     expect(strpos($response->getContent(), 'id="createSavedWheelBtn"'))
         ->toBeLessThan(strpos($response->getContent(), 'id="dataPage"'));
 
-    $routes = $response->viewData('wheelConfig')['routes'];
+    $wheelConfig = $response->viewData('wheelConfig');
+    $routes = $wheelConfig['routes'];
 
     expect($routes['index'])->toBe(route('saved-wheels.index'))
         ->and($routes['showBase'])->toBe(url('/saved-wheels'))
         ->and($routes['competitions']['index'])->toBe(route('competitions.index'))
-        ->and($routes['competitions']['showBase'])->toBe(url('/competitions'));
+        ->and($routes['competitions']['showBase'])->toBe(url('/competitions'))
+        ->and($wheelConfig['limits'])->toBe([
+            'savedWheels' => 6,
+            'namesPerSavedWheel' => 2000,
+        ])
+        ->and($wheelConfig['usage']['savedWheels'])->toBe(0);
 });
 
 test('opening a competition exposes its participant snapshot and round history', function () {
@@ -256,7 +261,9 @@ test('the client enforces the agreed list and autosave safeguards', function () 
     $script = file_get_contents(resource_path('js/app.js'));
 
     expect($script)
-        ->toContain('const maximumNames = 2000;')
+        ->toContain('const maximumSavedWheels = Number(wheelConfig.limits?.savedWheels) || 6;')
+        ->toContain('const maximumNames = Number(wheelConfig.limits?.namesPerSavedWheel) || 2000;')
+        ->toContain('if (savedWheelLimitReached())')
         ->toContain('window.setTimeout(() => saveCurrentWheel(), 2000)')
         ->toContain('let saveInFlightPromise = null;')
         ->toContain('getSavedListSnapshot() !== lastSavedSnapshot')

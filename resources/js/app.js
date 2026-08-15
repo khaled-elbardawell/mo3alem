@@ -417,10 +417,12 @@ let selectedCompetitionListId = null;
 let isHydrating = true;
 let activeMode = wheelConfig.authenticated ? "save" : "guest";
 let importingNames = false;
+let savedWheelsCount = Number(wheelConfig.usage?.savedWheels) || 0;
 
 const rowHeight = 46;
 const overscan = 8;
-const maximumNames = 2000;
+const maximumSavedWheels = Number(wheelConfig.limits?.savedWheels) || 6;
+const maximumNames = Number(wheelConfig.limits?.namesPerSavedWheel) || 2000;
 const maximumImportFileSize = 20 * 1024 * 1024;
 const spinDurationMs = 5100;
 const idleSpinSpeedDegPerSecond = 8;
@@ -978,6 +980,14 @@ function setSavedWheelsStatus(message, tone = "neutral") {
   );
 }
 
+function savedWheelLimitMessage() {
+  return `وصلت إلى الحد الأقصى وهو ${formatNumber(maximumSavedWheels)} قوائم محفوظة. احذف قائمة قبل إنشاء قائمة جديدة.`;
+}
+
+function savedWheelLimitReached() {
+  return savedWheelsCount >= maximumSavedWheels;
+}
+
 function setSavedWheelsLoading(loading) {
   savedWheelsLoading = loading;
   savedWheelsLoader?.classList.toggle("hidden", !loading);
@@ -1022,6 +1032,11 @@ function createSavedWheelCard(savedWheel) {
 
 function beginNewSavedWheel() {
   if (!wheelConfig.verified || !createSavedWheelDialog) return;
+
+  if (savedWheelLimitReached()) {
+    setSavedWheelsStatus(savedWheelLimitMessage(), "error");
+    return;
+  }
 
   if (createSavedWheelStatus) createSavedWheelStatus.textContent = "";
   if (savedWheelTitle) savedWheelTitle.value = "";
@@ -1121,6 +1136,10 @@ async function loadSavedWheel(savedWheelId, trigger = null) {
 
 async function createSavedWheel(title, initialNames = []) {
   if (!wheelConfig.verified || !wheelConfig.routes.store) return false;
+  if (savedWheelLimitReached()) {
+    setSaveStatus(savedWheelLimitMessage(), "error");
+    return false;
+  }
   if (!title) {
     setSaveStatus("اكتب اسمًا للقائمة أولًا.", "error");
     savedWheelTitle?.focus();
@@ -1144,6 +1163,7 @@ async function createSavedWheel(title, initialNames = []) {
     }
 
     currentSavedWheel = body.data;
+    savedWheelsCount += 1;
     currentCompetition = null;
     serverConflictWheel = null;
     hydrateState({ names: currentSavedWheel.names, results: [] });
@@ -1293,6 +1313,7 @@ async function deleteSavedWheel(savedWheel, card, trigger) {
     if (!response.ok) throw new Error(body.message || "تعذر حذف القائمة.");
 
     card.remove();
+    savedWheelsCount = Math.max(0, savedWheelsCount - 1);
     const hasCards = Boolean(savedWheelsCards?.children.length);
     savedWheelsEmpty?.classList.toggle("hidden", hasCards);
     savedWheelsEmpty?.classList.toggle("grid", !hasCards);

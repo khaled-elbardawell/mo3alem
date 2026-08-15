@@ -92,6 +92,25 @@ test('stale qr updates return the latest server copy', function () {
         ->assertJsonPath('data.version', 3);
 });
 
+test('a user cannot save more than ten qr codes but may update an existing one', function () {
+    $user = User::factory()->create();
+    $maximumQrCodes = (int) config('resource_limits.qr_codes');
+    $qrCodes = QrCode::factory()->count($maximumQrCodes)->for($user)->create();
+
+    $this->actingAs($user)
+        ->postJson(route('qr-codes.store'), qrPayload(['title' => 'رمز إضافي']))
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors('title');
+
+    $this->actingAs($user)
+        ->patchJson(route('qr-codes.update', $qrCodes->first()), [
+            ...qrPayload(['title' => 'رمز معدل']),
+            'version' => 1,
+        ])
+        ->assertSuccessful()
+        ->assertJsonPath('data.title', 'رمز معدل');
+});
+
 test('logos are validated stored privately and authorized', function () {
     Storage::fake('local');
     $user = User::factory()->create();

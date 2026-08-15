@@ -50,8 +50,10 @@ if (certificateConfigElement) {
   const minimumElementWidth = 60;
   const minimumElementHeight = 28;
   const historyLimit = 80;
+  const maximumSavedCertificates = Number(config.limits?.savedCertificates) || 5;
 
   let currentCertificate = config.savedCertificate || null;
+  let savedCertificatesCount = Number(config.usage?.savedCertificates) || 0;
   let templateKey = "b6";
   let design = defaultDesign();
   let selectedElementId = null;
@@ -197,6 +199,14 @@ if (certificateConfigElement) {
     saveStatus.textContent = message;
     saveStatus.className = "mt-2 min-h-5 text-xs font-bold";
     saveStatus.classList.add(tone === "error" ? "text-red-700" : tone === "success" ? "text-emerald-700" : "text-slate-500");
+  }
+
+  function certificateLimitMessage() {
+    return `وصلت إلى الحد الأقصى وهو ${maximumSavedCertificates} شهادات محفوظة. احذف شهادة قبل حفظ شهادة جديدة.`;
+  }
+
+  function certificateLimitReached() {
+    return !currentCertificate && savedCertificatesCount >= maximumSavedCertificates;
   }
 
   function snapshot() {
@@ -843,6 +853,11 @@ if (certificateConfigElement) {
   }
 
   async function saveCertificate() {
+    if (certificateLimitReached()) {
+      setSaveStatus(certificateLimitMessage(), "error");
+      return;
+    }
+
     const title = saveTitleInput.value.trim();
     if (!title) {
       setSaveStatus("اكتب اسماً للتصميم.", "error");
@@ -878,6 +893,8 @@ if (certificateConfigElement) {
       formData.append("version", currentCertificate.version);
     }
 
+    const isCreatingCertificate = !currentCertificate;
+
     try {
       const response = await fetch(url, {
         method: "POST",
@@ -889,6 +906,7 @@ if (certificateConfigElement) {
       if (!response.ok) throw new Error(Object.values(body.errors || {}).flat()[0] || body.message || "تعذر حفظ الشهادة.");
 
       currentCertificate = body.data;
+      if (isCreatingCertificate) savedCertificatesCount += 1;
       currentBackgroundFile = null;
       backgroundDataUrl = null;
       if (templateKey === "custom" && currentCertificate.background_url) backgroundImage.src = currentCertificate.background_url;
@@ -921,6 +939,11 @@ if (certificateConfigElement) {
     if (!config.verified) {
       persistDraft(true);
       window.location.href = config.routes.verification;
+      return;
+    }
+
+    if (certificateLimitReached()) {
+      setSaveIndicator(certificateLimitMessage(), "error");
       return;
     }
 
@@ -1209,8 +1232,12 @@ if (certificateConfigElement) {
     else if (useDraft) setSaveIndicator("تم استرجاع مسودتك الأخيرة", "success");
 
     if (certificateDraft?.pendingSave && config.authenticated && config.verified && !currentCertificate) {
-      saveTitleInput.value = certificateDraft.title || "شهادة جديدة";
-      saveDialog.showModal();
+      if (certificateLimitReached()) {
+        setSaveIndicator(certificateLimitMessage(), "error");
+      } else {
+        saveTitleInput.value = certificateDraft.title || "شهادة جديدة";
+        saveDialog.showModal();
+      }
     }
   }
 

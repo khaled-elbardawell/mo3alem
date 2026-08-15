@@ -39,11 +39,13 @@ if (qrForm) {
     "template-11": { width: 1968, height: 1968, qrX: 585, qrY: 650, qrSize: 900 }
   };
   const templateDataUrls = new Map();
+  const maximumSavedQrCodes = Number(config.limits?.savedQrCodes) || 10;
   let baseQrSvg = "";
   let previewUrl = "";
   let logoDataUrl = null;
   let logoFile = null;
   let currentQrCode = config.savedQrCode || null;
+  let savedQrCodesCount = Number(config.usage?.savedQrCodes) || 0;
   let renderTimer = null;
   let renderSequence = 0;
   const sidebarPanels = [...document.querySelectorAll("[data-qr-sidebar-panel]")];
@@ -67,6 +69,14 @@ if (qrForm) {
     saveStatus.textContent = message;
     saveStatus.className = "mt-2 min-h-5 text-xs font-bold";
     saveStatus.classList.add(tone === "error" ? "text-red-700" : tone === "success" ? "text-emerald-700" : "text-slate-500");
+  }
+
+  function qrCodeLimitMessage() {
+    return `وصلت إلى الحد الأقصى وهو ${maximumSavedQrCodes} رموز QR محفوظة. احذف رمزًا قبل حفظ رمز جديد.`;
+  }
+
+  function qrCodeLimitReached() {
+    return !currentQrCode && savedQrCodesCount >= maximumSavedQrCodes;
   }
 
   function activateSidebarPanel(panelName, { scroll = false } = {}) {
@@ -539,6 +549,11 @@ if (qrForm) {
   }
 
   async function saveQrCode() {
+    if (qrCodeLimitReached()) {
+      setSaveStatus(qrCodeLimitMessage(), "error");
+      return;
+    }
+
     const title = saveTitleInput.value.trim();
     if (!title) {
       setSaveStatus("اكتب اسمًا للتصميم.", "error");
@@ -576,6 +591,8 @@ if (qrForm) {
       if (state.design.center_type !== "image" && currentQrCode.has_logo) formData.append("remove_logo", "1");
     }
 
+    const isCreatingQrCode = !currentQrCode;
+
     try {
       const response = await fetch(url, {
         method: "POST",
@@ -586,6 +603,7 @@ if (qrForm) {
       const body = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(Object.values(body.errors || {}).flat()[0] || body.message || "تعذر حفظ الرمز.");
       currentQrCode = body.data;
+      if (isCreatingQrCode) savedQrCodesCount += 1;
       logoFile = null;
       saveTitleInput.value = currentQrCode.title;
       localStorage.removeItem(draftKey);
@@ -612,6 +630,11 @@ if (qrForm) {
     if (!config.verified) {
       persistDraft(true);
       window.location.href = config.routes.verification;
+      return;
+    }
+
+    if (qrCodeLimitReached()) {
+      setStatus(qrCodeLimitMessage(), "error");
       return;
     }
 
@@ -719,8 +742,12 @@ if (qrForm) {
     }
 
     if (draft?.pendingSave && config.authenticated && config.verified && !currentQrCode) {
-      saveTitleInput.value = "رمز QR جديد";
-      saveDialog.showModal();
+      if (qrCodeLimitReached()) {
+        setStatus(qrCodeLimitMessage(), "error");
+      } else {
+        saveTitleInput.value = "رمز QR جديد";
+        saveDialog.showModal();
+      }
     }
   }
 

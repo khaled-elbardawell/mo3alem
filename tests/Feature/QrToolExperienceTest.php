@@ -92,7 +92,9 @@ test('a saved qr can be reopened in the editor by its owner', function () {
             'id' => $qrCode->id,
             'title' => 'رمز النشاط المحفوظ',
             'payload' => ['url' => 'https://example.com/saved'],
-        ]);
+        ])
+        ->and($response->viewData('qrConfig')['limits']['savedQrCodes'])->toBe(10)
+        ->and($response->viewData('qrConfig')['usage']['savedQrCodes'])->toBe(1);
 });
 
 test('the qr account handoff preserves the intended editor destination', function () {
@@ -136,6 +138,7 @@ test('the qr client keeps the draft through registration and supports both downl
         ->toContain('openExportFlow')
         ->toContain('exportDialog.showModal()')
         ->toContain('localStorage.removeItem(draftKey)')
+        ->toContain('if (qrCodeLimitReached())')
         ->not->toContain('افتح النشاط');
 });
 

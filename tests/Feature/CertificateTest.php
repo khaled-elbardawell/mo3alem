@@ -96,6 +96,25 @@ test('stale certificate updates return the latest server copy', function () {
         ->assertJsonPath('data.version', 3);
 });
 
+test('a user cannot save more than five certificates but may update an existing one', function () {
+    $user = User::factory()->create();
+    $maximumCertificates = (int) config('resource_limits.certificates');
+    $certificates = Certificate::factory()->count($maximumCertificates)->for($user)->create();
+
+    $this->actingAs($user)
+        ->postJson(route('certificates.store'), certificatePayload(['title' => 'شهادة إضافية']))
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors('title');
+
+    $this->actingAs($user)
+        ->patchJson(route('certificates.update', $certificates->first()), [
+            ...certificatePayload(['title' => 'شهادة معدلة']),
+            'version' => 1,
+        ])
+        ->assertSuccessful()
+        ->assertJsonPath('data.title', 'شهادة معدلة');
+});
+
 test('custom backgrounds are validated stored privately and authorized', function () {
     Storage::fake('local');
     $user = User::factory()->create();

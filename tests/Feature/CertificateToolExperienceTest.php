@@ -82,7 +82,9 @@ test('a saved certificate can be reopened in the editor only by its owner', func
             'id' => $certificate->id,
             'title' => 'شهادة العلوم المحفوظة',
             'template_key' => 'b6',
-        ]);
+        ])
+        ->and($response->viewData('certificateConfig')['limits']['savedCertificates'])->toBe(5)
+        ->and($response->viewData('certificateConfig')['usage']['savedCertificates'])->toBe(1);
 
     $this->actingAs($intruder)
         ->get(route('tools.certificates', ['certificate' => $certificate]))
@@ -128,6 +130,7 @@ test('the certificate client supports draft handoff manipulation and printable e
         ->toContain('downloadCertificatePngBtn')
         ->toContain('printWindow.print()')
         ->toContain('certificate_generate')
+        ->toContain('if (certificateLimitReached())')
         ->toContain('document.fonts?.ready');
 });
 

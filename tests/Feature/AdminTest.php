@@ -84,6 +84,22 @@ test('an administrator may soft delete and restore a saved wheel', function () {
     expect(AdminAuditLog::query()->count())->toBe(2);
 });
 
+test('an administrator cannot restore a saved wheel above the user limit', function () {
+    $admin = User::factory()->create(['role' => UserRole::Admin]);
+    $user = User::factory()->create();
+    $wheel = SavedWheel::factory()->for($user)->create();
+    $wheel->delete();
+    SavedWheel::factory()->count((int) config('resource_limits.saved_wheels'))->for($user)->create();
+
+    $this->actingAs($admin)
+        ->from(route('admin.saved-wheels.index'))
+        ->patch(route('admin.saved-wheels.restore', $wheel->id))
+        ->assertRedirect(route('admin.saved-wheels.index'))
+        ->assertSessionHasErrors('title');
+
+    $this->assertSoftDeleted($wheel);
+});
+
 test('an administrator may empty saved names without changing legacy results', function () {
     $admin = User::factory()->create(['role' => UserRole::Admin]);
     $legacyResults = [['name' => 'فائز قديم', 'date' => now()->toISOString()]];

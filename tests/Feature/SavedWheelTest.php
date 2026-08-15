@@ -73,8 +73,9 @@ test('an unverified user may read but cannot write saved wheels', function () {
 
 test('saved wheel limits and active title uniqueness are enforced', function () {
     $user = User::factory()->create();
+    $maximumSavedWheels = (int) config('resource_limits.saved_wheels');
 
-    SavedWheel::factory()->count(100)->for($user)->sequence(
+    SavedWheel::factory()->count($maximumSavedWheels)->for($user)->sequence(
         fn ($sequence) => [
             'title' => "قائمة {$sequence->index}",
             'active_title' => "قائمة {$sequence->index}",
@@ -219,9 +220,12 @@ test('saved list creation is limited to thirty per day', function () {
     foreach (range(1, 30) as $number) {
         RateLimiter::clear(md5("saved-wheel-creationminute:{$user->id}"));
 
-        $this->actingAs($user)
+        $createdWheelId = $this->actingAs($user)
             ->postJson(route('saved-wheels.store'), wheelPayload(['title' => "يومية {$number}"]))
-            ->assertCreated();
+            ->assertCreated()
+            ->json('data.id');
+
+        SavedWheel::query()->findOrFail($createdWheelId)->delete();
     }
 
     RateLimiter::clear(md5("saved-wheel-creationminute:{$user->id}"));
