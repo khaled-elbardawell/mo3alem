@@ -302,7 +302,7 @@ const restoreAllResultsBtn = document.getElementById("restoreAllResultsBtn");
 const celebration = document.getElementById("celebration");
 const celebrationName = document.getElementById("celebrationName");
 const celebrationCloseBtn = document.getElementById("celebrationCloseBtn");
-const celebrationAudio = new Audio("./assets/voice.m4a");
+const celebrationAudio = new Audio("/assets/voice.m4a");
 const siteHeader = document.querySelector(".site-header");
 const navSectionLinks = document.querySelectorAll(
   '.nav-links a[href^="#"], .mobile-drawer a[href^="#"]'

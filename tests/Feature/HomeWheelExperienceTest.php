@@ -198,6 +198,15 @@ test('automatic wheel movement delay is configurable', function () {
         ->not->toContain('}, 5000);');
 });
 
+test('celebration sound uses the public asset path', function () {
+    $script = file_get_contents(resource_path('js/app.js'));
+
+    expect(file_exists(public_path('assets/voice.m4a')))->toBeTrue()
+        ->and($script)
+        ->toContain('new Audio("/assets/voice.m4a")')
+        ->not->toContain('new Audio("./assets/voice.m4a")');
+});
+
 test('the client enforces the agreed list and autosave safeguards', function () {
     $script = file_get_contents(resource_path('js/app.js'));
 
