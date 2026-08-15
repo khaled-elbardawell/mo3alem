@@ -282,6 +282,7 @@ const newWheelBtn = document.getElementById("newWheelBtn");
 const toolbarFullscreenBtn = document.getElementById("toolbarFullscreenBtn");
 const toolbarSoundBtn = document.getElementById("toolbarSoundBtn");
 const autoSpin = document.getElementById("autoSpin");
+const autoSpinDelay = document.getElementById("autoSpinDelay");
 const wheelWrap = document.getElementById("wheelWrap");
 const wheelStage = document.querySelector(".wheel-stage");
 const mobileMenuBtn = document.getElementById("mobileMenuBtn");
@@ -567,13 +568,19 @@ function setSaveWorkspace(view = null) {
   }
 
   if (showActiveState && activeSavedWheelTitle) {
+    const isSavedList = Boolean(currentSavedWheel);
+
     activeSavedWheelTitle.textContent = activeWorkspace.title;
+    ["row-span-2", "self-center", "text-center"].forEach((className) => {
+      activeSavedWheelTitle.classList.toggle(className, isSavedList);
+    });
     backToWorkspaceLabel.textContent = currentCompetition
       ? "العودة إلى مسابقاتي"
       : "العودة إلى قوائمي";
-    activeWorkspaceHint.textContent = currentCompetition
-      ? "يتم حفظ الأسماء ونتائج اللفات تلقائيًا"
-      : "هذه قائمة أسماء؛ استخدمها داخل مسابقة لإجراء السحب";
+    activeWorkspaceHint.hidden = isSavedList;
+    activeWorkspaceHint.textContent = isSavedList
+      ? ""
+      : "يتم حفظ الأسماء ونتائج اللفات تلقائيًا";
     if (copyConflictBtn) copyConflictBtn.hidden = Boolean(currentCompetition);
     document.getElementById("resultsTab")?.classList.toggle("hidden", Boolean(currentSavedWheel));
     if (currentSavedWheel) switchTab("data");
@@ -1378,7 +1385,7 @@ function updateControlStates() {
     [newWheelBtn],
     controlsLocked || (wheelConfig.authenticated && !wheelConfig.verified)
   );
-  setDisabled([autoSpin], !canRunCompetition || controlsLocked);
+  setDisabled([autoSpin, autoSpinDelay], !canRunCompetition || controlsLocked);
   setDisabled([clearResultsBtn], winners.length === 0 || controlsLocked);
   setDisabled([restoreAllResultsBtn], winners.length === 0 || controlsLocked);
   syncNameRowControls();
@@ -1391,16 +1398,16 @@ function updateControlStates() {
   importTrigger?.classList.toggle("opacity-60", !hasEditableWorkspace || controlsLocked);
 
   if (spinBtnText) {
-    spinBtnText.textContent = spinning ? "جاري اللف..." : "لف العجلة";
+    spinBtnText.textContent = spinning ? "جاري تحريك العجلة..." : "حرك العجلة";
   }
 
   spinBtn.setAttribute(
     "aria-label",
-    spinning ? "العجلة تدور الآن" : "لف العجلة واختيار اسم"
+    spinning ? "العجلة تدور الآن" : "حرك العجلة واختيار اسم"
   );
   centerSpinBtn.setAttribute(
     "aria-label",
-    spinning ? "العجلة تدور الآن" : "لف العجلة"
+    spinning ? "العجلة تدور الآن" : "حرك العجلة"
   );
 }
 
@@ -2294,8 +2301,22 @@ function setAutoSpin(enabled) {
   if (enabled) {
     autoTimer = setInterval(() => {
       if (!spinning && !celebration.classList.contains("is-show")) spinWheel();
-    }, 5000);
+    }, getAutoSpinDelayMilliseconds());
   }
+}
+
+function getAutoSpinDelayMilliseconds() {
+  const minimumDelaySeconds = Number(autoSpinDelay.min);
+  const maximumDelaySeconds = Number(autoSpinDelay.max);
+  const requestedDelaySeconds = Number.parseInt(autoSpinDelay.value, 10);
+  const delaySeconds = Math.min(
+    maximumDelaySeconds,
+    Math.max(minimumDelaySeconds, requestedDelaySeconds || minimumDelaySeconds)
+  );
+
+  autoSpinDelay.value = String(delaySeconds);
+
+  return delaySeconds * 1000;
 }
 
 function switchTab(tab) {
@@ -2322,12 +2343,9 @@ function switchMode(mode) {
     button.classList.toggle("active", isActive);
     button.setAttribute("aria-pressed", String(isActive));
   });
+  modeHint.hidden = selectedMode === "save";
   modeHint.textContent = selectedMode === "save"
-    ? (wheelConfig.authenticated
-      ? (wheelConfig.verified
-        ? "وضع الحفظ: اختر مسابقة، ثم جهّز قائمة المشاركين وشاهد نتائج كل لفة."
-        : "وضع الحفظ: يمكنك فتح مسابقاتك وقوائمك، وفعّل بريدك لحفظ التعديلات.")
-      : "وضع الحفظ: سجّل الدخول لحفظ مسودتك وفتح قوائمك من أي جهاز.")
+    ? ""
     : "وضع الضيف: استخدم العجلة مباشرة بدون حفظ دائم.";
   updateSaveInterface(selectedMode);
   updateControlStates();
@@ -2696,6 +2714,10 @@ document.querySelector('label.wheel-tool[for="importInput"]')?.addEventListener(
 celebrationCloseBtn.addEventListener("click", stopCelebration);
 
 autoSpin.addEventListener("change", (event) => setAutoSpin(event.target.checked));
+autoSpinDelay.addEventListener("change", () => {
+  getAutoSpinDelayMilliseconds();
+  if (autoSpin.checked) setAutoSpin(true);
+});
 
 panelTabs.forEach((button) => {
   button.addEventListener("click", () => switchTab(button.dataset.tab));

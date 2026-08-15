@@ -156,6 +156,48 @@ test('the wheel page includes an accessible progress loader for file imports', f
         ->not->toContain('emptyImportNamesBtn');
 });
 
+test('wheel controls use move terminology', function () {
+    $template = file_get_contents(resource_path('views/public/tools/wheel.blade.php'));
+    $script = file_get_contents(resource_path('js/app.js'));
+    $moveWheelLabel = "\u{062D}\u{0631}\u{0643} \u{0627}\u{0644}\u{0639}\u{062C}\u{0644}\u{0629}";
+    $spinWheelLabel = "\u{0644}\u{0641} \u{0627}\u{0644}\u{0639}\u{062C}\u{0644}\u{0629}";
+    $automaticSpinLabel = "\u{0644}\u{0641} \u{062A}\u{0644}\u{0642}\u{0627}\u{0626}\u{064A}";
+    $spinningLabel = "\u{062C}\u{0627}\u{0631}\u{064A} \u{0627}\u{0644}\u{0644}\u{0641}";
+
+    expect($template)
+        ->toContain($moveWheelLabel)
+        ->not->toContain($spinWheelLabel)
+        ->not->toContain($automaticSpinLabel);
+
+    expect($script)
+        ->toContain($moveWheelLabel)
+        ->not->toContain($spinWheelLabel)
+        ->not->toContain($spinningLabel);
+});
+
+test('automatic wheel movement delay is configurable', function () {
+    $response = $this->get(route('tools.wheel'));
+
+    $response
+        ->assertSuccessful()
+        ->assertSeeInOrder([
+            'id="autoSpin"',
+            'id="autoSpinDelay"',
+            'type="number"',
+            'min="1"',
+            'max="60"',
+            'value="5"',
+        ], false);
+
+    $script = file_get_contents(resource_path('js/app.js'));
+
+    expect($script)
+        ->toContain('getAutoSpinDelayMilliseconds()')
+        ->toContain('return delaySeconds * 1000;')
+        ->toContain('if (autoSpin.checked) setAutoSpin(true);')
+        ->not->toContain('}, 5000);');
+});
+
 test('the client enforces the agreed list and autosave safeguards', function () {
     $script = file_get_contents(resource_path('js/app.js'));
 
@@ -202,8 +244,9 @@ test('the competition flow keeps results grouped by round and lists independent'
         ->toContain('round: Number.isFinite(winner.round)')
         ->toContain('اللفة ${formatNumber(winner.round || winners.length - index)}')
         ->toContain('const canRunCompetition = !wheelConfig.authenticated || Boolean(currentCompetition);')
-        ->toContain('activeWorkspaceHint.textContent = currentCompetition')
-        ->toContain('هذه قائمة أسماء؛ استخدمها داخل مسابقة لإجراء السحب');
+        ->toContain('const isSavedList = Boolean(currentSavedWheel);')
+        ->toContain('activeWorkspaceHint.hidden = isSavedList;')
+        ->toContain('activeSavedWheelTitle.classList.toggle(className, isSavedList);');
 });
 
 test('shared styles use the hand cursor for interactive controls', function () {
