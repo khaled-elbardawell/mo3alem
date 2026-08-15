@@ -6,7 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\AnalyticsRequest;
 use App\Models\DailyMetric;
 use Carbon\CarbonImmutable;
-use Illuminate\Support\Facades\Cache;
+use Carbon\CarbonPeriod;
+use Illuminate\Support\Collection;
 use Illuminate\View\View;
 
 class AnalyticsController extends Controller
@@ -14,33 +15,43 @@ class AnalyticsController extends Controller
     public function __invoke(AnalyticsRequest $request): View
     {
         [$from, $to, $range] = $this->dates($request);
-        $cacheKey = "admin:analytics:v2:{$from->toDateString()}:{$to->toDateString()}";
-
-        $rows = Cache::remember($cacheKey, 300, fn (): array => DailyMetric::query()
-            ->whereBetween('date', [$from->toDateString(), $to->toDateString()])
+        $storedMetrics = DailyMetric::query()
+            ->whereDate('date', '>=', $from)
+            ->whereDate('date', '<=', $to)
             ->oldest('date')
             ->get()
-            ->toArray());
+            ->keyBy(fn (DailyMetric $metric): string => $metric->date->toDateString());
 
-        $totals = collect($rows)->reduce(function (array $totals, array $row): array {
-            foreach (array_keys($totals) as $column) {
+        $rows = $this->dailyRows($from, $to, $storedMetrics);
+
+        $totals = $rows->reduce(function (array $totals, array $row): array {
+            foreach (DailyMetric::COLUMNS as $column) {
                 $totals[$column] += (int) $row[$column];
             }
 
             return $totals;
-        }, [
-            'site_visits' => 0,
-            'registrations' => 0,
-            'active_users' => 0,
-            'saved_wheels' => 0,
-            'names_saved' => 0,
-            'spins' => 0,
-            'imports' => 0,
-            'ad_impressions' => 0,
-            'ad_clicks' => 0,
-        ]);
+        }, array_fill_keys(DailyMetric::COLUMNS, 0));
 
         return view('admin.analytics', compact('rows', 'totals', 'from', 'to', 'range'));
+    }
+
+    /**
+     * @param  Collection<string, DailyMetric>  $storedMetrics
+     * @return Collection<int, array<string, CarbonImmutable|int>>
+     */
+    private function dailyRows(CarbonImmutable $from, CarbonImmutable $to, Collection $storedMetrics): Collection
+    {
+        return collect(CarbonPeriod::create($from, $to))->map(function ($date) use ($storedMetrics): array {
+            $immutableDate = CarbonImmutable::instance($date);
+            $metric = $storedMetrics->get($immutableDate->toDateString());
+            $row = ['date' => $immutableDate];
+
+            foreach (DailyMetric::COLUMNS as $column) {
+                $row[$column] = (int) ($metric?->{$column} ?? 0);
+            }
+
+            return $row;
+        });
     }
 
     /**

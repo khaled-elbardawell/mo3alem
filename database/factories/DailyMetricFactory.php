@@ -22,6 +22,7 @@ class DailyMetricFactory extends Factory
             'site_visits' => fake()->numberBetween(0, 5000),
             'registrations' => fake()->numberBetween(0, 20),
             'active_users' => fake()->numberBetween(0, 500),
+            'competitions' => fake()->numberBetween(0, 100),
             'saved_wheels' => fake()->numberBetween(0, 100),
             'names_saved' => fake()->numberBetween(0, 5000),
             'spins' => fake()->numberBetween(0, 10000),

@@ -269,7 +269,10 @@ test('the client enforces the agreed list and autosave safeguards', function () 
         ->toContain('getSavedListSnapshot() !== lastSavedSnapshot')
         ->toContain('savedWheelsSearchTimer = window.setTimeout(() => loadSavedWheels({ reset: true }), 300)')
         ->toContain('competitionsSearchTimer = window.setTimeout(() => loadCompetitions({ reset: true }), 300)')
-        ->toContain('names: names.slice()')
+        ->toContain('function normalizeNames(inputNames)')
+        ->toContain('.filter((name) => typeof name === "string")')
+        ->toContain('.map((name) => name.trim().slice(0, 120))')
+        ->toContain('names: normalizeNames(names)')
         ->toContain('...(isCompetition ? { results: serializeResults() } : {})');
 });
 

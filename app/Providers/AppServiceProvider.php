@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
@@ -32,13 +33,14 @@ class AppServiceProvider extends ServiceProvider
             ];
         });
 
-        RateLimiter::for('saved-wheel-creation', function (Request $request): array {
+        RateLimiter::for('saved-wheel-creation', function (Request $request): Limit {
             $userIdentifier = $request->user()?->getAuthIdentifier() ?? $request->ip();
 
-            return [
-                Limit::perMinute(5)->by("minute:{$userIdentifier}"),
-                Limit::perDay(30)->by("day:{$userIdentifier}"),
-            ];
+            return Limit::perDay(30)
+                ->by("day:{$userIdentifier}")
+                ->response(static fn (Request $request, array $headers): JsonResponse => response()->json([
+                    'message' => 'وصلت إلى الحد اليومي لإنشاء القوائم وهو 30 قائمة. يمكنك المحاولة لاحقًا.',
+                ], 429, $headers));
         });
 
         RateLimiter::for('competition-creation', function (Request $request): array {

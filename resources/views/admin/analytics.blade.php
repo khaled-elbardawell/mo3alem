@@ -1,20 +1,49 @@
 @extends('layouts.admin')
 
+@use('Illuminate\Support\Number')
+
 @section('title', 'الإحصائيات')
 
 @section('content')
-    <div>
-        <p class="text-sm font-black text-violet-600">الأداء</p>
-        <h1 class="mt-1 text-3xl font-black tracking-tight sm:text-4xl">الإحصائيات</h1>
-        <p class="mt-2 leading-7 text-slate-500">تابع نمو الحسابات واستخدام العجلة وأداء الإعلانات ضمن الفترة التي تختارها.</p>
+    @php
+        $metricDefinitions = [
+            'site_visits' => ['label' => 'زوار الموقع', 'short' => 'زوار', 'icon' => 'fa-chart-line'],
+            'registrations' => ['label' => 'التسجيلات', 'short' => 'تسجيل', 'icon' => 'fa-user-plus'],
+            'active_users' => ['label' => 'المستخدمون النشطون', 'short' => 'نشط', 'icon' => 'fa-user-check'],
+            'competitions' => ['label' => 'المسابقات الجديدة', 'short' => 'مسابقات', 'icon' => 'fa-trophy'],
+            'saved_wheels' => ['label' => 'القوائم الجديدة', 'short' => 'قوائم', 'icon' => 'fa-list-check'],
+            'names_saved' => ['label' => 'الأسماء المضافة', 'short' => 'أسماء', 'icon' => 'fa-signature'],
+            'spins' => ['label' => 'مرات تحريك العجلة', 'short' => 'تحريك', 'icon' => 'fa-arrows-rotate'],
+            'imports' => ['label' => 'عمليات الاستيراد', 'short' => 'استيراد', 'icon' => 'fa-file-import'],
+            'qr_generated' => ['label' => 'رموز QR المُنشأة', 'short' => 'QR مُنشأ', 'icon' => 'fa-qrcode'],
+            'qr_saved' => ['label' => 'رموز QR المحفوظة', 'short' => 'QR محفوظ', 'icon' => 'fa-floppy-disk'],
+            'certificate_generated' => ['label' => 'الشهادات المُنشأة', 'short' => 'شهادات مُنشأة', 'icon' => 'fa-wand-magic-sparkles'],
+            'certificate_saved' => ['label' => 'الشهادات المحفوظة', 'short' => 'شهادات محفوظة', 'icon' => 'fa-certificate'],
+            'ad_impressions' => ['label' => 'ظهور الإعلانات', 'short' => 'ظهور', 'icon' => 'fa-eye'],
+            'ad_clicks' => ['label' => 'نقرات الإعلانات', 'short' => 'نقر', 'icon' => 'fa-arrow-pointer'],
+        ];
+    @endphp
+
+    <div class="flex flex-col justify-between gap-4 lg:flex-row lg:items-end">
+        <div>
+            <p class="text-sm font-black text-violet-600">الأداء</p>
+            <h1 class="mt-1 text-3xl font-black tracking-tight sm:text-4xl">الإحصائيات</h1>
+            <p class="mt-2 max-w-3xl leading-7 text-slate-500">بيانات يومية مباشرة تشمل استخدام الأدوات والحسابات والإعلانات.</p>
+        </div>
+        <div class="rounded-2xl border border-violet-100 bg-violet-50 px-4 py-3 text-sm font-black text-violet-800">
+            <i class="fa-regular fa-calendar-days ms-2" aria-hidden="true"></i>
+            <time datetime="{{ $from->toDateString() }}">{{ $from->locale('ar')->translatedFormat('j F Y') }}</time>
+            <span class="mx-1 text-violet-400">—</span>
+            <time datetime="{{ $to->toDateString() }}">{{ $to->locale('ar')->translatedFormat('j F Y') }}</time>
+        </div>
     </div>
 
     <form class="mt-7 grid gap-4 rounded-3xl border border-slate-200/80 bg-white p-4 shadow-sm sm:grid-cols-2 xl:grid-cols-[1fr_1fr_1fr_auto] xl:items-end" method="GET">
         <label class="grid gap-2 text-sm font-bold text-slate-700">
             الفترة
             <select class="min-h-12 rounded-xl border border-slate-200 bg-white px-4 outline-none focus:border-violet-400 focus:ring-4 focus:ring-violet-100" name="range">
-                <option value="7" @selected($range === '7')>7 أيام</option>
-                <option value="30" @selected($range === '30')>30 يومًا</option>
+                <option value="7" @selected($range === '7')>آخر 7 أيام</option>
+                <option value="30" @selected($range === '30')>آخر 30 يومًا</option>
                 <option value="year" @selected($range === 'year')>هذه السنة</option>
                 <option value="custom" @selected($range === 'custom')>نطاق مخصص</option>
             </select>
@@ -27,60 +56,77 @@
             إلى تاريخ
             <input class="min-h-12 rounded-xl border border-slate-200 px-4 outline-none focus:border-violet-400 focus:ring-4 focus:ring-violet-100" type="date" name="to" value="{{ request('to', $to->toDateString()) }}">
         </label>
-        <button class="min-h-12 rounded-xl bg-violet-700 px-6 font-black text-white shadow-[0_10px_24px_rgba(109,40,217,0.2)] hover:bg-violet-800">تطبيق</button>
+        <button class="min-h-12 rounded-xl bg-violet-700 px-6 font-black text-white shadow-[0_10px_24px_rgba(109,40,217,0.2)] transition hover:bg-violet-800">تطبيق</button>
     </form>
 
-    <div class="mt-6 grid grid-cols-2 gap-3 xl:grid-cols-4">
-        @foreach([
-            'زوار الموقع' => 'site_visits',
-            'التسجيلات' => 'registrations',
-            'المستخدمون النشطون' => 'active_users',
-            'القوائم الجديدة' => 'saved_wheels',
-            'الأسماء المحفوظة' => 'names_saved',
-            'مرات الدوران' => 'spins',
-            'الاستيراد' => 'imports',
-            'ظهور الإعلانات' => 'ad_impressions',
-            'نقرات الإعلانات' => 'ad_clicks',
-        ] as $label => $key)
-            <article class="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm">
-                <p class="text-sm font-bold text-slate-500">{{ $label }}</p>
-                <p class="mt-2 text-2xl font-black text-slate-900">{{ number_format($totals[$key]) }}</p>
-            </article>
-        @endforeach
-    </div>
-
-    <section class="mt-6 overflow-hidden rounded-3xl border border-slate-200/80 bg-white shadow-sm">
-        <div class="border-b border-slate-100 px-5 py-4">
-            <h2 class="font-black">التفاصيل اليومية</h2>
+    <section class="mt-7" aria-labelledby="analytics-period-totals">
+        <div>
+            <h2 class="text-xl font-black" id="analytics-period-totals">إجمالي الفترة</h2>
+            <p class="mt-1 text-sm font-bold text-slate-500">مجموع الأحداث المسجلة بين التاريخين المحددين.</p>
         </div>
+        <div class="mt-4 grid grid-cols-2 gap-3 lg:grid-cols-3 2xl:grid-cols-4">
+            @foreach ($metricDefinitions as $key => $metric)
+                <article class="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm">
+                    <div class="flex items-center justify-between gap-3">
+                        <p class="text-sm font-bold leading-6 text-slate-500">{{ $metric['label'] }}</p>
+                        <span class="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-violet-50 text-sm text-violet-700">
+                            <i class="fa-solid {{ $metric['icon'] }}" aria-hidden="true"></i>
+                        </span>
+                    </div>
+                    <p class="mt-3 text-2xl font-black text-slate-900">{{ Number::format($totals[$key], locale: 'ar') }}</p>
+                </article>
+            @endforeach
+        </div>
+    </section>
+
+    <section class="mt-7 overflow-hidden rounded-3xl border border-slate-200/80 bg-white shadow-sm">
+        <div class="flex flex-col justify-between gap-2 border-b border-slate-100 px-5 py-4 sm:flex-row sm:items-center">
+            <div>
+                <h2 class="font-black">التفاصيل اليومية</h2>
+                <p class="mt-1 text-xs font-bold text-slate-500">تظهر الأيام التي لا تحتوي على نشاط بقيم صفرية لإكمال التسلسل الزمني.</p>
+            </div>
+            <span class="text-xs font-black text-violet-700">{{ Number::format($rows->count(), locale: 'ar') }} يوم</span>
+        </div>
+
         <div class="hidden overflow-x-auto md:block">
-            <table class="w-full min-w-4xl text-right text-sm">
-                <thead class="bg-slate-50 text-slate-500"><tr><th class="p-3">التاريخ</th><th class="p-3">زوار</th><th class="p-3">تسجيل</th><th class="p-3">نشط</th><th class="p-3">قوائم</th><th class="p-3">أسماء</th><th class="p-3">دوران</th><th class="p-3">استيراد</th><th class="p-3">ظهور</th><th class="p-3">نقر</th></tr></thead>
+            <table class="w-full min-w-[1500px] text-right text-sm">
+                <thead class="bg-slate-50 text-slate-500">
+                    <tr>
+                        <th class="sticky right-0 z-10 min-w-48 bg-slate-50 p-3">التاريخ</th>
+                        @foreach ($metricDefinitions as $metric)
+                            <th class="whitespace-nowrap p-3">{{ $metric['short'] }}</th>
+                        @endforeach
+                    </tr>
+                </thead>
                 <tbody class="divide-y divide-slate-100">
-                    @forelse($rows as $row)
-                        <tr class="hover:bg-violet-50/40"><td class="p-3 font-bold">{{ $row['date'] }}</td><td class="p-3">{{ $row['site_visits'] }}</td><td class="p-3">{{ $row['registrations'] }}</td><td class="p-3">{{ $row['active_users'] }}</td><td class="p-3">{{ $row['saved_wheels'] }}</td><td class="p-3">{{ $row['names_saved'] }}</td><td class="p-3">{{ $row['spins'] }}</td><td class="p-3">{{ $row['imports'] }}</td><td class="p-3">{{ $row['ad_impressions'] }}</td><td class="p-3">{{ $row['ad_clicks'] }}</td></tr>
-                    @empty
-                        <tr><td class="p-8 text-center text-slate-500" colspan="10">لا توجد بيانات في هذا النطاق.</td></tr>
-                    @endforelse
+                    @foreach ($rows as $row)
+                        <tr class="hover:bg-violet-50/40">
+                            <td class="sticky right-0 bg-white p-3 font-bold group-hover:bg-violet-50">
+                                <time datetime="{{ $row['date']->toDateString() }}">{{ $row['date']->locale('ar')->translatedFormat('l، j F Y') }}</time>
+                            </td>
+                            @foreach ($metricDefinitions as $key => $metric)
+                                <td class="p-3">{{ Number::format($row[$key], locale: 'ar') }}</td>
+                            @endforeach
+                        </tr>
+                    @endforeach
                 </tbody>
             </table>
         </div>
+
         <div class="grid gap-3 p-3 md:hidden">
-            @forelse($rows as $row)
+            @foreach ($rows as $row)
                 <article class="rounded-2xl border border-slate-200 p-4">
-                    <p class="font-black text-violet-700">{{ $row['date'] }}</p>
+                    <time class="font-black text-violet-700" datetime="{{ $row['date']->toDateString() }}">{{ $row['date']->locale('ar')->translatedFormat('l، j F Y') }}</time>
                     <dl class="mt-3 grid grid-cols-2 gap-x-4 gap-y-3 text-sm">
-                        @foreach(['زوار' => 'site_visits', 'تسجيل' => 'registrations', 'نشط' => 'active_users', 'قوائم' => 'saved_wheels', 'أسماء' => 'names_saved', 'دوران' => 'spins', 'استيراد' => 'imports', 'ظهور' => 'ad_impressions', 'نقر' => 'ad_clicks'] as $label => $key)
+                        @foreach ($metricDefinitions as $key => $metric)
                             <div class="flex items-center justify-between gap-2 border-b border-slate-100 pb-2">
-                                <dt class="text-slate-500">{{ $label }}</dt>
-                                <dd class="font-black">{{ $row[$key] }}</dd>
+                                <dt class="text-slate-500">{{ $metric['short'] }}</dt>
+                                <dd class="font-black">{{ Number::format($row[$key], locale: 'ar') }}</dd>
                             </div>
                         @endforeach
                     </dl>
                 </article>
-            @empty
-                <p class="p-6 text-center text-slate-500">لا توجد بيانات في هذا النطاق.</p>
-            @endforelse
+            @endforeach
         </div>
     </section>
 @endsection

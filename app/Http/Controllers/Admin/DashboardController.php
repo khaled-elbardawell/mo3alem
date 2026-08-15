@@ -4,32 +4,33 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\AdCampaign;
+use App\Models\Certificate;
+use App\Models\Competition;
 use App\Models\DailyMetric;
+use App\Models\QrCode;
 use App\Models\SavedWheel;
 use App\Models\User;
-use Illuminate\Support\Facades\Cache;
+use Carbon\CarbonImmutable;
 use Illuminate\View\View;
 
 class DashboardController extends Controller
 {
     public function __invoke(): View
     {
-        $metrics = Cache::remember('admin:overview:v2', 120, function (): array {
-            $today = DailyMetric::query()->where('date', today()->toDateString())->first();
+        $today = CarbonImmutable::today();
+        $todayMetric = DailyMetric::query()->whereDate('date', $today)->first();
+        $metrics = [
+            'users' => User::query()->count(),
+            'competitions' => Competition::query()->count(),
+            'saved_wheels' => SavedWheel::query()->count(),
+            'qr_codes' => QrCode::query()->count(),
+            'certificates' => Certificate::query()->count(),
+            'active_campaigns' => AdCampaign::query()->eligible()->count(),
+            ...collect(DailyMetric::COLUMNS)->mapWithKeys(
+                fn (string $column): array => ["{$column}_today" => (int) ($todayMetric?->{$column} ?? 0)],
+            )->all(),
+        ];
 
-            return [
-                'users' => User::withTrashed()->count(),
-                'active_users' => User::query()->count(),
-                'saved_wheels' => SavedWheel::withTrashed()->count(),
-                'active_campaigns' => AdCampaign::query()->eligible()->count(),
-                'site_visits_today' => (int) $today?->site_visits,
-                'spins_today' => (int) $today?->spins,
-                'registrations_today' => (int) $today?->registrations,
-                'ad_impressions_today' => (int) $today?->ad_impressions,
-                'ad_clicks_today' => (int) $today?->ad_clicks,
-            ];
-        });
-
-        return view('admin.dashboard', compact('metrics'));
+        return view('admin.dashboard', compact('metrics', 'today'));
     }
 }

@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\DailyMetric;
 use App\Models\SavedWheel;
 use App\Models\User;
 use Illuminate\Support\Facades\RateLimiter;
@@ -32,6 +33,18 @@ test('a verified user may create and update a saved wheel', function () {
         ]))
         ->assertSuccessful()
         ->assertJsonPath('data.version', 2);
+
+    expect(DailyMetric::query()->where('date', today()->toDateString())->value('names_saved'))->toBe(3);
+
+    $this->actingAs($user)
+        ->patchJson(route('saved-wheels.update', $created['id']), wheelPayload([
+            'names' => ['أحمد', 'سارة', 'أحمد', 'ليان'],
+            'version' => 2,
+        ]))
+        ->assertSuccessful()
+        ->assertJsonPath('data.version', 3);
+
+    expect(DailyMetric::query()->where('date', today()->toDateString())->value('names_saved'))->toBe(4);
 });
 
 test('stale saved wheel updates return a conflict response', function () {
@@ -127,6 +140,19 @@ test('a saved wheel accepts an empty list and at most two thousand names', funct
         ->assertJsonPath('data.names_count', 2000);
 });
 
+test('a new empty list still validates when the limits config is missing from an old cache', function () {
+    $user = User::factory()->create();
+    config()->set('resource_limits', []);
+
+    $this->actingAs($user)
+        ->postJson(route('saved-wheels.store'), wheelPayload([
+            'title' => 'قائمة جديدة',
+            'names' => [],
+        ]))
+        ->assertCreated()
+        ->assertJsonPath('data.names_count', 0);
+});
+
 test('each saved name is limited to one hundred and twenty characters', function () {
     $user = User::factory()->create();
 
@@ -136,6 +162,29 @@ test('each saved name is limited to one hundred and twenty characters', function
         ]))
         ->assertUnprocessable()
         ->assertJsonValidationErrors('names.0');
+});
+
+test('blank rows from imported names are ignored and names are reindexed', function () {
+    $user = User::factory()->create();
+
+    $created = $this->actingAs($user)
+        ->postJson(route('saved-wheels.store'), wheelPayload([
+            'title' => 'قائمة مستوردة',
+            'names' => ['أحمد', '', '   ', null, ' سارة '],
+        ]))
+        ->assertCreated()
+        ->assertJsonPath('data.names', ['أحمد', 'سارة'])
+        ->assertJsonPath('data.names_count', 2)
+        ->json('data');
+
+    $this->actingAs($user)
+        ->patchJson(route('saved-wheels.update', $created['id']), [
+            'version' => $created['version'],
+            'names' => ['', ' ليان ', null, 'نور', ''],
+        ])
+        ->assertSuccessful()
+        ->assertJsonPath('data.names', ['ليان', 'نور'])
+        ->assertJsonPath('data.names_count', 2);
 });
 
 test('results are not persisted or returned with a saved list', function () {
@@ -196,30 +245,25 @@ test('saved lists use searchable cursor pagination with forty items per page', f
         ->assertJsonPath('data.0.title', 'قائمة البحث الخاصة');
 });
 
-test('saved list creation is limited to five per minute', function () {
+test('a deleted list can be recreated immediately without a minute lockout', function () {
     $user = User::factory()->create();
-    RateLimiter::clear(md5("saved-wheel-creationminute:{$user->id}"));
     RateLimiter::clear(md5("saved-wheel-creationday:{$user->id}"));
 
-    foreach (range(1, 5) as $number) {
-        $this->actingAs($user)
+    foreach (range(1, 10) as $number) {
+        $createdWheelId = $this->actingAs($user)
             ->postJson(route('saved-wheels.store'), wheelPayload(['title' => "سريعة {$number}"]))
-            ->assertCreated();
-    }
+            ->assertCreated()
+            ->json('data.id');
 
-    $this->actingAs($user)
-        ->postJson(route('saved-wheels.store'), wheelPayload(['title' => 'السادسة']))
-        ->assertTooManyRequests();
+        SavedWheel::query()->findOrFail($createdWheelId)->delete();
+    }
 });
 
 test('saved list creation is limited to thirty per day', function () {
     $user = User::factory()->create();
-    RateLimiter::clear(md5("saved-wheel-creationminute:{$user->id}"));
     RateLimiter::clear(md5("saved-wheel-creationday:{$user->id}"));
 
     foreach (range(1, 30) as $number) {
-        RateLimiter::clear(md5("saved-wheel-creationminute:{$user->id}"));
-
         $createdWheelId = $this->actingAs($user)
             ->postJson(route('saved-wheels.store'), wheelPayload(['title' => "يومية {$number}"]))
             ->assertCreated()
@@ -228,9 +272,8 @@ test('saved list creation is limited to thirty per day', function () {
         SavedWheel::query()->findOrFail($createdWheelId)->delete();
     }
 
-    RateLimiter::clear(md5("saved-wheel-creationminute:{$user->id}"));
-
     $this->actingAs($user)
         ->postJson(route('saved-wheels.store'), wheelPayload(['title' => 'الحادية والثلاثون']))
-        ->assertTooManyRequests();
+        ->assertTooManyRequests()
+        ->assertJsonPath('message', 'وصلت إلى الحد اليومي لإنشاء القوائم وهو 30 قائمة. يمكنك المحاولة لاحقًا.');
 });

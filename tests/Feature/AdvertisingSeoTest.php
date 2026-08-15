@@ -6,17 +6,30 @@ use App\Models\AdCampaign;
 use App\Models\AdDailyStat;
 use App\Models\DailyMetric;
 use App\Models\SeoSetting;
+use App\Models\UniqueMetricEvent;
 use App\Models\User;
 use App\Services\MetricService;
 use App\Services\VisitorIdentity;
 use App\UserRole;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 
 test('daily metrics can be incremented atomically', function () {
     app(MetricService::class)->increment('site_visits');
 
     expect(DailyMetric::query()->where('date', today()->toDateString())->value('site_visits'))->toBe(1);
+});
+
+test('unique metrics remain deduplicated after the cache is cleared', function () {
+    $metrics = app(MetricService::class);
+
+    expect($metrics->recordSiteVisit('same-visitor'))->toBeTrue();
+    Cache::flush();
+    expect($metrics->recordSiteVisit('same-visitor'))->toBeFalse();
+
+    expect(DailyMetric::query()->where('date', today()->toDateString())->value('site_visits'))->toBe(1)
+        ->and(UniqueMetricEvent::query()->count())->toBe(1);
 });
 
 test('an eligible campaign is displayed and unique impressions and clicks are counted', function () {

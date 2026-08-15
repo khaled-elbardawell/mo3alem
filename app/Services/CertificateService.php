@@ -25,7 +25,7 @@ class CertificateService
             return DB::transaction(function () use ($user, $data, $backgroundPath): Certificate {
                 $lockedUser = User::query()->whereKey($user)->lockForUpdate()->firstOrFail();
 
-                $maximumCertificates = (int) config('resource_limits.certificates');
+                $maximumCertificates = (int) config('resource_limits.certificates', 5);
 
                 if ($lockedUser->certificates()->count() >= $maximumCertificates) {
                     throw ValidationException::withMessages([

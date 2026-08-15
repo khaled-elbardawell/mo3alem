@@ -434,6 +434,16 @@ function createInitialNames(count) {
   return Array.from({ length: count }, (_, i) => arabicNames[i % arabicNames.length]);
 }
 
+function normalizeNames(inputNames) {
+  return Array.isArray(inputNames)
+    ? inputNames
+      .filter((name) => typeof name === "string")
+      .map((name) => name.trim().slice(0, 120))
+      .filter(Boolean)
+      .slice(0, maximumNames)
+    : [];
+}
+
 function readLocalDraft() {
   try {
     const draft = JSON.parse(localStorage.getItem(localDraftKey) || "null");
@@ -486,7 +496,7 @@ function persistLocalDraft(pending = false) {
 
 function hydrateState(state) {
   isHydrating = true;
-  names = Array.isArray(state?.names) ? state.names.slice(0, maximumNames) : [];
+  names = normalizeNames(state?.names);
   winners = deserializeResults(state?.results);
   selectedIds.clear();
   rotation = 0;
@@ -1152,12 +1162,12 @@ async function createSavedWheel(title, initialNames = []) {
   try {
     const { response, body } = await requestJson(wheelConfig.routes.store, {
       method: "POST",
-      body: JSON.stringify({ title, names: initialNames.slice(0, maximumNames) })
+      body: JSON.stringify({ title, names: normalizeNames(initialNames) })
     });
 
     if (!response.ok) {
       const message = response.status === 429
-        ? "وصلت إلى حد إنشاء القوائم مؤقتًا. حاول لاحقًا."
+        ? body.message || "وصلت إلى الحد اليومي لإنشاء القوائم. حاول لاحقًا."
         : Object.values(body.errors || {}).flat()[0] || body.message || "تعذر إنشاء القائمة.";
       throw new Error(message);
     }
@@ -1211,7 +1221,7 @@ async function saveCurrentWheel() {
     : wheelConfig.routes.updateBase;
   const payload = {
     title: activeWorkspace.title,
-    names: names.slice(),
+    names: normalizeNames(names),
     ...(isCompetition ? { results: serializeResults() } : {}),
     version: activeWorkspace.version
   };
@@ -1721,9 +1731,7 @@ function createRowButton(icon, label, onClick) {
 }
 
 function setData(newNames) {
-  names = Array.isArray(newNames)
-    ? newNames.map((name) => String(name).trim().slice(0, 120)).filter(Boolean).slice(0, maximumNames)
-    : [];
+  names = normalizeNames(newNames);
   selectedIds.clear();
   virtualList.scrollTop = 0;
   resultCard.hidden = true;

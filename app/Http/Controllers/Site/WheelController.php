@@ -70,8 +70,8 @@ class WheelController extends Controller
             'authenticated' => (bool) $request->user(),
             'verified' => $request->user()?->hasVerifiedEmail() ?? false,
             'limits' => [
-                'savedWheels' => (int) config('resource_limits.saved_wheels'),
-                'namesPerSavedWheel' => (int) config('resource_limits.names_per_saved_wheel'),
+                'savedWheels' => (int) config('resource_limits.saved_wheels', 6),
+                'namesPerSavedWheel' => (int) config('resource_limits.names_per_saved_wheel', 2000),
             ],
             'usage' => [
                 'savedWheels' => $request->user()?->savedWheels()->count() ?? 0,

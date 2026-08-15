@@ -8,6 +8,28 @@ use Illuminate\Foundation\Http\FormRequest;
 class UpdateCompetitionRequest extends FormRequest
 {
     /**
+     * Remove blank imported rows before validating individual names.
+     */
+    protected function prepareForValidation(): void
+    {
+        $names = $this->input('names');
+
+        if (! is_array($names)) {
+            return;
+        }
+
+        $this->merge([
+            'names' => array_values(array_filter(
+                array_map(
+                    static fn (mixed $name): mixed => is_string($name) ? trim($name) : $name,
+                    $names,
+                ),
+                static fn (mixed $name): bool => $name !== null && $name !== '',
+            )),
+        ]);
+    }
+
+    /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool

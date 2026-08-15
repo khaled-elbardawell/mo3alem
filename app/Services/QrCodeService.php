@@ -23,7 +23,7 @@ class QrCodeService
             return DB::transaction(function () use ($user, $data, $logoPath): QrCode {
                 $lockedUser = User::query()->whereKey($user)->lockForUpdate()->firstOrFail();
 
-                $maximumQrCodes = (int) config('resource_limits.qr_codes');
+                $maximumQrCodes = (int) config('resource_limits.qr_codes', 10);
 
                 if ($lockedUser->qrCodes()->count() >= $maximumQrCodes) {
                     throw ValidationException::withMessages([

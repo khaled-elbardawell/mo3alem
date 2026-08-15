@@ -22,7 +22,7 @@ class SavedWheelService
         return DB::transaction(function () use ($user, $data): SavedWheel {
             $lockedUser = User::query()->whereKey($user)->lockForUpdate()->firstOrFail();
 
-            $maximumSavedWheels = (int) config('resource_limits.saved_wheels');
+            $maximumSavedWheels = (int) config('resource_limits.saved_wheels', 6);
 
             if ($lockedUser->savedWheels()->count() >= $maximumSavedWheels) {
                 throw ValidationException::withMessages([
@@ -63,6 +63,8 @@ class SavedWheelService
      */
     public function update(SavedWheel $savedWheel, array $data): ?SavedWheel
     {
+        $previousNames = $savedWheel->names;
+
         if (array_key_exists('names', $data)) {
             $this->ensureNamesAreWithinLimit($data['names']);
         }
@@ -110,8 +112,12 @@ class SavedWheelService
 
         $savedWheel->refresh();
 
-        if (array_key_exists('names', $data) && $savedWheel->names_count > 0) {
-            $this->metrics->increment('names_saved', $savedWheel->names_count);
+        if (array_key_exists('names', $data)) {
+            $addedNamesCount = $this->addedNamesCount($previousNames, $savedWheel->names);
+
+            if ($addedNamesCount > 0) {
+                $this->metrics->increment('names_saved', $addedNamesCount);
+            }
         }
 
         return $savedWheel;
@@ -121,7 +127,7 @@ class SavedWheelService
     {
         $names = $savedWheel->names;
 
-        $maximumNames = (int) config('resource_limits.names_per_saved_wheel');
+        $maximumNames = (int) config('resource_limits.names_per_saved_wheel', 2000);
 
         if (count($names) >= $maximumNames) {
             throw ValidationException::withMessages([
@@ -159,7 +165,7 @@ class SavedWheelService
     {
         return DB::transaction(function () use ($savedWheel): SavedWheel {
             $lockedUser = User::query()->whereKey($savedWheel->user_id)->lockForUpdate()->firstOrFail();
-            $maximumSavedWheels = (int) config('resource_limits.saved_wheels');
+            $maximumSavedWheels = (int) config('resource_limits.saved_wheels', 6);
 
             if ($lockedUser->savedWheels()->count() >= $maximumSavedWheels) {
                 throw ValidationException::withMessages([
@@ -182,12 +188,26 @@ class SavedWheelService
     /** @param array<int, string> $names */
     private function ensureNamesAreWithinLimit(array $names): void
     {
-        $maximumNames = (int) config('resource_limits.names_per_saved_wheel');
+        $maximumNames = (int) config('resource_limits.names_per_saved_wheel', 2000);
 
         if (count($names) > $maximumNames) {
             throw ValidationException::withMessages([
                 'names' => "الحد الأقصى للقائمة هو {$maximumNames} اسم.",
             ]);
         }
+    }
+
+    /**
+     * @param  array<int, string>  $previousNames
+     * @param  array<int, string>  $currentNames
+     */
+    private function addedNamesCount(array $previousNames, array $currentNames): int
+    {
+        $previousCounts = array_count_values($previousNames);
+        $currentCounts = array_count_values($currentNames);
+
+        return collect($currentCounts)->sum(
+            fn (int $count, int|string $name): int => max(0, $count - ($previousCounts[$name] ?? 0)),
+        );
     }
 }

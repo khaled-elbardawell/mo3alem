@@ -10,7 +10,10 @@ use Illuminate\Validation\ValidationException;
 
 class CompetitionService
 {
-    public function __construct(private SavedWheelService $savedWheels) {}
+    public function __construct(
+        private SavedWheelService $savedWheels,
+        private MetricService $metrics,
+    ) {}
 
     /**
      * @param  array{title:string,saved_wheel_id?:int|null,new_list_title?:string|null}  $data
@@ -38,7 +41,7 @@ class CompetitionService
                     ->lockForUpdate()
                     ->firstOrFail();
 
-            return $lockedUser->competitions()->create([
+            $competition = $lockedUser->competitions()->create([
                 'saved_wheel_id' => $savedWheel->id,
                 'title' => $data['title'],
                 'names' => $savedWheel->names,
@@ -48,6 +51,10 @@ class CompetitionService
                 'sync_source_list' => $createsNewList,
                 'last_opened_at' => now(),
             ]);
+
+            $this->metrics->increment('competitions');
+
+            return $competition;
         });
     }
 
@@ -97,16 +104,16 @@ class CompetitionService
             }
 
             if ($shouldSyncSourceList && $competition->saved_wheel_id) {
-                SavedWheel::query()
+                $sourceList = SavedWheel::query()
                     ->whereKey($competition->saved_wheel_id)
                     ->where('user_id', $competition->user_id)
-                    ->update([
-                        'names' => json_encode($data['names'], JSON_THROW_ON_ERROR),
-                        'names_count' => count($data['names']),
-                        'version' => DB::raw('version + 1'),
-                        'last_opened_at' => now(),
-                        'updated_at' => now(),
-                    ]);
+                    ->lockForUpdate()
+                    ->firstOrFail();
+
+                $this->savedWheels->update($sourceList, [
+                    'names' => $data['names'],
+                    'version' => $sourceList->version,
+                ]);
             }
 
             return $competition->refresh();

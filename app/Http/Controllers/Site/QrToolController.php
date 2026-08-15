@@ -51,7 +51,7 @@ class QrToolController extends Controller
             'authenticated' => (bool) $request->user(),
             'verified' => $request->user()?->hasVerifiedEmail() ?? false,
             'limits' => [
-                'savedQrCodes' => (int) config('resource_limits.qr_codes'),
+                'savedQrCodes' => (int) config('resource_limits.qr_codes', 10),
             ],
             'usage' => [
                 'savedQrCodes' => $request->user()?->qrCodes()->count() ?? 0,

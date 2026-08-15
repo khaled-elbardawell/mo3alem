@@ -78,9 +78,9 @@
                 <div
                     class="absolute top-[calc(100%+10px)] left-0 z-[60] grid min-w-56 gap-1 rounded-2xl border border-[#e7e2f0] bg-white p-2 text-sm font-bold shadow-[0_20px_55px_rgba(30,41,59,0.16)]">
                     <a class="flex items-center gap-3 rounded-xl px-3.5 py-3 hover:bg-violet-50"
-                        href="{{ route('tools.wheel') }}">
-                        <i class="fa-solid fa-dharmachakra w-5 text-center text-violet-600"></i>
-                        العودة للعجلة
+                        id="adminBackToSiteLink" href="{{ route('home') }}">
+                        <i class="fa-solid fa-house w-5 text-center text-violet-600"></i>
+                        العودة للموقع
                     </a>
                     <a class="flex items-center gap-3 rounded-xl px-3.5 py-3 hover:bg-violet-50"
                         href="{{ route('profile.edit') }}">
@@ -122,7 +122,7 @@
             @endforeach
             <div class="mt-2 grid grid-cols-2 gap-2 border-t border-slate-100 pt-3">
                 <a class="rounded-xl bg-slate-100 px-3 py-3 text-center text-sm font-bold text-slate-700"
-                    href="{{ route('tools.wheel') }}">العجلة</a>
+                    id="adminMobileBackToSiteLink" href="{{ route('home') }}">الموقع</a>
                 <a class="rounded-xl bg-violet-50 px-3 py-3 text-center text-sm font-bold text-violet-700"
                     href="{{ route('profile.edit') }}">حسابي</a>
             </div>

@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Competition;
+use App\Models\DailyMetric;
 use App\Models\SavedWheel;
 use App\Models\User;
 use Illuminate\Support\Facades\RateLimiter;
@@ -34,7 +35,9 @@ test('a competition starts with a snapshot of the selected saved list', function
     ]);
 
     expect(Competition::query()->findOrFail($created['id'])->names)
-        ->toBe(['أحمد', 'سارة']);
+        ->toBe(['أحمد', 'سارة'])
+        ->and(DailyMetric::query()->where('date', today()->toDateString())->value('competitions'))
+        ->toBe(1);
 });
 
 test('competition results are stored as a complete round history', function () {
@@ -72,6 +75,20 @@ test('competition results are stored as a complete round history', function () {
         ->assertJsonPath('data.results.1.round', 2);
 
     expect($competition->fresh()->results)->toBe($results);
+});
+
+test('blank rows from imported competition names are ignored', function () {
+    $user = User::factory()->create();
+    $competition = Competition::factory()->for($user)->create();
+
+    $this->actingAs($user)
+        ->patchJson(route('competitions.update', $competition), [
+            'version' => $competition->version,
+            'names' => ['أحمد', '', '   ', null, ' سارة '],
+        ])
+        ->assertSuccessful()
+        ->assertJsonPath('data.names', ['أحمد', 'سارة'])
+        ->assertJsonPath('data.names_count', 2);
 });
 
 test('a stale competition update returns the latest server state', function () {

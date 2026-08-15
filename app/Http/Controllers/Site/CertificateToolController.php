@@ -51,7 +51,7 @@ class CertificateToolController extends Controller
             'authenticated' => (bool) $request->user(),
             'verified' => $request->user()?->hasVerifiedEmail() ?? false,
             'limits' => [
-                'savedCertificates' => (int) config('resource_limits.certificates'),
+                'savedCertificates' => (int) config('resource_limits.certificates', 5),
             ],
             'usage' => [
                 'savedCertificates' => $request->user()?->certificates()->count() ?? 0,

@@ -39,6 +39,18 @@ test('an administrator can render every administration screen', function () {
     }
 });
 
+test('the admin header links back to the main site instead of the wheel', function () {
+    $admin = User::factory()->create(['role' => UserRole::Admin]);
+
+    $this->actingAs($admin)
+        ->get(route('admin.dashboard'))
+        ->assertSuccessful()
+        ->assertSee('id="adminBackToSiteLink"', false)
+        ->assertSee('id="adminMobileBackToSiteLink"', false)
+        ->assertSee('العودة للموقع')
+        ->assertDontSee('العودة للعجلة');
+});
+
 test('an administrator may suspend a user and their sessions are ended and audited', function () {
     $admin = User::factory()->create(['role' => UserRole::Admin]);
     $user = User::factory()->create();
