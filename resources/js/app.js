@@ -421,7 +421,7 @@ let savedWheelsCount = Number(wheelConfig.usage?.savedWheels) || 0;
 
 const rowHeight = 46;
 const overscan = 8;
-const maximumSavedWheels = Number(wheelConfig.limits?.savedWheels) || 6;
+const maximumSavedWheels = Number(wheelConfig.limits?.savedWheels) || 5;
 const maximumNames = Number(wheelConfig.limits?.namesPerSavedWheel) || 2000;
 const maximumImportFileSize = 20 * 1024 * 1024;
 const spinDurationMs = 5100;

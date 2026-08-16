@@ -95,7 +95,7 @@ test('stale qr updates return the latest server copy', function () {
         ->assertJsonPath('data.version', 3);
 });
 
-test('a user cannot save more than ten qr codes but may update an existing one', function () {
+test('a user cannot save more than five qr codes but may update an existing one', function () {
     $user = User::factory()->create();
     $maximumQrCodes = (int) config('resource_limits.qr_codes');
     $qrCodes = QrCode::factory()->count($maximumQrCodes)->for($user)->create();

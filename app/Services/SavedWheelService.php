@@ -22,7 +22,7 @@ class SavedWheelService
         return DB::transaction(function () use ($user, $data): SavedWheel {
             $lockedUser = User::query()->whereKey($user)->lockForUpdate()->firstOrFail();
 
-            $maximumSavedWheels = (int) config('resource_limits.saved_wheels', 6);
+            $maximumSavedWheels = (int) config('resource_limits.saved_wheels', 5);
 
             if ($lockedUser->savedWheels()->count() >= $maximumSavedWheels) {
                 throw ValidationException::withMessages([
@@ -165,7 +165,7 @@ class SavedWheelService
     {
         return DB::transaction(function () use ($savedWheel): SavedWheel {
             $lockedUser = User::query()->whereKey($savedWheel->user_id)->lockForUpdate()->firstOrFail();
-            $maximumSavedWheels = (int) config('resource_limits.saved_wheels', 6);
+            $maximumSavedWheels = (int) config('resource_limits.saved_wheels', 5);
 
             if ($lockedUser->savedWheels()->count() >= $maximumSavedWheels) {
                 throw ValidationException::withMessages([

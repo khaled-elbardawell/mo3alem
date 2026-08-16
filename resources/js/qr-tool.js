@@ -53,7 +53,7 @@ if (qrForm) {
     "template-11": { width: 1968, height: 1968, qrX: 585, qrY: 650, qrSize: 900 }
   };
   const templateDataUrls = new Map();
-  const maximumSavedQrCodes = Number(config.limits?.savedQrCodes) || 10;
+  const maximumSavedQrCodes = Number(config.limits?.savedQrCodes) || 5;
   let baseQrSvg = "";
   let previewUrl = "";
   let logoDataUrl = null;

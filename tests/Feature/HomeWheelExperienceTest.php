@@ -67,7 +67,7 @@ test('authenticated users start from competitions and may switch to saved name l
         ->and($routes['competitions']['index'])->toBe(route('competitions.index'))
         ->and($routes['competitions']['showBase'])->toBe(url('/competitions'))
         ->and($wheelConfig['limits'])->toBe([
-            'savedWheels' => 6,
+            'savedWheels' => 5,
             'namesPerSavedWheel' => 2000,
         ])
         ->and($wheelConfig['usage']['savedWheels'])->toBe(0);
@@ -261,7 +261,7 @@ test('the client enforces the agreed list and autosave safeguards', function () 
     $script = file_get_contents(resource_path('js/app.js'));
 
     expect($script)
-        ->toContain('const maximumSavedWheels = Number(wheelConfig.limits?.savedWheels) || 6;')
+        ->toContain('const maximumSavedWheels = Number(wheelConfig.limits?.savedWheels) || 5;')
         ->toContain('const maximumNames = Number(wheelConfig.limits?.namesPerSavedWheel) || 2000;')
         ->toContain('if (savedWheelLimitReached())')
         ->toContain('window.setTimeout(() => saveCurrentWheel(), 2000)')

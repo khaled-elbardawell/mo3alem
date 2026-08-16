@@ -107,7 +107,7 @@ test('a saved qr can be reopened in the editor by its owner', function () {
             'title' => 'رمز النشاط المحفوظ',
             'payload' => ['url' => 'https://example.com/saved'],
         ])
-        ->and($response->viewData('qrConfig')['limits']['savedQrCodes'])->toBe(10)
+        ->and($response->viewData('qrConfig')['limits']['savedQrCodes'])->toBe(5)
         ->and($response->viewData('qrConfig')['usage']['savedQrCodes'])->toBe(1);
 });
 
