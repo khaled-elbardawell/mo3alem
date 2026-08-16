@@ -982,10 +982,34 @@ if (certificateConfigElement) {
     });
   }
 
+  async function ensureDesignFontsLoaded() {
+    if (!document.fonts) return;
+
+    const fontRequests = new Map();
+    design.elements.forEach((element) => {
+      const key = `${element.font_family}:${element.font_weight}`;
+      if (fontRequests.has(key)) return;
+
+      fontRequests.set(key, {
+        family: element.font_family,
+        descriptor: `${element.font_weight} 16px "${element.font_family}"`,
+        sample: element.text || "شهادة"
+      });
+    });
+
+    await Promise.all([...fontRequests.values()].map(async (fontRequest) => {
+      const loadedFaces = await document.fonts.load(fontRequest.descriptor, fontRequest.sample);
+      if (!loadedFaces.length) {
+        throw new Error(`تعذر تحميل الخط "${fontRequest.family}". أعد المحاولة قبل التصدير.`);
+      }
+    }));
+    await document.fonts.ready;
+  }
+
   async function renderOutputCanvas() {
     const validationMessage = validateDesign();
     if (validationMessage) throw new Error(validationMessage);
-    await document.fonts?.ready;
+    await ensureDesignFontsLoaded();
     const output = document.createElement("canvas");
     output.width = design.width;
     output.height = design.height;

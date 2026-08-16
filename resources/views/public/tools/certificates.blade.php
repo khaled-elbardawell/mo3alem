@@ -79,6 +79,7 @@
                                     <option value="Cairo">Cairo</option>
                                     <option value="Amiri">Amiri</option>
                                     <option value="Noto Kufi Arabic">Noto Kufi</option>
+                                    <option value="RB">RB</option>
                                 </select>
                             </label>
                             <label class="grid gap-1.5 text-xs font-black text-slate-600" for="certificateFontWeight">السماكة

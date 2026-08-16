@@ -164,6 +164,27 @@ test('certificate design fields and uploads are constrained', function () {
         ]);
 });
 
+test('the rb font can be saved in a certificate design', function () {
+    $user = User::factory()->create();
+
+    $response = $this->actingAs($user)
+        ->postJson(route('certificates.store'), certificatePayload([
+            'design' => [
+                'elements' => [[
+                    'font_family' => 'RB',
+                    'font_weight' => 700,
+                ]],
+            ],
+        ]))
+        ->assertCreated();
+
+    $certificate = Certificate::query()->findOrFail($response->json('data.id'));
+
+    expect($certificate->design['elements'][0]['font_family'])->toBe('RB')
+        ->and(resource_path('fonts/rb/RB-Regular.ttf'))->toBeFile()
+        ->and(resource_path('fonts/rb/RB-Bold.ttf'))->toBeFile();
+});
+
 test('certificate generation and saving update separate platform metrics', function () {
     $user = User::factory()->create();
 

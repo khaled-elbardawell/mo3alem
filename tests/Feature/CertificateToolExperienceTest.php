@@ -29,6 +29,7 @@ test('the certificate tool presents templates upload editing preview and print c
         ->assertSee('id="addCertificateTextBtn"', false)
         ->assertSee('id="certificateLayersList"', false)
         ->assertSee('id="certificatePropertiesForm"', false)
+        ->assertSee('<option value="RB">RB</option>', false)
         ->assertDontSee('id="certificateLayerUpBtn"', false)
         ->assertDontSee('id="certificateLayerDownBtn"', false)
         ->assertSee('id="certificateCanvasToolbar"', false)
@@ -113,6 +114,8 @@ test('the dashboard includes a searchable certificates section', function () {
 test('the certificate client supports draft handoff manipulation and printable export', function () {
     $script = file_get_contents(resource_path('js/certificate-tool.js'));
 
+    $styles = file_get_contents(resource_path('css/app.css'));
+
     expect($script)
         ->toContain('muallem-certificate-draft-v1')
         ->toContain('pendingSave')
@@ -131,7 +134,12 @@ test('the certificate client supports draft handoff manipulation and printable e
         ->toContain('printWindow.print()')
         ->toContain('certificate_generate')
         ->toContain('if (certificateLimitReached())')
-        ->toContain('document.fonts?.ready');
+        ->toContain('ensureDesignFontsLoaded')
+        ->toContain('document.fonts.load')
+        ->and($styles)
+        ->toContain('font-family: "RB"')
+        ->toContain('../fonts/rb/RB-Regular.ttf')
+        ->toContain('../fonts/rb/RB-Bold.ttf');
 });
 
 test('selected certificate text exposes contextual lock copy and delete actions', function () {

@@ -40,7 +40,7 @@ class StoreCertificateRequest extends FormRequest
             'design.elements.*.width' => ['required', 'numeric', 'min:40', 'max:2400'],
             'design.elements.*.height' => ['required', 'numeric', 'min:20', 'max:1800'],
             'design.elements.*.font_size' => ['required', 'numeric', 'min:8', 'max:240'],
-            'design.elements.*.font_family' => ['required', Rule::in(['Tajawal', 'Cairo', 'Amiri', 'Noto Kufi Arabic'])],
+            'design.elements.*.font_family' => ['required', Rule::in(['Tajawal', 'Cairo', 'Amiri', 'Noto Kufi Arabic', 'RB'])],
             'design.elements.*.font_weight' => ['required', Rule::in([400, 500, 700, 800, 900])],
             'design.elements.*.color' => ['required', 'regex:/^#[0-9A-Fa-f]{6}$/'],
             'design.elements.*.text_align' => ['required', Rule::in(['right', 'center', 'left'])],
