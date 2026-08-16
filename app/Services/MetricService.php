@@ -4,6 +4,8 @@ namespace App\Services;
 
 use App\Models\AdDailyStat;
 use App\Models\DailyMetric;
+use App\Models\QrCode;
+use App\Models\QrCodeDailyStat;
 use App\Models\UniqueMetricEvent;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -63,6 +65,40 @@ class MetricService
             "active-user:{$user->id}",
             function (string $date): void {
                 $this->incrementForDate('active_users', 1, $date);
+            },
+        );
+    }
+
+    public function recordQrScan(QrCode $qrCode, string $visitorIdentifier): void
+    {
+        $date = today()->toDateString();
+        $timestamp = now();
+
+        DB::transaction(function () use ($qrCode, $date, $timestamp): void {
+            DB::table((new QrCodeDailyStat)->getTable())->insertOrIgnore([
+                'qr_code_id' => $qrCode->id,
+                'date' => $date,
+                'created_at' => $timestamp,
+                'updated_at' => $timestamp,
+            ]);
+
+            QrCodeDailyStat::query()
+                ->whereBelongsTo($qrCode)
+                ->where('date', $date)
+                ->increment('scans', 1, ['updated_at' => $timestamp]);
+
+            QrCode::query()->whereKey($qrCode)->increment('scan_count');
+        });
+
+        $this->recordUnique(
+            "qr-scan:{$qrCode->id}:{$this->identifierHash($visitorIdentifier)}",
+            function (string $uniqueDate) use ($qrCode): void {
+                QrCodeDailyStat::query()
+                    ->whereBelongsTo($qrCode)
+                    ->where('date', $uniqueDate)
+                    ->increment('unique_scans');
+
+                QrCode::query()->whereKey($qrCode)->increment('unique_scan_count');
             },
         );
     }

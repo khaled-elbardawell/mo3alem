@@ -41,7 +41,8 @@
                             </div>
                         </div>
 
-                        <div class="grid flex-1 grid-cols-2 gap-1.5 sm:flex sm:justify-end sm:overflow-x-auto sm:overscroll-x-contain sm:[scrollbar-width:none]">
+                        <div class="grid flex-1 grid-cols-2 gap-1.5 sm:flex sm:justify-end sm:overflow-x-auto sm:overscroll-x-contain sm:[scrollbar-width:none]"
+                            id="qrRibbonActions">
                             @auth
                                 <nav class="contents sm:flex sm:gap-1.5" id="qrAuthenticatedActions"
                                     aria-label="إجراءات رموز QR">
@@ -65,9 +66,9 @@
                             </button>
                             <button
                                 class="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-violet-700 px-4 text-xs font-black text-white shadow-md shadow-violet-900/15 transition hover:bg-violet-800 disabled:cursor-wait disabled:opacity-60 sm:min-h-11 sm:shrink-0"
-                                id="generateQrBtn" type="button" data-open-qr-export>
-                                <i class="fa-solid fa-download" aria-hidden="true"></i>
-                                تنزيل ومشاركة
+                                id="generateQrBtn" type="button" data-open-qr-export data-qr-primary-action>
+                                <i class="fa-solid fa-download" data-qr-primary-icon aria-hidden="true"></i>
+                                <span data-qr-primary-label="full">تنزيل ومشاركة</span>
                             </button>
                         </div>
                     </div>
@@ -89,10 +90,37 @@
 
                     <form class="mt-5 grid gap-5" id="qrForm" novalidate>
                         <fieldset class="grid gap-3" data-qr-sidebar-panel="content">
-                            <legend class="text-sm font-black text-slate-800">نوع المحتوى</legend>
-                            <div class="grid grid-cols-3 gap-2" role="radiogroup" aria-label="نوع محتوى الرمز">
+                            <legend class="sr-only">إعدادات محتوى رمز QR</legend>
+                            <div class="grid gap-3">
+                                <div class="flex items-center justify-between gap-3">
+                                    <h3 class="text-sm font-black text-slate-800">طريقة عمل الرمز</h3>
+                                    <span class="hidden rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-black text-slate-600"
+                                        id="qrModeLockMessage">النوع ثابت بعد الحفظ</span>
+                                </div>
+                                <div class="grid grid-cols-2 gap-2" role="radiogroup" aria-label="طريقة عمل رمز QR">
+                                    <label class="group relative cursor-pointer">
+                                        <input class="peer sr-only" type="radio" name="mode" value="static" checked>
+                                        <span
+                                            class="flex min-h-24 flex-col justify-center gap-1 rounded-2xl border border-slate-200 bg-white p-3 text-slate-600 transition peer-checked:border-violet-500 peer-checked:bg-violet-50 peer-checked:text-violet-800 peer-focus-visible:ring-4 peer-focus-visible:ring-violet-100 peer-disabled:cursor-not-allowed">
+                                            <span class="inline-flex items-center gap-2 text-sm font-black"><i class="fa-solid fa-qrcode" aria-hidden="true"></i> ثابت</span>
+                                            <span class="text-[11px] font-bold leading-5">المحتوى داخل الرمز ولا يتغير بعد الطباعة.</span>
+                                        </span>
+                                    </label>
+                                    <label class="group relative cursor-pointer">
+                                        <input class="peer sr-only" type="radio" name="mode" value="dynamic">
+                                        <span
+                                            class="flex min-h-24 flex-col justify-center gap-1 rounded-2xl border border-slate-200 bg-white p-3 text-slate-600 transition peer-checked:border-emerald-500 peer-checked:bg-emerald-50 peer-checked:text-emerald-800 peer-focus-visible:ring-4 peer-focus-visible:ring-emerald-100 peer-disabled:cursor-not-allowed">
+                                            <span class="flex flex-wrap items-center gap-1.5 text-sm font-black"><span class="inline-flex items-center gap-2"><i class="fa-solid fa-arrows-rotate" aria-hidden="true"></i> ديناميكي</span><span class="rounded-full bg-emerald-100 px-2 py-0.5 text-[9px] text-emerald-800">يتطلب حسابًا مجانيًا</span></span>
+                                            <span class="text-[11px] font-bold leading-5">غيّر الوجهة لاحقًا مع بقاء الرمز نفسه.</span>
+                                        </span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <h3 class="text-sm font-black text-slate-800">نوع المحتوى</h3>
+                            <div class="grid grid-cols-3 gap-2" id="qrContentTypeGrid" role="radiogroup" aria-label="نوع محتوى الرمز">
                                 @foreach ([['value' => 'url', 'label' => 'رابط', 'icon' => 'fa-link'], ['value' => 'text', 'label' => 'نص', 'icon' => 'fa-align-right'], ['value' => 'wifi', 'label' => 'Wi-Fi', 'icon' => 'fa-wifi']] as $type)
-                                    <label class="group relative">
+                                    <label class="group relative" @if ($type['value'] !== 'url') data-static-content-type @endif>
                                         <input class="peer sr-only" type="radio" name="content_type"
                                             value="{{ $type['value'] }}" @checked($type['value'] === 'url')>
                                         <span
@@ -110,6 +138,63 @@
                                     class="min-h-12 rounded-xl border border-slate-200 px-4 text-left outline-none transition focus:border-violet-400 focus:ring-4 focus:ring-violet-100"
                                     id="qrUrl" type="url" dir="ltr" placeholder="https://example.com"
                                     autocomplete="url">
+                            </div>
+                            <div class="hidden gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-4"
+                                id="qrDynamicSettings">
+                                <div class="flex items-start gap-3">
+                                    <span class="grid size-9 shrink-0 place-items-center rounded-xl bg-white text-emerald-700 shadow-sm"><i
+                                            class="fa-solid fa-link" aria-hidden="true"></i></span>
+                                    <div>
+                                        <h3 class="text-sm font-black text-emerald-950">رابط ثابت، وجهة قابلة للتعديل</h3>
+                                        <p class="mt-1 text-xs font-bold leading-5 text-emerald-800">يجب حفظ الرمز في حسابك قبل تنزيله. بعد ذلك يمكنك تغيير الوجهة دون إعادة الطباعة.</p>
+                                    </div>
+                                </div>
+                                @guest
+                                    <div class="grid gap-3 rounded-xl border border-emerald-200 bg-white p-3 shadow-sm"
+                                        id="qrDynamicAccountPrompt">
+                                        <div class="flex items-start gap-2.5">
+                                            <span class="grid size-9 shrink-0 place-items-center rounded-xl bg-emerald-100 text-emerald-700"><i
+                                                    class="fa-solid fa-lock" aria-hidden="true"></i></span>
+                                            <div>
+                                                <h4 class="text-sm font-black text-slate-900">سجّل الدخول لتفعيل الرابط الديناميكي</h4>
+                                                <p class="mt-1 text-xs font-bold leading-5 text-slate-600">سنحفظ الرابط والتصميم، وبعدها يمكنك تغيير الوجهة ومتابعة عدد المسحات.</p>
+                                            </div>
+                                        </div>
+                                        <div class="grid gap-2 sm:grid-cols-2 lg:grid-cols-1">
+                                            <a class="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-emerald-700 px-3 text-sm font-black text-white hover:bg-emerald-800"
+                                                href="{{ route('tools.qr.auth', 'register') }}" data-qr-register-link><i class="fa-solid fa-user-plus" aria-hidden="true"></i> إنشاء حساب مجاني</a>
+                                            <a class="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-emerald-200 px-3 text-sm font-black text-emerald-800 hover:bg-emerald-50"
+                                                href="{{ route('tools.qr.auth', 'login') }}" data-qr-login-link>لدي حساب — تسجيل الدخول</a>
+                                        </div>
+                                    </div>
+                                @else
+                                    @unless(auth()->user()->hasVerifiedEmail())
+                                        <div class="grid gap-3 rounded-xl border border-amber-200 bg-amber-50 p-3"
+                                            id="qrDynamicVerificationPrompt">
+                                            <p class="text-xs font-black leading-5 text-amber-900"><i class="fa-solid fa-envelope-circle-check ml-1" aria-hidden="true"></i> فعّل بريدك لتتمكن من حفظ الرابط الديناميكي وتفعيله.</p>
+                                            <a class="inline-flex min-h-10 items-center justify-center rounded-xl bg-amber-700 px-3 text-sm font-black text-white hover:bg-amber-800"
+                                                href="{{ route('verification.notice') }}">تفعيل البريد للمتابعة</a>
+                                        </div>
+                                    @endunless
+                                @endguest
+                                <div class="hidden gap-2" id="qrDynamicSavedPanel">
+                                    <label class="text-xs font-black text-emerald-950" for="qrPublicUrl">رابط الرمز الديناميكي</label>
+                                    <div class="flex gap-2">
+                                        <input class="min-w-0 flex-1 rounded-xl border border-emerald-200 bg-white px-3 py-2 text-left text-xs font-bold text-slate-600"
+                                            id="qrPublicUrl" type="url" dir="ltr" readonly>
+                                        <button class="grid size-10 shrink-0 place-items-center rounded-xl bg-emerald-700 text-white hover:bg-emerald-800"
+                                            id="copyQrPublicUrl" type="button" aria-label="نسخ الرابط الديناميكي"><i class="fa-regular fa-copy" aria-hidden="true"></i></button>
+                                    </div>
+                                </div>
+                                <label class="flex items-center justify-between gap-3 rounded-xl bg-white p-3 text-sm font-black text-slate-700">
+                                    <span>الرابط فعال</span>
+                                    <input class="size-5 accent-emerald-700" id="qrIsActive" type="checkbox" checked>
+                                </label>
+                                <label class="grid gap-2 text-xs font-black text-slate-700" for="qrExpiresAt">
+                                    انتهاء الصلاحية <span class="font-bold text-slate-500">اختياري</span>
+                                    <input class="min-h-11 rounded-xl border border-emerald-200 bg-white px-3 text-left outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100"
+                                        id="qrExpiresAt" type="datetime-local" dir="ltr">
+                                </label>
                             </div>
                             <div class="hidden gap-2" data-content-panel="text">
                                 <label class="text-sm font-black text-slate-700" for="qrText">النص</label>
@@ -273,8 +358,8 @@
                             </div>
                             <span
                                 class="inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1.5 text-xs font-black text-slate-600"
-                                id="qrPreviewWaitingBadge"><i class="fa-regular fa-clock" aria-hidden="true"></i> بانتظار
-                                المحتوى</span>
+                                id="qrPreviewWaitingBadge"><i class="fa-regular fa-clock" aria-hidden="true"></i><span
+                                    id="qrPreviewWaitingLabel">بانتظار المحتوى</span></span>
                             <span
                                 class="hidden items-center gap-2 rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-black text-emerald-700"
                                 id="qrPreviewReadyBadge"><i class="fa-solid fa-circle text-[7px]" aria-hidden="true"></i>
@@ -293,6 +378,39 @@
                                         <span class="text-lg font-black text-slate-700">ابدأ بكتابة المحتوى</span>
                                         <span class="text-sm font-bold">لا يوجد شيء للمعاينة حتى الآن.</span>
                                     </div>
+                                </div>
+                                <div class="hidden w-full max-w-sm place-items-center gap-4 rounded-3xl border border-emerald-200 bg-white/90 p-6 text-center shadow-xl shadow-emerald-900/5"
+                                    id="qrDynamicLockedState">
+                                    <span class="grid size-20 place-items-center rounded-3xl bg-emerald-100 text-3xl text-emerald-700"><i
+                                            class="fa-solid fa-lock" aria-hidden="true"></i></span>
+                                    @guest
+                                        <div class="grid gap-2">
+                                            <h3 class="text-xl font-black text-slate-900">فعّل QR الديناميكي بحساب مجاني</h3>
+                                            <p class="text-sm font-bold leading-6 text-slate-600">سجّل الدخول لحفظ الرابط، تغييره لاحقًا، ومتابعة المسحات.</p>
+                                        </div>
+                                        <div class="grid w-full gap-2 sm:grid-cols-2">
+                                            <a class="inline-flex min-h-11 items-center justify-center rounded-xl bg-emerald-700 px-3 text-sm font-black text-white hover:bg-emerald-800"
+                                                href="{{ route('tools.qr.auth', 'register') }}" data-qr-register-link>إنشاء حساب مجاني</a>
+                                            <a class="inline-flex min-h-11 items-center justify-center rounded-xl border border-emerald-200 px-3 text-sm font-black text-emerald-800 hover:bg-emerald-50"
+                                                href="{{ route('tools.qr.auth', 'login') }}" data-qr-login-link>تسجيل الدخول</a>
+                                        </div>
+                                    @else
+                                        @if(auth()->user()->hasVerifiedEmail())
+                                            <div class="grid gap-2">
+                                                <h3 class="text-xl font-black text-slate-900">احفظ الرمز لتفعيل رابطه</h3>
+                                                <p class="text-sm font-bold leading-6 text-slate-600">بعد الحفظ ستظهر المعاينة الفعلية ويمكنك تنزيلها مباشرة.</p>
+                                            </div>
+                                            <button class="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-emerald-700 px-4 text-sm font-black text-white hover:bg-emerald-800"
+                                                type="button" data-open-dynamic-save><i class="fa-regular fa-floppy-disk" aria-hidden="true"></i> حفظ وتفعيل الرمز</button>
+                                        @else
+                                            <div class="grid gap-2">
+                                                <h3 class="text-xl font-black text-slate-900">فعّل بريدك للمتابعة</h3>
+                                                <p class="text-sm font-bold leading-6 text-slate-600">يجب تفعيل البريد قبل حفظ الرابط الديناميكي.</p>
+                                            </div>
+                                            <a class="inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-amber-700 px-4 text-sm font-black text-white hover:bg-amber-800"
+                                                href="{{ route('verification.notice') }}">تفعيل البريد</a>
+                                        @endif
+                                    @endguest
                                 </div>
                                 <img class="hidden h-auto w-full drop-shadow-[0_22px_35px_rgba(49,46,129,0.15)]"
                                     id="qrPreviewImage" alt="معاينة رمز QR المخصص">
@@ -352,9 +470,9 @@
                     @endforeach
                     <button
                         class="flex min-h-12 flex-col items-center justify-center gap-1 rounded-xl bg-violet-700 px-1 text-[10px] font-black text-white lg:hidden"
-                        type="button" data-open-qr-export>
-                        <i class="fa-solid fa-download" aria-hidden="true"></i>
-                        تنزيل
+                        type="button" data-open-qr-export data-qr-primary-action>
+                        <i class="fa-solid fa-download" data-qr-primary-icon aria-hidden="true"></i>
+                        <span data-qr-primary-label="short">تنزيل</span>
                     </button>
                 </nav>
                 </div>
@@ -473,9 +591,9 @@
                 </ul>
                 <div class="mt-6 grid gap-2">
                     <a class="min-h-12 rounded-xl bg-violet-700 px-4 py-3 text-center font-black text-white hover:bg-violet-800"
-                        id="qrRegisterLink" href="{{ route('tools.qr.auth', 'register') }}">إنشاء حساب مجاني</a>
+                        id="qrRegisterLink" href="{{ route('tools.qr.auth', 'register') }}" data-qr-register-link>إنشاء حساب مجاني</a>
                     <a class="min-h-12 rounded-xl border border-violet-200 px-4 py-3 text-center font-black text-violet-800 hover:bg-violet-50"
-                        id="qrLoginLink" href="{{ route('tools.qr.auth', 'login') }}">لدي حساب — تسجيل الدخول</a>
+                        id="qrLoginLink" href="{{ route('tools.qr.auth', 'login') }}" data-qr-login-link>لدي حساب — تسجيل الدخول</a>
                     <button class="min-h-10 text-sm font-bold text-slate-500 hover:text-slate-800" type="button"
                         data-close-guest-dialog>المتابعة دون حفظ</button>
                 </div>

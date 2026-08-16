@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Models\QrCode;
+use Illuminate\Validation\Rule;
 
 class UpdateQrCodeRequest extends StoreQrCodeRequest
 {
@@ -24,10 +25,22 @@ class UpdateQrCodeRequest extends StoreQrCodeRequest
      */
     public function rules(): array
     {
+        $qrCode = $this->route('qrCode');
+
         return [
             ...parent::rules(),
+            'mode' => ['required', Rule::in([$qrCode instanceof QrCode ? $qrCode->mode->value : null])],
             'version' => ['required', 'integer', 'min:1'],
             'remove_logo' => ['sometimes', 'boolean'],
         ];
+    }
+
+    protected function prepareForValidation(): void
+    {
+        $qrCode = $this->route('qrCode');
+
+        $this->mergeIfMissing([
+            'mode' => $qrCode instanceof QrCode ? $qrCode->mode->value : 'static',
+        ]);
     }
 }

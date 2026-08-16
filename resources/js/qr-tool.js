@@ -8,6 +8,7 @@ if (qrForm) {
   const previewLoader = document.getElementById("qrPreviewLoader");
   const previewEmptyState = document.getElementById("qrPreviewEmptyState");
   const previewWaitingBadge = document.getElementById("qrPreviewWaitingBadge");
+  const previewWaitingLabel = document.getElementById("qrPreviewWaitingLabel");
   const previewReadyBadge = document.getElementById("qrPreviewReadyBadge");
   const downloadActions = document.getElementById("qrDownloadActions");
   const generateButton = document.getElementById("generateQrBtn");
@@ -24,6 +25,19 @@ if (qrForm) {
   const saveTitleInput = document.getElementById("qrSaveTitle");
   const saveStatus = document.getElementById("qrSaveStatus");
   const confirmSaveButton = document.getElementById("confirmSaveQrBtn");
+  const dynamicSettings = document.getElementById("qrDynamicSettings");
+  const dynamicSavedPanel = document.getElementById("qrDynamicSavedPanel");
+  const publicUrlInput = document.getElementById("qrPublicUrl");
+  const activeInput = document.getElementById("qrIsActive");
+  const expiresAtInput = document.getElementById("qrExpiresAt");
+  const modeLockMessage = document.getElementById("qrModeLockMessage");
+  const contentTypeGrid = document.getElementById("qrContentTypeGrid");
+  const dynamicLockedState = document.getElementById("qrDynamicLockedState");
+  const guestCloudSaveCard = document.getElementById("guestCloudSaveCard");
+  const ribbonActions = document.getElementById("qrRibbonActions");
+  const primaryActionButtons = [...document.querySelectorAll("[data-qr-primary-action]")];
+  const primaryActionLabels = [...document.querySelectorAll("[data-qr-primary-label]")];
+  const primaryActionIcons = [...document.querySelectorAll("[data-qr-primary-icon]")];
   const draftKey = "muallem-qr-draft-v1";
   const templateLayouts = {
     "template-1": { width: 1968, height: 1968, qrX: 460, qrY: 700, qrSize: 1060 },
@@ -48,6 +62,7 @@ if (qrForm) {
   let savedQrCodesCount = Number(config.usage?.savedQrCodes) || 0;
   let renderTimer = null;
   let renderSequence = 0;
+  let pendingDynamicExport = false;
   const sidebarPanels = [...document.querySelectorAll("[data-qr-sidebar-panel]")];
   const sidebarTabs = [...document.querySelectorAll("[data-qr-sidebar-tab]")];
   const panelDetails = {
@@ -58,6 +73,7 @@ if (qrForm) {
   };
 
   const selectedValue = (name) => qrForm.querySelector(`[name="${name}"]:checked`)?.value;
+  const currentMode = () => selectedValue("mode") || "static";
 
   function setStatus(message = "", tone = "muted") {
     formStatus.textContent = message;
@@ -138,10 +154,58 @@ if (qrForm) {
 
   function currentState() {
     return {
+      mode: currentMode(),
+      qr_code_id: currentQrCode?.id || null,
       content_type: selectedValue("content_type"),
       payload: currentPayload(),
-      design: currentDesign()
+      design: currentDesign(),
+      is_active: activeInput?.checked ?? true,
+      expires_at: expiresAtInput?.value || null
     };
+  }
+
+  function dynamicChangesNeedSave(state = currentState()) {
+    if (state.mode !== "dynamic") return false;
+
+    const savedExpiry = currentQrCode?.expires_at ? String(currentQrCode.expires_at).slice(0, 16) : "";
+
+    return !currentQrCode
+      || currentQrCode.mode !== "dynamic"
+      || currentQrCode.payload?.url !== state.payload.url
+      || Boolean(currentQrCode.is_active) !== state.is_active
+      || savedExpiry !== (state.expires_at || "");
+  }
+
+  function updatePrimaryAction() {
+    const dynamic = currentMode() === "dynamic";
+    const requiresAccount = dynamic && !config.authenticated;
+    const requiresVerification = dynamic && config.authenticated && !config.verified;
+    const requiresSave = dynamic && config.verified && dynamicChangesNeedSave();
+    const action = requiresAccount
+      ? { full: "سجّل الدخول لإنشاء الرمز", short: "دخول للتفعيل", icon: "fa-right-to-bracket" }
+      : requiresVerification
+        ? { full: "فعّل بريدك للمتابعة", short: "تفعيل البريد", icon: "fa-envelope-circle-check" }
+        : requiresSave
+          ? { full: "احفظ وفعّل الرمز", short: "حفظ وتفعيل", icon: "fa-floppy-disk" }
+          : { full: "تنزيل ومشاركة", short: "تنزيل", icon: "fa-download" };
+
+    primaryActionLabels.forEach((label) => {
+      label.textContent = action[label.dataset.qrPrimaryLabel] || action.full;
+    });
+    primaryActionIcons.forEach((icon) => {
+      icon.classList.remove("fa-download", "fa-right-to-bracket", "fa-envelope-circle-check", "fa-floppy-disk");
+      icon.classList.add(action.icon);
+    });
+    primaryActionButtons.forEach((button) => {
+      button.setAttribute("aria-label", action.full);
+    });
+
+    const hideSaveButton = requiresAccount || requiresVerification;
+    saveButton.classList.toggle("hidden", hideSaveButton);
+    saveButton.classList.toggle("inline-flex", !hideSaveButton);
+    ribbonActions?.classList.toggle("grid-cols-1", hideSaveButton);
+    ribbonActions?.classList.toggle("grid-cols-2", !hideSaveButton);
+    guestCloudSaveCard?.classList.toggle("lg:block", !dynamic);
   }
 
   function hasPreviewContent(state) {
@@ -169,9 +233,31 @@ if (qrForm) {
     previewLoader.classList.remove("grid");
     previewEmptyState.classList.remove("hidden");
     previewEmptyState.classList.add("grid");
+    dynamicLockedState?.classList.add("hidden");
+    dynamicLockedState?.classList.remove("grid");
     downloadActions.classList.add("hidden");
     downloadActions.classList.remove("grid");
     setPreviewReady(false);
+    if (previewWaitingLabel) previewWaitingLabel.textContent = "بانتظار المحتوى";
+  }
+
+  function showDynamicLockedPreview() {
+    renderSequence += 1;
+    baseQrSvg = "";
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
+    previewUrl = "";
+    previewImage.removeAttribute("src");
+    previewImage.classList.add("hidden");
+    previewLoader.classList.add("hidden");
+    previewLoader.classList.remove("grid");
+    previewEmptyState.classList.add("hidden");
+    previewEmptyState.classList.remove("grid");
+    dynamicLockedState?.classList.remove("hidden");
+    dynamicLockedState?.classList.add("grid");
+    downloadActions.classList.add("hidden");
+    downloadActions.classList.remove("grid");
+    setPreviewReady(false);
+    if (previewWaitingLabel) previewWaitingLabel.textContent = "يتطلب تفعيلًا";
   }
 
   function validateState(state) {
@@ -193,6 +279,27 @@ if (qrForm) {
   }
 
   function showRelevantPanels() {
+    const dynamic = currentMode() === "dynamic";
+    if (dynamic) setRadio("content_type", "url");
+
+    document.querySelectorAll("[data-static-content-type]").forEach((label) => {
+      label.classList.toggle("hidden", dynamic);
+    });
+    contentTypeGrid?.classList.toggle("grid-cols-1", dynamic);
+    contentTypeGrid?.classList.toggle("grid-cols-3", !dynamic);
+    dynamicSettings?.classList.toggle("hidden", !dynamic);
+    dynamicSettings?.classList.toggle("grid", dynamic);
+    dynamicSavedPanel?.classList.toggle("hidden", !dynamic || !currentQrCode?.public_url);
+    dynamicSavedPanel?.classList.toggle("grid", dynamic && Boolean(currentQrCode?.public_url));
+    if (publicUrlInput) publicUrlInput.value = currentQrCode?.public_url || "";
+
+    if (currentQrCode) {
+      qrForm.querySelectorAll('[name="mode"]').forEach((input) => { input.disabled = true; });
+      modeLockMessage?.classList.remove("hidden");
+    }
+
+    updatePrimaryAction();
+
     const contentType = selectedValue("content_type");
     document.querySelectorAll("[data-content-panel]").forEach((panel) => {
       const visible = panel.dataset.contentPanel === contentType;
@@ -263,6 +370,7 @@ if (qrForm) {
   function hydrateState(state) {
     if (!state) return;
 
+    setRadio("mode", state.mode || "static");
     setRadio("content_type", state.content_type || "url");
     setRadio("qr_style", state.design?.style || "classic");
     setRadio("qr_frame", state.design?.frame || "none");
@@ -277,6 +385,8 @@ if (qrForm) {
     document.getElementById("qrEyeColor").value = state.design?.eye_color || "#6d28d9";
     document.getElementById("qrBackgroundColor").value = state.design?.background_color || "#ffffff";
     centerTextInput.value = state.design?.center_text || "";
+    if (activeInput) activeInput.checked = state.is_active ?? true;
+    if (expiresAtInput) expiresAtInput.value = state.expires_at ? String(state.expires_at).slice(0, 16) : "";
     logoDataUrl = state.logoDataUrl || logoDataUrl;
     showRelevantPanels();
     updateColorLabels();
@@ -403,11 +513,18 @@ if (qrForm) {
     previewLoader.classList.remove("grid");
     previewEmptyState.classList.add("hidden");
     previewEmptyState.classList.remove("grid");
+    dynamicLockedState?.classList.add("hidden");
+    dynamicLockedState?.classList.remove("grid");
     setPreviewReady(true);
   }
 
   async function renderPreview({ track = false } = {}) {
     const state = currentState();
+    if (state.mode === "dynamic" && !currentQrCode) {
+      showDynamicLockedPreview();
+      setStatus("احفظ الرمز الديناميكي أولًا لتفعيل رابطه الثابت ثم تنزيله.");
+      return false;
+    }
     if (!hasPreviewContent(state)) {
       showEmptyPreview();
       setStatus();
@@ -422,6 +539,8 @@ if (qrForm) {
     }
 
     const sequence = ++renderSequence;
+    dynamicLockedState?.classList.add("hidden");
+    dynamicLockedState?.classList.remove("grid");
     previewLoader.classList.remove("hidden");
     previewLoader.classList.add("grid");
     previewEmptyState.classList.add("hidden");
@@ -479,6 +598,13 @@ if (qrForm) {
     updateContrastWarning();
     persistDraft();
     window.clearTimeout(renderTimer);
+    if (currentMode() === "dynamic" && !currentQrCode) {
+      showDynamicLockedPreview();
+      setStatus(config.authenticated && config.verified
+        ? "احفظ الرمز لتفعيل رابطه الديناميكي ثم تنزيله."
+        : "يلزم حساب مجاني لتفعيل QR الديناميكي.");
+      return;
+    }
     if (!hasPreviewContent(currentState())) {
       showEmptyPreview();
       setStatus();
@@ -572,9 +698,12 @@ if (qrForm) {
     setSaveStatus("جارٍ الحفظ…");
     const formData = new FormData();
     formData.append("title", title);
+    formData.append("mode", state.mode);
     formData.append("content_type", state.content_type);
     appendNested(formData, "payload", state.payload);
     appendNested(formData, "design", state.design);
+    formData.append("is_active", state.is_active ? "1" : "0");
+    if (state.expires_at) formData.append("expires_at", state.expires_at);
 
     if (logoFile) {
       formData.append("logo", logoFile);
@@ -609,7 +738,17 @@ if (qrForm) {
       localStorage.removeItem(draftKey);
       setSaveStatus("تم الحفظ في حسابك.", "success");
       setStatus("تم حفظ الرمز في حسابك ويمكنك تعديله لاحقًا.", "success");
-      window.setTimeout(() => saveDialog.close(), 700);
+      showRelevantPanels();
+
+      if (currentQrCode.mode === "dynamic") {
+        const shouldOpenExport = pendingDynamicExport;
+        pendingDynamicExport = false;
+        if (shouldOpenExport) saveDialog.close();
+        const rendered = await renderPreview({ track: shouldOpenExport });
+        if (rendered && shouldOpenExport && !exportDialog.open) exportDialog.showModal();
+      }
+
+      if (saveDialog.open) window.setTimeout(() => saveDialog.close(), 700);
     } catch (error) {
       setSaveStatus(error.message, "error");
     } finally {
@@ -618,8 +757,17 @@ if (qrForm) {
   }
 
   async function openSaveFlow() {
-    const rendered = await renderPreview();
-    if (!rendered) return;
+    const state = currentState();
+    const validationMessage = validateState(state);
+    if (validationMessage) {
+      setStatus(validationMessage, "error");
+      return;
+    }
+
+    if (state.mode === "static") {
+      const rendered = await renderPreview();
+      if (!rendered) return;
+    }
 
     if (!config.authenticated) {
       persistDraft(true);
@@ -646,6 +794,18 @@ if (qrForm) {
 
   async function openExportFlow() {
     const state = currentState();
+    if (state.mode === "dynamic" && !config.authenticated) {
+      persistDraft(true);
+      guestDialog.showModal();
+      return;
+    }
+
+    if (state.mode === "dynamic" && !config.verified) {
+      persistDraft(true);
+      window.location.href = config.routes.verification;
+      return;
+    }
+
     const validationMessage = validateState(state);
     if (validationMessage) {
       const hasInvalidCenter = (state.design.center_type === "text" && !state.design.center_text)
@@ -654,6 +814,16 @@ if (qrForm) {
         hasInvalidCenter ? "center" : "content",
         { scroll: true }
       );
+      setStatus(validationMessage, "error");
+      return;
+    }
+
+    if (state.mode === "dynamic") {
+      if (dynamicChangesNeedSave(state)) {
+        pendingDynamicExport = true;
+        await openSaveFlow();
+        return;
+      }
     }
 
     const rendered = await renderPreview({ track: true });
@@ -673,8 +843,10 @@ if (qrForm) {
   saveButton.addEventListener("click", openSaveFlow);
   document.getElementById("createNewQrLink")?.addEventListener("click", () => localStorage.removeItem(draftKey));
   document.getElementById("guestSavePromptBtn")?.addEventListener("click", openSaveFlow);
-  document.getElementById("qrRegisterLink")?.addEventListener("click", () => persistDraft(true));
-  document.getElementById("qrLoginLink")?.addEventListener("click", () => persistDraft(true));
+  document.querySelectorAll("[data-qr-register-link], [data-qr-login-link]").forEach((link) => {
+    link.addEventListener("click", () => persistDraft(true));
+  });
+  document.querySelectorAll("[data-open-dynamic-save]").forEach((button) => button.addEventListener("click", openSaveFlow));
 
   logoInput.addEventListener("change", async () => {
     const file = logoInput.files?.[0];
@@ -695,7 +867,10 @@ if (qrForm) {
     event.preventDefault();
     await saveQrCode();
   });
-  saveDialog?.querySelectorAll("[data-close-save-dialog]").forEach((button) => button.addEventListener("click", () => saveDialog.close()));
+  saveDialog?.querySelectorAll("[data-close-save-dialog]").forEach((button) => button.addEventListener("click", () => {
+    pendingDynamicExport = false;
+    saveDialog.close();
+  }));
   guestDialog?.querySelectorAll("[data-close-guest-dialog]").forEach((button) => button.addEventListener("click", () => guestDialog.close()));
   exportDialog?.querySelectorAll("[data-close-qr-export]").forEach((button) => button.addEventListener("click", () => exportDialog.close()));
   exportDialog?.querySelector("[data-save-from-qr-export]")?.addEventListener("click", () => {
@@ -722,6 +897,11 @@ if (qrForm) {
       setStatus("المتصفح لا يدعم نسخ الصور؛ تم تنزيلها بدلًا من ذلك.");
     }
   });
+  document.getElementById("copyQrPublicUrl")?.addEventListener("click", async () => {
+    if (!publicUrlInput?.value) return;
+    await navigator.clipboard.writeText(publicUrlInput.value);
+    setStatus("تم نسخ الرابط الديناميكي.", "success");
+  });
 
   async function initialize() {
     const draft = readDraft();
@@ -735,7 +915,9 @@ if (qrForm) {
       logoName.textContent = "الصورة المحفوظة في المسودة";
     }
 
-    if (hasPreviewContent(currentState())) {
+    if (currentMode() === "dynamic" && !currentQrCode) {
+      showDynamicLockedPreview();
+    } else if (hasPreviewContent(currentState())) {
       await renderPreview();
     } else {
       showEmptyPreview();

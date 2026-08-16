@@ -19,6 +19,19 @@ test('the qr tool presents an easy guest flow and all customization controls', f
         ->assertSee('data-qr-sidebar-panel="frames"', false)
         ->assertSee('data-qr-sidebar-tab="content"', false)
         ->assertSee('name="content_type"', false)
+        ->assertSee('name="mode"', false)
+        ->assertSee('value="static"', false)
+        ->assertSee('value="dynamic"', false)
+        ->assertSee('id="qrDynamicSettings"', false)
+        ->assertSee('id="qrDynamicAccountPrompt"', false)
+        ->assertSee('id="qrDynamicLockedState"', false)
+        ->assertSee('id="qrPublicUrl"', false)
+        ->assertSee('data-qr-primary-label="full"', false)
+        ->assertSee('يتطلب حسابًا مجانيًا')
+        ->assertSee('سجّل الدخول لتفعيل الرابط الديناميكي')
+        ->assertSee('إنشاء حساب مجاني')
+        ->assertSee(route('tools.qr.auth', 'register'), false)
+        ->assertSee(route('tools.qr.auth', 'login'), false)
         ->assertSee('value="url"', false)
         ->assertSee('value="text"', false)
         ->assertSee('value="wifi"', false)
@@ -87,6 +100,7 @@ test('a saved qr can be reopened in the editor by its owner', function () {
         ->assertSee(route('dashboard', ['section' => 'qr']), false)
         ->assertSee('رموزي')
         ->assertSee('جديد');
+    $response->assertDontSee('id="qrDynamicAccountPrompt"', false);
     expect($response->viewData('qrConfig')['savedQrCode'])
         ->toMatchArray([
             'id' => $qrCode->id,
@@ -95,6 +109,18 @@ test('a saved qr can be reopened in the editor by its owner', function () {
         ])
         ->and($response->viewData('qrConfig')['limits']['savedQrCodes'])->toBe(10)
         ->and($response->viewData('qrConfig')['usage']['savedQrCodes'])->toBe(1);
+});
+
+test('an unverified user sees the dynamic qr verification requirement', function () {
+    $user = User::factory()->unverified()->create();
+
+    $this->actingAs($user)
+        ->get(route('tools.qr'))
+        ->assertSuccessful()
+        ->assertSee('id="qrDynamicVerificationPrompt"', false)
+        ->assertSee('فعّل بريدك لتتمكن من حفظ الرابط الديناميكي وتفعيله.')
+        ->assertSee(route('verification.notice'), false)
+        ->assertDontSee('id="qrDynamicAccountPrompt"', false);
 });
 
 test('the qr account handoff preserves the intended editor destination', function () {
@@ -139,6 +165,15 @@ test('the qr client keeps the draft through registration and supports both downl
         ->toContain('exportDialog.showModal()')
         ->toContain('localStorage.removeItem(draftKey)')
         ->toContain('if (qrCodeLimitReached())')
+        ->toContain('pendingDynamicExport')
+        ->toContain('currentQrCode?.public_url')
+        ->toContain('dynamicChangesNeedSave')
+        ->toContain('updatePrimaryAction')
+        ->toContain('showDynamicLockedPreview')
+        ->toContain('data-qr-register-link')
+        ->toContain('سجّل الدخول لإنشاء الرمز')
+        ->toContain('فعّل بريدك للمتابعة')
+        ->toContain('احفظ وفعّل الرمز')
         ->not->toContain('افتح النشاط');
 });
 

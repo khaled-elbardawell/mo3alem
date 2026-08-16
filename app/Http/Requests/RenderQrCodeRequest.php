@@ -2,10 +2,12 @@
 
 namespace App\Http\Requests;
 
+use App\QrCodeMode;
 use App\QrContentType;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Validator;
 
 class RenderQrCodeRequest extends FormRequest
 {
@@ -25,6 +27,8 @@ class RenderQrCodeRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'mode' => ['required', Rule::enum(QrCodeMode::class)],
+            'qr_code_id' => ['nullable', 'integer', 'min:1'],
             'content_type' => ['required', Rule::enum(QrContentType::class)],
             'payload' => ['required', 'array'],
             'payload.url' => ['required_if:content_type,url', 'nullable', 'url:http,https', 'max:2048'],
@@ -41,6 +45,28 @@ class RenderQrCodeRequest extends FormRequest
             'design.frame' => ['required', Rule::in(['none', 'template-1', 'template-2', 'template-3', 'template-4', 'template-5', 'template-6', 'template-7', 'template-8', 'template-9', 'template-10', 'template-11'])],
             'design.center_type' => ['required', Rule::in(['none', 'text', 'image'])],
             'design.center_text' => ['nullable', 'required_if:design.center_type,text', 'string', 'max:10'],
+            'is_active' => ['nullable', 'boolean'],
+            'expires_at' => ['nullable', 'date'],
         ];
+    }
+
+    /** @return array<int, callable> */
+    public function after(): array
+    {
+        return [
+            function (Validator $validator): void {
+                if ($this->string('mode')->toString() === QrCodeMode::Dynamic->value
+                    && $this->string('content_type')->toString() !== QrContentType::Url->value) {
+                    $validator->errors()->add('content_type', 'الرمز الديناميكي يدعم الروابط فقط.');
+                }
+            },
+        ];
+    }
+
+    protected function prepareForValidation(): void
+    {
+        $this->mergeIfMissing([
+            'mode' => QrCodeMode::Static->value,
+        ]);
     }
 }

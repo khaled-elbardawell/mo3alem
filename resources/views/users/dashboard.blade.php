@@ -120,9 +120,16 @@
                                 'bg-amber-50 text-amber-700' => $item->status !== 'active',
                             ])>{{ $item->status === 'active' ? 'بدأت' : 'مسودة' }}</span>
                         @elseif($section === 'qr')
-                            <span class="shrink-0 rounded-full bg-violet-50 px-2.5 py-1 text-xs font-black text-violet-700">
-                                {{ ['url' => 'رابط', 'text' => 'نص', 'wifi' => 'Wi-Fi'][$item->content_type] ?? 'QR' }}
-                            </span>
+                            <div class="flex shrink-0 flex-wrap justify-end gap-1.5">
+                                <span @class([
+                                    'rounded-full px-2.5 py-1 text-xs font-black',
+                                    'bg-emerald-50 text-emerald-700' => $item->mode === \App\QrCodeMode::Dynamic,
+                                    'bg-slate-100 text-slate-600' => $item->mode === \App\QrCodeMode::Static,
+                                ])>{{ $item->mode === \App\QrCodeMode::Dynamic ? 'ديناميكي' : 'ثابت' }}</span>
+                                <span class="rounded-full bg-violet-50 px-2.5 py-1 text-xs font-black text-violet-700">
+                                    {{ ['url' => 'رابط', 'text' => 'نص', 'wifi' => 'Wi-Fi'][$item->content_type] ?? 'QR' }}
+                                </span>
+                            </div>
                         @elseif($section === 'certificates')
                             <span class="shrink-0 rounded-full bg-amber-50 px-2.5 py-1 text-xs font-black text-amber-700">
                                 {{ $item->template_key === 'custom' ? 'قالب مرفوع' : 'قالب '.str_replace('b', '', $item->template_key) }}
@@ -134,6 +141,9 @@
                             <span>{{ number_format($item->names_count) }} اسم</span>
                         @elseif($section === 'qr')
                             <span class="inline-flex items-center gap-1.5"><i class="fa-solid fa-palette text-violet-500" aria-hidden="true"></i> {{ ['classic' => 'كلاسيكي', 'dots' => 'نقاط', 'rounded' => 'مستديرة'][$item->design['style']] ?? 'مخصص' }}</span>
+                            @if($item->mode === \App\QrCodeMode::Dynamic)
+                                <span class="inline-flex items-center gap-1.5"><i class="fa-solid fa-chart-simple text-emerald-500" aria-hidden="true"></i> {{ number_format($item->scan_count) }} مسح</span>
+                            @endif
                         @else
                             <span class="inline-flex items-center gap-1.5"><i class="fa-solid fa-font text-amber-500" aria-hidden="true"></i> {{ count($item->design['elements'] ?? []) }} عناصر نصية</span>
                         @endif

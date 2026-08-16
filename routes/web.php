@@ -14,6 +14,7 @@ use App\Http\Controllers\QrAuthRedirectController;
 use App\Http\Controllers\QrCodeController;
 use App\Http\Controllers\QrLogoController;
 use App\Http\Controllers\QrPreviewController;
+use App\Http\Controllers\QrRedirectController;
 use App\Http\Controllers\RobotsController;
 use App\Http\Controllers\SavedWheelController;
 use App\Http\Controllers\Site\CertificateToolController;
@@ -29,6 +30,10 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', HomeController::class)->name('home');
 Route::get('/tools/wheel', WheelController::class)->name('tools.wheel');
+Route::get('/q/{qrCode:public_code}', QrRedirectController::class)
+    ->withTrashed()
+    ->middleware('throttle:qr-redirect')
+    ->name('qr.redirect');
 Route::get('/tools/qr', QrToolController::class)->name('tools.qr');
 Route::post('/tools/qr/render', QrPreviewController::class)
     ->middleware('throttle:120,1')

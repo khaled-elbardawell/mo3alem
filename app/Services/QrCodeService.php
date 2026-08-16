@@ -4,9 +4,11 @@ namespace App\Services;
 
 use App\Models\QrCode;
 use App\Models\User;
+use App\QrCodeMode;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Throwable;
 
@@ -33,10 +35,18 @@ class QrCodeService
 
                 $qrCode = $lockedUser->qrCodes()->create([
                     'title' => $data['title'],
+                    'mode' => $data['mode'],
                     'content_type' => $data['content_type'],
                     'payload' => $data['payload'],
                     'design' => $data['design'],
                     'logo_path' => $logoPath,
+                    'public_code' => $data['mode'] === QrCodeMode::Dynamic->value ? (string) Str::ulid() : null,
+                    'is_active' => $data['mode'] === QrCodeMode::Dynamic->value
+                        ? (bool) ($data['is_active'] ?? true)
+                        : true,
+                    'expires_at' => $data['mode'] === QrCodeMode::Dynamic->value
+                        ? ($data['expires_at'] ?? null)
+                        : null,
                     'last_opened_at' => now(),
                 ]);
 
@@ -68,6 +78,12 @@ class QrCodeService
             'content_type' => $data['content_type'],
             'payload' => $castedAttributes['payload'],
             'design' => $castedAttributes['design'],
+            'is_active' => $qrCode->mode === QrCodeMode::Dynamic
+                ? (bool) ($data['is_active'] ?? true)
+                : true,
+            'expires_at' => $qrCode->mode === QrCodeMode::Dynamic
+                ? ($data['expires_at'] ?? null)
+                : null,
             'version' => DB::raw('version + 1'),
             'last_opened_at' => now(),
             'updated_at' => now(),

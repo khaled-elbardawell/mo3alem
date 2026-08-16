@@ -2,9 +2,12 @@
 
 use App\Models\DailyMetric;
 use App\Models\QrCode;
+use App\Models\QrCodeDailyStat;
 use App\Models\User;
+use App\Services\VisitorIdentity;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 function qrPayload(array $overrides = []): array
 {
@@ -154,4 +157,104 @@ test('qr payload types and design options are validated', function () {
     ]))
         ->assertUnprocessable()
         ->assertJsonValidationErrors(['payload.url', 'design.style', 'design.foreground_color', 'design.frame']);
+});
+
+test('a dynamic qr keeps one public url while its destination changes', function () {
+    $user = User::factory()->create();
+
+    $created = $this->actingAs($user)
+        ->postJson(route('qr-codes.store'), qrPayload([
+            'mode' => 'dynamic',
+            'payload' => ['url' => 'https://example.com/first'],
+            'is_active' => true,
+        ]))
+        ->assertCreated()
+        ->assertJsonPath('data.mode', 'dynamic')
+        ->assertJsonPath('data.is_active', true)
+        ->json('data');
+
+    $qrCode = QrCode::query()->findOrFail($created['id']);
+    $publicUrl = route('qr.redirect', $qrCode->public_code);
+
+    expect($created['public_url'])->toBe($publicUrl)
+        ->and($qrCode->public_code)->toHaveLength(26);
+
+    $this->actingAs($user)
+        ->postJson(route('tools.qr.render'), qrPayload([
+            'mode' => 'dynamic',
+            'qr_code_id' => $qrCode->id,
+            'payload' => ['url' => 'https://example.com/first'],
+        ]))
+        ->assertSuccessful()
+        ->assertJsonPath('svg', fn (string $svg): bool => str_contains($svg, '<svg'));
+
+    $this->actingAs($user)
+        ->patchJson(route('qr-codes.update', $qrCode), [
+            ...qrPayload([
+                'mode' => 'dynamic',
+                'payload' => ['url' => 'https://example.com/second'],
+                'is_active' => true,
+            ]),
+            'version' => 1,
+        ])
+        ->assertSuccessful()
+        ->assertJsonPath('data.public_url', $publicUrl);
+
+    expect($qrCode->refresh()->public_code)->toBe($qrCode->public_code);
+
+    $this->get($publicUrl)
+        ->assertRedirect('https://example.com/second')
+        ->assertHeader('Cache-Control', 'no-store, private');
+});
+
+test('dynamic qr scans record total and daily unique analytics', function () {
+    $qrCode = QrCode::factory()->dynamic()->create();
+    $visitorId = (string) Str::uuid();
+
+    $this->withCookie(VisitorIdentity::COOKIE_NAME, $visitorId)
+        ->get(route('qr.redirect', $qrCode->public_code))
+        ->assertRedirect($qrCode->payload['url']);
+
+    $this->withCookie(VisitorIdentity::COOKIE_NAME, $visitorId)
+        ->get(route('qr.redirect', $qrCode->public_code))
+        ->assertRedirect($qrCode->payload['url']);
+
+    $dailyStat = QrCodeDailyStat::query()->whereBelongsTo($qrCode)->firstOrFail();
+
+    expect($qrCode->refresh()->scan_count)->toBe(2)
+        ->and($qrCode->unique_scan_count)->toBe(1)
+        ->and($dailyStat->scans)->toBe(2)
+        ->and($dailyStat->unique_scans)->toBe(1);
+});
+
+test('dynamic qr rejects non url content and unavailable links return gone', function () {
+    $user = User::factory()->create();
+
+    $this->actingAs($user)
+        ->postJson(route('qr-codes.store'), qrPayload([
+            'mode' => 'dynamic',
+            'content_type' => 'text',
+            'payload' => ['text' => 'Dynamic text'],
+        ]))
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors('content_type');
+
+    $inactiveQrCode = QrCode::factory()->dynamic()->create(['is_active' => false]);
+    $expiredQrCode = QrCode::factory()->dynamic()->create(['expires_at' => now()->subMinute()]);
+
+    $this->get(route('qr.redirect', $inactiveQrCode->public_code))->assertGone();
+    $this->get(route('qr.redirect', $expiredQrCode->public_code))->assertGone();
+});
+
+test('a saved qr mode cannot be changed', function () {
+    $user = User::factory()->create();
+    $qrCode = QrCode::factory()->dynamic()->for($user)->create();
+
+    $this->actingAs($user)
+        ->patchJson(route('qr-codes.update', $qrCode), [
+            ...qrPayload(['mode' => 'static']),
+            'version' => 1,
+        ])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors('mode');
 });
