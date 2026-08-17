@@ -79,17 +79,16 @@ class CertificateToolController extends Controller
     private function templates(): array
     {
         $dimensions = [
-            'b1' => [1121, 794, 'png'],
-            'b2' => [1148, 810, 'png'],
-            'b3' => [1014, 716, 'png'],
-            'b4' => [1177, 826, 'png'],
-            'b5' => [1035, 731, 'png'],
-            'b6' => [1120, 790, 'svg'],
-            'b7' => [1120, 790, 'svg'],
-            'b8' => [1120, 790, 'svg'],
-            'b9' => [1120, 790, 'svg'],
-            'b10' => [1120, 790, 'svg'],
-            'b11' => [1120, 790, 'svg'],
+            'b1' => [1123, 794, 'jpg'],
+            'b2' => [1123, 794, 'jpg'],
+            'b3' => [1123, 794, 'jpg'],
+            'b4' => [1123, 794, 'jpg'],
+            'b5' => [1123, 794, 'jpg'],
+            'b6' => [1123, 794, 'jpg'],
+            'b7' => [1123, 794, 'jpg'],
+            'b8' => [1123, 794, 'jpg'],
+            'b9' => [1123, 794, 'jpg'],
+            'b10' => [1123, 794, 'jpg'],
         ];
 
         return collect($dimensions)->map(function (array $template, string $key): array {

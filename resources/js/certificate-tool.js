@@ -96,10 +96,9 @@ if (certificateConfigElement) {
 
   function defaultDesign() {
     return {
-      width: 1120,
-      height: 790,
+      width: 1123,
+      height: 794,
       elements: [
-        defaultText({ text: "شهادة تقدير", x: 160, y: 150, width: 800, height: 92, font_size: 58, font_weight: 900 }),
         defaultText({ text: "تُمنح هذه الشهادة إلى", x: 260, y: 270, width: 600, height: 55, font_size: 28, font_weight: 500 }),
         defaultText({ text: "اسم الطالب/ـة", x: 170, y: 330, width: 780, height: 90, font_size: 54, font_weight: 900, color: "#6d28d9" }),
         defaultText({ text: "تقديراً لتميّزه/ـا وجهوده/ـا الرائعة، مع أطيب الأمنيات بمزيد من النجاح.", x: 190, y: 450, width: 740, height: 105, font_size: 27, font_weight: 500 }),

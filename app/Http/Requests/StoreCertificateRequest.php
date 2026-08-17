@@ -78,6 +78,6 @@ class StoreCertificateRequest extends FormRequest
     /** @return list<string> */
     private function templateKeys(): array
     {
-        return ['b1', 'b2', 'b3', 'b4', 'b5', 'b6', 'b7', 'b8', 'b9', 'b10', 'b11', 'custom'];
+        return ['b1', 'b2', 'b3', 'b4', 'b5', 'b6', 'b7', 'b8', 'b9', 'b10', 'custom'];
     }
 }

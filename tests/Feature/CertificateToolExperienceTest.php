@@ -45,12 +45,20 @@ test('the certificate tool presents templates upload editing preview and print c
         ->assertSee('id="guestCertificateSaveCard"', false)
         ->assertSee('حفظ هذه الشهادة مجاناً');
 
-    collect(range(1, 11))->each(function (int $templateNumber) use ($response): void {
-        $extension = $templateNumber <= 5 ? 'png' : 'svg';
+    collect(range(1, 10))->each(function (int $templateNumber) use ($response): void {
         $response
             ->assertSee('data-certificate-template="b'.$templateNumber.'"', false)
-            ->assertSee(asset("assets/certificate-templates/b{$templateNumber}.{$extension}"), false);
+            ->assertSee(asset("assets/certificate-templates/b{$templateNumber}.jpg"), false);
+
+        expect(public_path("assets/certificate-templates/b{$templateNumber}.jpg"))->toBeFile();
     });
+
+    $response->assertDontSee('data-certificate-template="b11"', false);
+
+    expect($response->viewData('certificateConfig')['templates'])
+        ->each(fn ($template) => $template
+            ->width->toBe(1123)
+            ->height->toBe(794));
 });
 
 test('top side and bottom campaigns appear in the certificate tool', function () {
@@ -136,6 +144,7 @@ test('the certificate client supports draft handoff manipulation and printable e
         ->toContain('if (certificateLimitReached())')
         ->toContain('ensureDesignFontsLoaded')
         ->toContain('document.fonts.load')
+        ->not->toContain('defaultText({ text: "شهادة تقدير"')
         ->and($styles)
         ->toContain('font-family: "RB"')
         ->toContain('../fonts/rb/RB-Regular.ttf')
