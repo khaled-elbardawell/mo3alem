@@ -3,10 +3,16 @@
 @section('title', 'المستخدمون')
 
 @section('content')
-    <div>
-        <p class="text-sm font-black text-violet-600">إدارة الحسابات</p>
-        <h1 class="mt-1 text-3xl font-black tracking-tight sm:text-4xl">المستخدمون</h1>
-        <p class="mt-2 leading-7 text-slate-500">ابحث عن الحسابات، راجع حالتها، وعدّل الصلاحيات بطريقة واضحة وآمنة.</p>
+    <div class="flex flex-wrap items-start justify-between gap-4">
+        <div>
+            <p class="text-sm font-black text-violet-600">إدارة الحسابات</p>
+            <h1 class="mt-1 text-3xl font-black tracking-tight sm:text-4xl">المستخدمون</h1>
+            <p class="mt-2 leading-7 text-slate-500">ابحث عن الحسابات، راجع حالتها، وعدّل الصلاحيات بطريقة واضحة وآمنة.</p>
+        </div>
+        <a class="inline-flex min-h-12 items-center gap-2 rounded-xl bg-violet-700 px-5 font-black text-white shadow-[0_10px_24px_rgba(109,40,217,0.2)] transition hover:bg-violet-800" href="{{ route('admin.users.create') }}">
+            <i class="fa-solid fa-user-plus" aria-hidden="true"></i>
+            إنشاء حساب
+        </a>
     </div>
 
     <form class="mt-7 grid gap-4 rounded-3xl border border-slate-200/80 bg-white p-4 shadow-sm sm:grid-cols-2 xl:grid-cols-[2fr_1fr_auto] xl:items-end" method="GET">

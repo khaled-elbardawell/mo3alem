@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\UserStoreRequest;
 use App\Http\Requests\Admin\UserUpdateRequest;
 use App\Models\User;
 use App\Services\AdminAuditService;
+use App\Services\MetricService;
 use App\UserRole;
 use App\UserStatus;
 use Illuminate\Database\Eloquent\Builder;
@@ -34,6 +36,25 @@ class UserController extends Controller
             ->withQueryString();
 
         return view('admin.users.index', compact('users'));
+    }
+
+    public function create(): View
+    {
+        return view('admin.users.create');
+    }
+
+    public function store(
+        UserStoreRequest $request,
+        AdminAuditService $audit,
+        MetricService $metrics,
+    ): RedirectResponse {
+        $user = User::query()->create($request->validated());
+        $user->forceFill(['email_verified_at' => now()])->save();
+
+        $metrics->increment('registrations');
+        $audit->record($request, 'user.created', $user, null, $user->toArray());
+
+        return redirect()->route('admin.users.index')->with('status', 'تم إنشاء الحساب بنجاح.');
     }
 
     public function edit(User $user): View

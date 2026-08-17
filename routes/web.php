@@ -129,7 +129,7 @@ Route::prefix('admin')
             ->withTrashed()
             ->name('users.restore');
         Route::resource('users', Admin\UserController::class)
-            ->only(['index', 'edit', 'update', 'destroy'])
+            ->only(['index', 'create', 'store', 'edit', 'update', 'destroy'])
             ->withTrashed();
 
         Route::patch('/saved-wheels/{savedWheel}/restore', [Admin\SavedWheelController::class, 'restore'])

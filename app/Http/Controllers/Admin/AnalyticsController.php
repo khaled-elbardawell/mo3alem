@@ -51,7 +51,7 @@ class AnalyticsController extends Controller
             }
 
             return $row;
-        });
+        })->reverse()->values();
     }
 
     /**

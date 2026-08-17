@@ -2,11 +2,13 @@
 
 use App\Models\AdCampaign;
 use App\Models\AdminAuditLog;
+use App\Models\DailyMetric;
 use App\Models\SavedWheel;
 use App\Models\User;
 use App\UserRole;
 use App\UserStatus;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 test('non administrators cannot open the admin panel', function () {
     $this->actingAs(User::factory()->create())
@@ -23,6 +25,7 @@ test('an administrator can render every administration screen', function () {
     $routes = [
         route('admin.dashboard'),
         route('admin.users.index'),
+        route('admin.users.create'),
         route('admin.users.edit', $user),
         route('admin.saved-wheels.index'),
         route('admin.saved-wheels.edit', $wheel),
@@ -37,6 +40,50 @@ test('an administrator can render every administration screen', function () {
     foreach ($routes as $route) {
         $this->actingAs($admin)->get($route)->assertSuccessful();
     }
+});
+
+test('an administrator may create a verified user account', function () {
+    $admin = User::factory()->create(['role' => UserRole::Admin]);
+
+    $this->actingAs($admin)
+        ->post(route('admin.users.store'), [
+            'name' => 'مستخدم جديد',
+            'email' => 'NEW.USER@EXAMPLE.COM',
+            'password' => 'SecurePass123',
+            'password_confirmation' => 'SecurePass123',
+            'role' => UserRole::User->value,
+            'status' => UserStatus::Active->value,
+        ])
+        ->assertRedirect(route('admin.users.index'))
+        ->assertSessionHas('status', 'تم إنشاء الحساب بنجاح.');
+
+    $user = User::query()->where('email', 'new.user@example.com')->firstOrFail();
+
+    expect($user->name)->toBe('مستخدم جديد')
+        ->and($user->role)->toBe(UserRole::User)
+        ->and($user->status)->toBe(UserStatus::Active)
+        ->and($user->email_verified_at)->not->toBeNull()
+        ->and(Hash::check('SecurePass123', $user->password))->toBeTrue()
+        ->and(AdminAuditLog::query()->where('action', 'user.created')->where('subject_id', $user->id)->exists())->toBeTrue()
+        ->and((int) DailyMetric::query()->whereDate('date', today())->value('registrations'))->toBe(1);
+});
+
+test('user creation validates unique emails password confirmation role and status', function () {
+    $admin = User::factory()->create(['role' => UserRole::Admin]);
+    $existingUser = User::factory()->create();
+
+    $this->actingAs($admin)
+        ->from(route('admin.users.create'))
+        ->post(route('admin.users.store'), [
+            'name' => 'حساب غير صالح',
+            'email' => $existingUser->email,
+            'password' => 'SecurePass123',
+            'password_confirmation' => 'different-password',
+            'role' => 'owner',
+            'status' => 'disabled',
+        ])
+        ->assertRedirect(route('admin.users.create'))
+        ->assertSessionHasErrors(['email', 'password', 'role', 'status']);
 });
 
 test('the admin header links back to the main site instead of the wheel', function () {

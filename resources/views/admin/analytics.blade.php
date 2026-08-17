@@ -88,20 +88,20 @@
             <span class="text-xs font-black text-violet-700">{{ Number::format($rows->count(), locale: 'ar') }} يوم</span>
         </div>
 
-        <div class="hidden overflow-x-auto md:block">
+        <div class="hidden max-h-[70vh] overflow-auto md:block">
             <table class="w-full min-w-[1500px] text-right text-sm">
                 <thead class="bg-slate-50 text-slate-500">
                     <tr>
-                        <th class="sticky right-0 z-10 min-w-48 bg-slate-50 p-3">التاريخ</th>
+                        <th class="sticky top-0 right-0 z-30 min-w-48 bg-slate-50 p-3">التاريخ</th>
                         @foreach ($metricDefinitions as $metric)
-                            <th class="whitespace-nowrap p-3">{{ $metric['short'] }}</th>
+                            <th class="sticky top-0 z-20 whitespace-nowrap bg-slate-50 p-3">{{ $metric['short'] }}</th>
                         @endforeach
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
                     @foreach ($rows as $row)
-                        <tr class="hover:bg-violet-50/40">
-                            <td class="sticky right-0 bg-white p-3 font-bold group-hover:bg-violet-50">
+                        <tr class="group hover:bg-violet-50/40">
+                            <td class="sticky right-0 z-10 bg-white p-3 font-bold group-hover:bg-violet-50">
                                 <time datetime="{{ $row['date']->toDateString() }}">{{ $row['date']->locale('ar')->translatedFormat('l، j F Y') }}</time>
                             </td>
                             @foreach ($metricDefinitions as $key => $metric)
