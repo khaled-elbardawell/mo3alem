@@ -4,6 +4,7 @@ use App\Models\DailyMetric;
 use App\Models\QrCode;
 use App\Models\QrCodeDailyStat;
 use App\Models\User;
+use App\Services\QrCodeRenderer;
 use App\Services\VisitorIdentity;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -33,6 +34,25 @@ test('guests can render a styled qr preview without storing content', function (
         ->assertJsonPath('svg', fn (string $svg): bool => str_contains($svg, '<svg'));
 
     expect(QrCode::query()->count())->toBe(0);
+});
+
+test('the rounded qr style curves modules and all finder pattern corners', function () {
+    $renderer = app(QrCodeRenderer::class);
+    $design = qrPayload()['design'];
+    $roundedSvg = $renderer->render('https://example.com/rounded', $design);
+    $classicSvg = $renderer->render('https://example.com/rounded', [
+        ...$design,
+        'style' => 'classic',
+    ]);
+
+    expect($roundedSvg)
+        ->toContain('A0.35 0.35')
+        ->toContain('A1.15 1.15')
+        ->toContain('A0.85 0.85')
+        ->toContain('A0.6 0.6')
+        ->not->toContain('M-3.5 -3.5L3.5 -3.5L3.5 3.5L-3.5 3.5Z')
+        ->and($classicSvg)
+        ->not->toContain('A0.35 0.35');
 });
 
 test('a verified user can save update and delete an encrypted qr design', function () {

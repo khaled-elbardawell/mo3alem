@@ -22,6 +22,8 @@ use Illuminate\Validation\ValidationException;
 
 class QrCodeRenderer
 {
+    private const ROUNDED_MODULE_INTENSITY = 0.7;
+
     /** @param array<string, mixed> $design */
     public function render(string $content, array $design): string
     {
@@ -54,9 +56,18 @@ class QrCodeRenderer
     {
         return match ($style) {
             'dots' => [new DotsModule(DotsModule::MEDIUM), SimpleCircleEye::instance()],
-            'rounded' => [new RoundnessModule(RoundnessModule::MEDIUM), SimpleCircleEye::instance()],
+            'rounded' => $this->roundedShapes(),
             default => [SquareModule::instance(), SquareEye::instance()],
         };
+    }
+
+    /** @return array{ModuleInterface, EyeInterface} */
+    private function roundedShapes(): array
+    {
+        return [
+            new RoundnessModule(self::ROUNDED_MODULE_INTENSITY),
+            new RoundedSquareEye,
+        ];
     }
 
     private function color(string $hex): Rgb
