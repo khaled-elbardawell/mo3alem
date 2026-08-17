@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Models\Certificate;
+use App\Models\CertificateTemplate;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -78,6 +79,6 @@ class StoreCertificateRequest extends FormRequest
     /** @return list<string> */
     private function templateKeys(): array
     {
-        return ['b1', 'b2', 'b3', 'b4', 'b5', 'b6', 'b7', 'b8', 'b9', 'b10', 'custom'];
+        return CertificateTemplate::withTrashed()->pluck('key')->push('custom')->all();
     }
 }

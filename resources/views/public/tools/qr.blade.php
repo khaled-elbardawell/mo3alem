@@ -362,17 +362,17 @@
                                             <span>بدون قالب</span>
                                         </span>
                                     </label>
-                                    @foreach (range(1, 11) as $templateNumber)
+                                    @foreach ($qrConfig['templates'] as $template)
                                         <label class="cursor-pointer" dir="rtl">
                                             <input class="peer sr-only" type="radio" name="qr_frame"
-                                                value="template-{{ $templateNumber }}"
-                                                data-template-url="{{ asset('assets/qr-templates/' . $templateNumber . '.png') }}">
+                                                value="{{ $template['key'] }}"
+                                                data-template-url="{{ $template['url'] }}">
                                             <span
                                                 class="grid min-h-36 w-32 shrink-0 snap-start place-items-center gap-2 rounded-2xl border border-slate-200 bg-white p-2 text-xs font-black text-slate-700 shadow-sm transition hover:border-violet-300 hover:bg-violet-50/40 peer-checked:border-violet-500 peer-checked:bg-violet-50 peer-checked:text-violet-800 peer-checked:ring-4 peer-checked:ring-violet-100 peer-focus-visible:ring-4 peer-focus-visible:ring-violet-100 lg:w-full">
                                                 <img class="aspect-square w-full max-w-24 rounded-xl object-contain"
-                                                    src="{{ asset('assets/qr-templates/' . $templateNumber . '.png') }}"
-                                                    alt="معاينة قالب {{ $templateNumber }}" loading="lazy">
-                                                <span>قالب {{ $templateNumber }}</span>
+                                                    src="{{ $template['url'] }}"
+                                                    alt="معاينة {{ $template['label'] }}" loading="lazy">
+                                                <span>{{ $template['label'] }}</span>
                                             </span>
                                         </label>
                                     @endforeach

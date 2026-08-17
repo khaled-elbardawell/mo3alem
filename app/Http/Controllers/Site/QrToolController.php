@@ -6,6 +6,7 @@ use App\AdPlacement;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\QrCodeResource;
 use App\Models\QrCode;
+use App\Models\QrTemplate;
 use App\Models\SeoSetting;
 use App\Services\AdCampaignSelector;
 use App\Services\MetricService;
@@ -47,6 +48,17 @@ class QrToolController extends Controller
             'side' => $ads->select(AdPlacement::Side),
             'bottom' => $ads->select(AdPlacement::Bottom),
         ];
+        $templates = QrTemplate::query()->active()->ordered()->get();
+        $savedTemplateKey = data_get($loadedQrCode?->design, 'frame');
+
+        if ($savedTemplateKey && $savedTemplateKey !== 'none' && ! $templates->contains('key', $savedTemplateKey)) {
+            $savedTemplate = QrTemplate::withTrashed()->where('key', $savedTemplateKey)->first();
+
+            if ($savedTemplate) {
+                $templates->push($savedTemplate);
+            }
+        }
+
         $qrConfig = [
             'authenticated' => (bool) $request->user(),
             'verified' => $request->user()?->hasVerifiedEmail() ?? false,
@@ -59,6 +71,7 @@ class QrToolController extends Controller
             'savedQrCode' => $loadedQrCode
                 ? QrCodeResource::make($loadedQrCode)->resolve($request)
                 : null,
+            'templates' => $templates->map->toToolConfig()->all(),
             'routes' => [
                 'render' => route('tools.qr.render'),
                 'metrics' => route('activity-metrics.store'),

@@ -30,6 +30,18 @@
             'label' => 'الحملات الإعلانية',
         ],
         [
+            'route' => 'admin.qr-templates.index',
+            'active' => 'admin.qr-templates.*',
+            'icon' => 'fa-qrcode',
+            'label' => 'قوالب QR',
+        ],
+        [
+            'route' => 'admin.certificate-templates.index',
+            'active' => 'admin.certificate-templates.*',
+            'icon' => 'fa-award',
+            'label' => 'قوالب الشهادات',
+        ],
+        [
             'route' => 'admin.analytics',
             'active' => 'admin.analytics',
             'icon' => 'fa-chart-line',

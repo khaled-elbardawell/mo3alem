@@ -2,7 +2,9 @@
 
 use App\Models\AdCampaign;
 use App\Models\AdminAuditLog;
+use App\Models\CertificateTemplate;
 use App\Models\DailyMetric;
+use App\Models\QrTemplate;
 use App\Models\SavedWheel;
 use App\Models\User;
 use App\UserRole;
@@ -21,6 +23,8 @@ test('an administrator can render every administration screen', function () {
     $user = User::factory()->create();
     $wheel = SavedWheel::factory()->create();
     $campaign = AdCampaign::factory()->create();
+    $qrTemplate = QrTemplate::factory()->create();
+    $certificateTemplate = CertificateTemplate::factory()->create();
 
     $routes = [
         route('admin.dashboard'),
@@ -32,6 +36,12 @@ test('an administrator can render every administration screen', function () {
         route('admin.ad-campaigns.index'),
         route('admin.ad-campaigns.create'),
         route('admin.ad-campaigns.edit', $campaign),
+        route('admin.qr-templates.index'),
+        route('admin.qr-templates.create'),
+        route('admin.qr-templates.edit', $qrTemplate),
+        route('admin.certificate-templates.index'),
+        route('admin.certificate-templates.create'),
+        route('admin.certificate-templates.edit', $certificateTemplate),
         route('admin.analytics'),
         route('admin.seo.edit'),
         route('admin.audit-logs'),

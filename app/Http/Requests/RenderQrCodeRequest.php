@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\QrTemplate;
 use App\QrCodeMode;
 use App\QrContentType;
 use Illuminate\Contracts\Validation\ValidationRule;
@@ -42,7 +43,7 @@ class RenderQrCodeRequest extends FormRequest
             'design.foreground_color' => ['required', 'regex:/^#[0-9A-Fa-f]{6}$/'],
             'design.eye_color' => ['required', 'regex:/^#[0-9A-Fa-f]{6}$/'],
             'design.background_color' => ['required', 'regex:/^#[0-9A-Fa-f]{6}$/'],
-            'design.frame' => ['required', Rule::in(['none', 'template-1', 'template-2', 'template-3', 'template-4', 'template-5', 'template-6', 'template-7', 'template-8', 'template-9', 'template-10', 'template-11'])],
+            'design.frame' => ['required', Rule::in(QrTemplate::withTrashed()->pluck('key')->push('none')->all())],
             'design.center_type' => ['required', Rule::in(['none', 'text', 'image'])],
             'design.center_text' => ['nullable', 'required_if:design.center_type,text', 'string', 'max:15'],
             'is_active' => ['nullable', 'boolean'],

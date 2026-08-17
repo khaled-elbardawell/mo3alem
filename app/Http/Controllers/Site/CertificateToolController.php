@@ -6,6 +6,7 @@ use App\AdPlacement;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\CertificateResource;
 use App\Models\Certificate;
+use App\Models\CertificateTemplate;
 use App\Models\SeoSetting;
 use App\Services\AdCampaignSelector;
 use App\Services\MetricService;
@@ -47,6 +48,17 @@ class CertificateToolController extends Controller
             'side' => $ads->select(AdPlacement::Side),
             'bottom' => $ads->select(AdPlacement::Bottom),
         ];
+        $templates = CertificateTemplate::query()->active()->ordered()->get();
+        $savedTemplateKey = $loadedCertificate?->template_key;
+
+        if ($savedTemplateKey && $savedTemplateKey !== 'custom' && ! $templates->contains('key', $savedTemplateKey)) {
+            $savedTemplate = CertificateTemplate::withTrashed()->where('key', $savedTemplateKey)->first();
+
+            if ($savedTemplate) {
+                $templates->push($savedTemplate);
+            }
+        }
+
         $certificateConfig = [
             'authenticated' => (bool) $request->user(),
             'verified' => $request->user()?->hasVerifiedEmail() ?? false,
@@ -59,7 +71,7 @@ class CertificateToolController extends Controller
             'savedCertificate' => $loadedCertificate
                 ? CertificateResource::make($loadedCertificate)->resolve($request)
                 : null,
-            'templates' => $this->templates(),
+            'templates' => $templates->map->toToolConfig()->all(),
             'routes' => [
                 'metrics' => route('activity-metrics.store'),
                 'store' => $request->user() ? route('certificates.store') : null,
@@ -73,34 +85,5 @@ class CertificateToolController extends Controller
         ];
 
         return view('public.tools.certificates', compact('seo', 'campaigns', 'certificateConfig'));
-    }
-
-    /** @return list<array{key: string, label: string, url: string, width: int, height: int}> */
-    private function templates(): array
-    {
-        $dimensions = [
-            'b1' => [1123, 794, 'jpg'],
-            'b2' => [1123, 794, 'jpg'],
-            'b3' => [1123, 794, 'jpg'],
-            'b4' => [1123, 794, 'jpg'],
-            'b5' => [1123, 794, 'jpg'],
-            'b6' => [1123, 794, 'jpg'],
-            'b7' => [1123, 794, 'jpg'],
-            'b8' => [1123, 794, 'jpg'],
-            'b9' => [1123, 794, 'jpg'],
-            'b10' => [1123, 794, 'jpg'],
-        ];
-
-        return collect($dimensions)->map(function (array $template, string $key): array {
-            [$width, $height, $extension] = $template;
-
-            return [
-                'key' => $key,
-                'label' => 'قالب '.mb_substr($key, 1),
-                'url' => asset("assets/certificate-templates/{$key}.{$extension}"),
-                'width' => $width,
-                'height' => $height,
-            ];
-        })->values()->all();
     }
 }

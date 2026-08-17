@@ -148,6 +148,22 @@ Route::prefix('admin')
             ->except(['show'])
             ->withTrashed();
 
+        Route::patch('/qr-templates/{qrTemplate}/restore', [Admin\QrTemplateController::class, 'restore'])
+            ->withTrashed()
+            ->name('qr-templates.restore');
+        Route::resource('qr-templates', Admin\QrTemplateController::class)
+            ->parameters(['qr-templates' => 'qrTemplate'])
+            ->except(['show'])
+            ->withTrashed();
+
+        Route::patch('/certificate-templates/{certificateTemplate}/restore', [Admin\CertificateTemplateController::class, 'restore'])
+            ->withTrashed()
+            ->name('certificate-templates.restore');
+        Route::resource('certificate-templates', Admin\CertificateTemplateController::class)
+            ->parameters(['certificate-templates' => 'certificateTemplate'])
+            ->except(['show'])
+            ->withTrashed();
+
         Route::get('/analytics', Admin\AnalyticsController::class)->name('analytics');
         Route::get('/seo', [Admin\SeoSettingController::class, 'edit'])->name('seo.edit');
         Route::put('/seo', [Admin\SeoSettingController::class, 'update'])->name('seo.update');

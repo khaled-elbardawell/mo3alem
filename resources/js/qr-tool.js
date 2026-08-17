@@ -43,19 +43,7 @@ if (qrForm) {
   const primaryActionLabels = [...document.querySelectorAll("[data-qr-primary-label]")];
   const primaryActionIcons = [...document.querySelectorAll("[data-qr-primary-icon]")];
   const draftKey = "muallem-qr-draft-v1";
-  const templateLayouts = {
-    "template-1": { width: 1968, height: 1968, qrX: 460, qrY: 700, qrSize: 1060 },
-    "template-2": { width: 1968, height: 1968, qrX: 450, qrY: 430, qrSize: 1050 },
-    "template-3": { width: 1968, height: 1968, qrX: 440, qrY: 480, qrSize: 1000 },
-    "template-4": { width: 1968, height: 1968, qrX: 430, qrY: 440, qrSize: 1050 },
-    "template-5": { width: 1968, height: 1968, qrX: 420, qrY: 420, qrSize: 1100 },
-    "template-6": { width: 1968, height: 1968, qrX: 450, qrY: 450, qrSize: 1000 },
-    "template-7": { width: 1968, height: 1968, qrX: 450, qrY: 380, qrSize: 1050 },
-    "template-8": { width: 1968, height: 1968, qrX: 500, qrY: 150, qrSize: 930 },
-    "template-9": { width: 1968, height: 1968, qrX: 480, qrY: 450, qrSize: 1000 },
-    "template-10": { width: 1968, height: 1968, qrX: 450, qrY: 350, qrSize: 1050 },
-    "template-11": { width: 1968, height: 1968, qrX: 585, qrY: 650, qrSize: 900 }
-  };
+  const templateLayouts = new Map((config.templates || []).map((template) => [template.key, template]));
   const templateDataUrls = new Map();
   const maximumSavedQrCodes = Number(config.limits?.savedQrCodes) || 5;
   let baseQrSvg = "";
@@ -455,7 +443,7 @@ if (qrForm) {
     if (!baseQrSvg) return null;
 
     const state = currentState();
-    const dimensions = templateLayouts[state.design.frame] || { width: 720, height: 720, qrX: 0, qrY: 0, qrSize: 720 };
+    const dimensions = templateLayouts.get(state.design.frame) || { width: 720, height: 720, qrX: 0, qrY: 0, qrSize: 720 };
     const output = document.implementation.createDocument(svgNamespace, "svg", null);
     const root = output.documentElement;
     root.setAttribute("xmlns", svgNamespace);

@@ -55,10 +55,11 @@ if (certificateConfigElement) {
   const minimumElementHeight = 28;
   const historyLimit = 80;
   const maximumSavedCertificates = Number(config.limits?.savedCertificates) || 5;
+  const defaultTemplateKey = templates.has("b6") ? "b6" : (templates.keys().next().value || "custom");
 
   let currentCertificate = config.savedCertificate || null;
   let savedCertificatesCount = Number(config.usage?.savedCertificates) || 0;
-  let templateKey = "b6";
+  let templateKey = defaultTemplateKey;
   let design = defaultDesign();
   let selectedElementId = null;
   let zoom = 0.7;
@@ -284,7 +285,7 @@ if (certificateConfigElement) {
       return backgroundDataUrl || currentCertificate?.background_url || "";
     }
 
-    return templates.get(templateKey)?.url || templates.get("b6")?.url || "";
+    return templates.get(templateKey)?.url || templates.get(defaultTemplateKey)?.url || "";
   }
 
   function applyCanvasGeometry() {
@@ -1258,7 +1259,7 @@ if (certificateConfigElement) {
     const initial = useDraft ? certificateDraft : currentCertificate;
 
     if (initial) {
-      templateKey = initial.templateKey || initial.template_key || "b6";
+      templateKey = initial.templateKey || initial.template_key || defaultTemplateKey;
       design = normalizeDesign(initial.design);
       backgroundDataUrl = initial.backgroundDataUrl || null;
       saveTitleInput.value = initial.title || "شهادة جديدة";
