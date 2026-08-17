@@ -341,7 +341,7 @@
                                     <label class="text-sm font-black text-slate-700" for="qrCenterText">نص قصير</label>
                                     <input
                                         class="min-h-12 rounded-xl border border-slate-200 px-4 text-center text-lg font-black outline-none focus:border-violet-400 focus:ring-4 focus:ring-violet-100"
-                                        id="qrCenterText" maxlength="10" placeholder="معلّم">
+                                        id="qrCenterText" maxlength="15" placeholder="معلّم">
                                 </div>
                             </fieldset>
 

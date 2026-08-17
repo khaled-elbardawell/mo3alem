@@ -183,3 +183,45 @@ test('svg advertising uploads are rejected', function () {
         ])
         ->assertSessionHasErrors('image');
 });
+
+test('administrators can create and replace advertising campaign gif images', function () {
+    Storage::fake('public');
+    $admin = User::factory()->create(['role' => UserRole::Admin]);
+    $gif = base64_decode('R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==');
+    $campaignData = [
+        'title' => 'إعلان متحرك',
+        'target_url' => 'https://example.com/campaign',
+        'alt_text' => 'إعلان تجريبي متحرك',
+        'placement' => AdPlacement::Top->value,
+        'status' => AdCampaignStatus::Active->value,
+        'weight' => 1,
+    ];
+
+    $this->actingAs($admin)
+        ->get(route('admin.ad-campaigns.create'))
+        ->assertSuccessful()
+        ->assertSee('accept=".jpg,.jpeg,.png,.webp,.gif"', false);
+
+    $this->actingAs($admin)
+        ->post(route('admin.ad-campaigns.store'), [
+            ...$campaignData,
+            'image' => UploadedFile::fake()->createWithContent('campaign.gif', $gif),
+        ])
+        ->assertRedirect(route('admin.ad-campaigns.index'));
+
+    $campaign = AdCampaign::query()->latest('id')->firstOrFail();
+    $originalImagePath = $campaign->image_path;
+    Storage::disk('public')->assertExists($originalImagePath);
+
+    $this->actingAs($admin)
+        ->put(route('admin.ad-campaigns.update', $campaign), [
+            ...$campaignData,
+            'image' => UploadedFile::fake()->createWithContent('replacement.gif', $gif),
+        ])
+        ->assertRedirect(route('admin.ad-campaigns.index'));
+
+    $replacementImagePath = $campaign->refresh()->image_path;
+    expect($replacementImagePath)->toEndWith('.gif')->not->toBe($originalImagePath);
+    Storage::disk('public')->assertExists($replacementImagePath);
+    Storage::disk('public')->assertMissing($originalImagePath);
+});

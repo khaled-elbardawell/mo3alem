@@ -27,10 +27,10 @@
             </div>
             <div class="grid content-start gap-3 rounded-2xl border border-dashed border-violet-200 bg-violet-50/50 p-4">
                 <label class="grid gap-2 text-sm font-bold text-slate-700">صورة الإعلان
-                    <input class="min-w-0 rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm file:ms-3 file:rounded-lg file:border-0 file:bg-violet-100 file:px-3 file:py-2 file:font-bold file:text-violet-800" type="file" name="image" accept=".jpg,.jpeg,.png,.webp" data-preview-target="adImagePreview" {{ $campaign->exists ? '' : 'required' }}>
+                    <input class="min-w-0 rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm file:ms-3 file:rounded-lg file:border-0 file:bg-violet-100 file:px-3 file:py-2 file:font-bold file:text-violet-800" type="file" name="image" accept=".jpg,.jpeg,.png,.webp,.gif" data-preview-target="adImagePreview" {{ $campaign->exists ? '' : 'required' }}>
                 </label>
                 <img class="{{ $campaign->exists ? '' : 'hidden' }} aspect-video max-h-48 w-full rounded-xl bg-white object-contain" id="adImagePreview" src="{{ $campaign->exists ? Storage::disk('public')->url($campaign->image_path) : '' }}" alt="معاينة صورة الإعلان">
-                <p class="text-xs leading-5 text-slate-500">JPG أو PNG أو WebP، وبحجم لا يتجاوز 5MB.</p>
+                <p class="text-xs leading-5 text-slate-500">JPG أو PNG أو WebP أو GIF، وبحجم لا يتجاوز 5MB.</p>
             </div>
         </section>
 

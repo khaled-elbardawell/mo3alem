@@ -36,6 +36,24 @@ test('guests can render a styled qr preview without storing content', function (
     expect(QrCode::query()->count())->toBe(0);
 });
 
+test('qr center text accepts up to fifteen characters', function () {
+    $this->postJson(route('tools.qr.render'), qrPayload([
+        'design' => [
+            'center_type' => 'text',
+            'center_text' => '123456789012345',
+        ],
+    ]))->assertSuccessful();
+
+    $this->postJson(route('tools.qr.render'), qrPayload([
+        'design' => [
+            'center_type' => 'text',
+            'center_text' => '1234567890123456',
+        ],
+    ]))
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors('design.center_text');
+});
+
 test('the rounded qr style curves modules and all finder pattern corners', function () {
     $renderer = app(QrCodeRenderer::class);
     $design = qrPayload()['design'];

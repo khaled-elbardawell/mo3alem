@@ -35,6 +35,7 @@ test('the qr tool presents an easy guest flow and all customization controls', f
         ->assertSee('value="url"', false)
         ->assertSee('value="text"', false)
         ->assertSee('value="wifi"', false)
+        ->assertSee('id="qrCenterText" maxlength="15"', false)
         ->assertSee(asset('assets/qr-shapes/مربع كلاسيكي.png'), false)
         ->assertSee(asset('assets/qr-shapes/نقاط ودوائر.png'), false)
         ->assertSee(asset('assets/qr-shapes/مستديرة ناعم.png'), false)

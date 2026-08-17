@@ -27,7 +27,7 @@ class AdCampaignStoreRequest extends FormRequest
     {
         return [
             'title' => ['required', 'string', 'max:120'],
-            'image' => ['required', 'image', 'mimes:jpg,jpeg,png,webp', 'mimetypes:image/jpeg,image/png,image/webp', 'max:5120'],
+            'image' => ['required', 'image', 'mimes:jpg,jpeg,png,webp,gif', 'mimetypes:image/jpeg,image/png,image/webp,image/gif', 'max:5120'],
             'target_url' => ['required', 'url:http,https', 'max:2048'],
             'alt_text' => ['required', 'string', 'max:180'],
             'placement' => ['required', Rule::enum(AdPlacement::class)],
