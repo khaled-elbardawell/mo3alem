@@ -1,6 +1,9 @@
 <?php
 
+use App\Models\DailyMetric;
 use App\Models\User;
+use App\Services\MetricService;
+use Illuminate\Support\Facades\Cache;
 
 test('the home page presents the muallem tools hub', function () {
     $this->get(route('home'))
@@ -16,8 +19,10 @@ test('the home page presents the muallem tools hub', function () {
         ->assertSee('إنشاء الشهادات')
         ->assertSee('مميزاتنا')
         ->assertSee('نشاط المنصة')
-        ->assertSee('رموز QR تم إنشاؤها')
-        ->assertSee('شهادات تم تصميمها')
+        ->assertSee('مرة تم تدوير العجلة')
+        ->assertSee('اسمًا تمت إضافته')
+        ->assertSee('عملية على رموز QR')
+        ->assertSee('عملية على الشهادات')
         ->assertSee('خصّص الإعدادات')
         ->assertSee('أنشئ وشارك')
         ->assertSee('ما الأدوات المتوفرة في منصة معلم، ومتى أستخدم كل أداة؟')
@@ -45,15 +50,41 @@ test('the features section presents four numbered feature cards', function () {
 });
 
 test('the platform activity section presents the four activity metrics', function () {
+    DailyMetric::factory()->create([
+        ...array_fill_keys(DailyMetric::COLUMNS, 0),
+        'spins' => 1250,
+        'names_saved' => 2500,
+        'qr_generated' => 10,
+        'qr_saved' => 4,
+        'certificate_generated' => 1,
+        'certificate_saved' => 5,
+    ]);
+    Cache::forget(MetricService::PLATFORM_ACTIVITY_CACHE_KEY);
+
     $response = $this->get(route('home'))->assertSuccessful();
 
-    foreach (['qr', 'certificates', 'competitions', 'users'] as $metric) {
+    foreach (['spins', 'names', 'qr', 'certificates'] as $metric) {
         $response->assertSee("data-activity-card=\"{$metric}\"", false);
     }
 
     $activitySection = (string) str($response->getContent())->after('id="activity"')->before('id="how"');
 
-    expect(substr_count($activitySection, 'data-icon-tone="soft"'))->toBe(4);
+    expect($response->viewData('platformActivity'))->toBe([
+        'spins' => 1250,
+        'names' => 2500,
+        'qrOperations' => 14,
+        'certificateOperations' => 6,
+    ])->and(substr_count($activitySection, 'data-icon-tone="soft"'))->toBe(4)
+        ->and($activitySection)->toContain('data-count-value="1250"')
+        ->toContain('>+1,250</strong>');
+});
+
+test('platform activity cache is invalidated when a displayed metric changes', function () {
+    Cache::put(MetricService::PLATFORM_ACTIVITY_CACHE_KEY, ['stale' => true], 300);
+
+    app(MetricService::class)->increment('certificate_saved');
+
+    expect(Cache::has(MetricService::PLATFORM_ACTIVITY_CACHE_KEY))->toBeFalse();
 });
 
 test('the home hero and tool cards link directly to the three tools', function () {
@@ -105,6 +136,8 @@ test('the home page includes scroll-aware navigation and reveal animation hooks'
     expect($script)
         ->toContain('function setupPublicScrollSpy()')
         ->toContain('function setupPageRevealAnimations()')
+        ->toContain('function setupActivityCountAnimations()')
+        ->toContain('setupActivityCountAnimations();')
         ->toContain('function setupFaqToggleAnimations()')
         ->toContain('cubic-bezier(0.16, 1, 0.3, 1)')
         ->toContain('link.toggleAttribute("data-active", isActive)')

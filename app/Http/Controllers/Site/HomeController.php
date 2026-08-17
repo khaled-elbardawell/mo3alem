@@ -4,14 +4,11 @@ namespace App\Http\Controllers\Site;
 
 use App\AdPlacement;
 use App\Http\Controllers\Controller;
-use App\Models\Competition;
 use App\Models\DailyMetric;
 use App\Models\SeoSetting;
-use App\Models\User;
 use App\Services\AdCampaignSelector;
 use App\Services\MetricService;
 use App\Services\VisitorIdentity;
-use App\UserStatus;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -41,12 +38,22 @@ class HomeController extends Controller
         });
 
         $seo = (new SeoSetting)->forceFill($seoValues);
-        $platformActivity = Cache::remember('public:platform-activity', 300, fn (): array => [
-            'qrCodes' => (int) DailyMetric::query()->sum('qr_generated'),
-            'certificates' => (int) DailyMetric::query()->sum('certificate_generated'),
-            'competitions' => Competition::query()->count(),
-            'activeUsers' => User::query()->where('status', UserStatus::Active)->count(),
-        ]);
+        $platformActivity = Cache::remember(MetricService::PLATFORM_ACTIVITY_CACHE_KEY, 300, function (): array {
+            $totals = DailyMetric::query()
+                ->toBase()
+                ->selectRaw('COALESCE(SUM(spins), 0) as spins')
+                ->selectRaw('COALESCE(SUM(names_saved), 0) as names_saved')
+                ->selectRaw('COALESCE(SUM(qr_generated + qr_saved), 0) as qr_operations')
+                ->selectRaw('COALESCE(SUM(certificate_generated + certificate_saved), 0) as certificate_operations')
+                ->first();
+
+            return [
+                'spins' => (int) $totals->spins,
+                'names' => (int) $totals->names_saved,
+                'qrOperations' => (int) $totals->qr_operations,
+                'certificateOperations' => (int) $totals->certificate_operations,
+            ];
+        });
         $campaigns = [
             'top' => $ads->select(AdPlacement::Top),
             'side' => $ads->select(AdPlacement::Side),

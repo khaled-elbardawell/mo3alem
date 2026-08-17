@@ -224,6 +224,49 @@ function setupPageRevealAnimations() {
   revealElements.forEach((element) => observer.observe(element));
 }
 
+function setupActivityCountAnimations() {
+  const counters = [...document.querySelectorAll("[data-count-up]")];
+
+  if (!counters.length) return;
+
+  const formatter = new Intl.NumberFormat("en-US");
+  const renderValue = (counter, value) => {
+    counter.textContent = `${counter.dataset.countPrefix || ""}${formatter.format(value)}`;
+  };
+  const finish = (counter) => renderValue(counter, Number(counter.dataset.countValue || 0));
+  const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  if (prefersReducedMotion || !("IntersectionObserver" in window)) {
+    counters.forEach(finish);
+    return;
+  }
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (!entry.isIntersecting) return;
+
+      const counter = entry.target;
+      const target = Number(counter.dataset.countValue || 0);
+      const startedAt = performance.now();
+      const duration = 1400;
+
+      const update = (timestamp) => {
+        const progress = Math.min((timestamp - startedAt) / duration, 1);
+        const easedProgress = 1 - Math.pow(1 - progress, 3);
+        renderValue(counter, Math.round(target * easedProgress));
+
+        if (progress < 1) window.requestAnimationFrame(update);
+      };
+
+      renderValue(counter, 0);
+      window.requestAnimationFrame(update);
+      observer.unobserve(counter);
+    });
+  }, { threshold: 0.5 });
+
+  counters.forEach((counter) => observer.observe(counter));
+}
+
 function setupBackToTopButton() {
   const backToTopButton = document.getElementById("backToTopBtn");
 
@@ -248,6 +291,7 @@ function setupBackToTopButton() {
 
 setupPublicScrollSpy();
 setupPageRevealAnimations();
+setupActivityCountAnimations();
 setupBackToTopButton();
 
 const canvas = document.getElementById("wheelCanvas");

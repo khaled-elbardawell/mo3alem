@@ -8,11 +8,23 @@ use App\Models\QrCode;
 use App\Models\QrCodeDailyStat;
 use App\Models\UniqueMetricEvent;
 use App\Models\User;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
 
 class MetricService
 {
+    public const PLATFORM_ACTIVITY_CACHE_KEY = 'public:platform-activity:v2';
+
+    private const PLATFORM_ACTIVITY_COLUMNS = [
+        'spins',
+        'names_saved',
+        'qr_generated',
+        'qr_saved',
+        'certificate_generated',
+        'certificate_saved',
+    ];
+
     public function increment(string $column, int $amount = 1): void
     {
         if (! in_array($column, DailyMetric::COLUMNS, true) || $amount < 1) {
@@ -20,6 +32,10 @@ class MetricService
         }
 
         $this->incrementForDate($column, $amount, today()->toDateString());
+
+        if (in_array($column, self::PLATFORM_ACTIVITY_COLUMNS, true)) {
+            Cache::forget(self::PLATFORM_ACTIVITY_CACHE_KEY);
+        }
     }
 
     private function incrementForDate(string $column, int $amount, string $date): void
