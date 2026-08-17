@@ -13,6 +13,9 @@ if (qrForm) {
   const downloadActions = document.getElementById("qrDownloadActions");
   const generateButton = document.getElementById("generateQrBtn");
   const saveButton = document.getElementById("saveQrBtn");
+  const saveButtonLabel = document.getElementById("saveQrButtonLabel");
+  const workingTitle = document.getElementById("qrWorkingTitle");
+  const renameButton = document.getElementById("renameQrTitleBtn");
   const formStatus = document.getElementById("qrFormStatus");
   const contrastWarning = document.getElementById("qrContrastWarning");
   const logoInput = document.getElementById("qrLogo");
@@ -24,6 +27,7 @@ if (qrForm) {
   const saveForm = document.getElementById("saveQrForm");
   const saveTitleInput = document.getElementById("qrSaveTitle");
   const saveStatus = document.getElementById("qrSaveStatus");
+  const saveDialogTitle = document.getElementById("saveQrDialogTitle");
   const confirmSaveButton = document.getElementById("confirmSaveQrBtn");
   const dynamicSettings = document.getElementById("qrDynamicSettings");
   const dynamicSavedPanel = document.getElementById("qrDynamicSavedPanel");
@@ -85,6 +89,18 @@ if (qrForm) {
     saveStatus.textContent = message;
     saveStatus.className = "mt-2 min-h-5 text-xs font-bold";
     saveStatus.classList.add(tone === "error" ? "text-red-700" : tone === "success" ? "text-emerald-700" : "text-slate-500");
+  }
+
+  function syncQrTitleUi() {
+    const isSavedQrCode = Boolean(currentQrCode);
+    const title = saveTitleInput.value.trim() || currentQrCode?.title || "رمز QR جديد";
+
+    workingTitle.textContent = title;
+    renameButton.classList.toggle("hidden", !isSavedQrCode);
+    renameButton.classList.toggle("grid", isSavedQrCode);
+    saveButtonLabel.textContent = isSavedQrCode ? "تعديل" : "حفظ";
+    saveDialogTitle.textContent = isSavedQrCode ? "تعديل عنوان رمز QR" : "حفظ رمز QR";
+    confirmSaveButton.textContent = isSavedQrCode ? "حفظ التعديلات" : "حفظ في حسابي";
   }
 
   function qrCodeLimitMessage() {
@@ -341,6 +357,7 @@ if (qrForm) {
     const previous = readDraft();
     const draft = {
       ...currentState(),
+      title: saveTitleInput.value.trim() || currentQrCode?.title || "رمز QR جديد",
       logoDataUrl,
       pendingSave: pendingSave || previous?.pendingSave || false,
       updatedAt: Date.now()
@@ -370,6 +387,7 @@ if (qrForm) {
   function hydrateState(state) {
     if (!state) return;
 
+    saveTitleInput.value = state.title || "رمز QR جديد";
     setRadio("mode", state.mode || "static");
     setRadio("content_type", state.content_type || "url");
     setRadio("qr_style", state.design?.style || "classic");
@@ -735,6 +753,7 @@ if (qrForm) {
       if (isCreatingQrCode) savedQrCodesCount += 1;
       logoFile = null;
       saveTitleInput.value = currentQrCode.title;
+      syncQrTitleUi();
       localStorage.removeItem(draftKey);
       setSaveStatus("تم الحفظ في حسابك.", "success");
       setStatus("تم حفظ الرمز في حسابك ويمكنك تعديله لاحقًا.", "success");
@@ -787,6 +806,7 @@ if (qrForm) {
     }
 
     saveTitleInput.value = currentQrCode?.title || saveTitleInput.value || "رمز QR جديد";
+    syncQrTitleUi();
     setSaveStatus();
     saveDialog.showModal();
     window.setTimeout(() => saveTitleInput.select(), 50);
@@ -841,6 +861,7 @@ if (qrForm) {
   sidebarTabs.forEach((tab) => tab.addEventListener("click", () => activateSidebarPanel(tab.dataset.qrSidebarTab)));
   document.querySelectorAll("[data-open-qr-export]").forEach((button) => button.addEventListener("click", openExportFlow));
   saveButton.addEventListener("click", openSaveFlow);
+  renameButton.addEventListener("click", openSaveFlow);
   document.getElementById("createNewQrLink")?.addEventListener("click", () => localStorage.removeItem(draftKey));
   document.getElementById("guestSavePromptBtn")?.addEventListener("click", openSaveFlow);
   document.querySelectorAll("[data-qr-register-link], [data-qr-login-link]").forEach((link) => {
@@ -906,6 +927,7 @@ if (qrForm) {
   async function initialize() {
     const draft = readDraft();
     hydrateState(currentQrCode || draft);
+    syncQrTitleUi();
 
     if (currentQrCode?.logo_url) {
       logoDataUrl = await fetchLogoDataUrl(currentQrCode.logo_url);
@@ -927,7 +949,8 @@ if (qrForm) {
       if (qrCodeLimitReached()) {
         setStatus(qrCodeLimitMessage(), "error");
       } else {
-        saveTitleInput.value = "رمز QR جديد";
+        saveTitleInput.value = draft.title || "رمز QR جديد";
+        syncQrTitleUi();
         saveDialog.showModal();
       }
     }

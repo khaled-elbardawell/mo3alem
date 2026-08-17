@@ -33,8 +33,16 @@
                             <span
                                 class="grid size-9 shrink-0 place-items-center rounded-xl bg-violet-100 text-violet-700"><i
                                     class="fa-solid fa-qrcode" aria-hidden="true"></i></span>
-                            <div class="min-w-0">
-                                <p class="truncate text-sm font-black text-[#111a35]" id="qrWorkingTitle">رمز QR جديد</p>
+                            <div class="min-w-0 flex-1">
+                                <div class="flex min-w-0 items-center gap-1.5">
+                                    <p class="min-w-0 flex-1 truncate text-sm font-black text-[#111a35]" id="qrWorkingTitle">رمز QR جديد</p>
+                                    <button
+                                        class="hidden size-7 shrink-0 place-items-center rounded-lg text-violet-700 transition hover:bg-violet-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400"
+                                        id="renameQrTitleBtn" type="button" aria-label="تعديل عنوان رمز QR"
+                                        title="تعديل العنوان">
+                                        <i class="fa-solid fa-pen" aria-hidden="true"></i>
+                                    </button>
+                                </div>
                                 <p class="truncate text-[11px] font-bold text-slate-500" id="qrDraftIndicator">مسودة محفوظة
                                     على هذا الجهاز</p>
                             </div>
@@ -61,7 +69,7 @@
                                 class="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-violet-200 bg-violet-50 px-3 text-xs font-black text-violet-800 transition hover:bg-violet-100 disabled:opacity-50 sm:min-h-11 sm:shrink-0"
                                 id="saveQrBtn" type="button">
                                 <i class="fa-regular fa-floppy-disk" aria-hidden="true"></i>
-                                حفظ
+                                <span id="saveQrButtonLabel">حفظ</span>
                             </button>
                             <button
                                 class="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-violet-700 px-4 text-xs font-black text-white shadow-md shadow-violet-900/15 transition hover:bg-violet-800 disabled:cursor-wait disabled:opacity-60 sm:min-h-11 sm:shrink-0"

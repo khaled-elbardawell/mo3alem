@@ -37,8 +37,13 @@
                     <div class="flex items-center gap-3">
                         <div class="hidden min-w-0 items-center gap-2 border-l border-slate-200 pl-3 sm:flex lg:min-w-52">
                             <span class="grid size-9 shrink-0 place-items-center rounded-xl bg-amber-100 text-amber-700"><i class="fa-solid fa-award" aria-hidden="true"></i></span>
-                            <div class="min-w-0">
-                                <p class="truncate text-sm font-black text-[#111a35]" id="certificateWorkingTitle">شهادة جديدة</p>
+                            <div class="min-w-0 flex-1">
+                                <div class="flex min-w-0 items-center gap-1.5">
+                                    <p class="min-w-0 flex-1 truncate text-sm font-black text-[#111a35]" id="certificateWorkingTitle">شهادة جديدة</p>
+                                    <button class="hidden size-7 shrink-0 place-items-center rounded-lg text-violet-700 transition hover:bg-violet-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400" id="renameCertificateTitleBtn" type="button" aria-label="تعديل عنوان الشهادة" title="تعديل العنوان">
+                                        <i class="fa-solid fa-pen" aria-hidden="true"></i>
+                                    </button>
+                                </div>
                                 <p class="truncate text-[11px] font-bold text-slate-500" id="certificateSaveIndicator" role="status" aria-live="polite">مسودة محفوظة على هذا الجهاز</p>
                             </div>
                         </div>
@@ -46,7 +51,7 @@
                             <a class="inline-flex min-h-14 min-w-0 flex-col items-center justify-center gap-1 rounded-xl border border-slate-200 px-1 text-[9px] font-black text-slate-700 hover:border-violet-200 hover:bg-violet-50 hover:text-violet-800 sm:min-h-11 sm:shrink-0 sm:flex-row sm:gap-2 sm:px-3 sm:text-xs" id="createNewCertificateLink" href="{{ route('tools.certificates') }}"><i class="fa-regular fa-file" aria-hidden="true"></i> جديد</a>
                             <a class="inline-flex min-h-14 min-w-0 flex-col items-center justify-center gap-1 rounded-xl border border-slate-200 px-1 text-[9px] font-black text-slate-700 hover:border-violet-200 hover:bg-violet-50 hover:text-violet-800 sm:min-h-11 sm:shrink-0 sm:flex-row sm:gap-2 sm:px-3 sm:text-xs" href="{{ auth()->check() ? route('dashboard', ['section' => 'certificates']) : route('tools.certificates.auth', 'login') }}"><i class="fa-regular fa-folder-open" aria-hidden="true"></i> شهاداتي</a>
                             <button class="inline-flex min-h-14 min-w-0 flex-col items-center justify-center gap-1 rounded-xl border border-slate-200 px-1 text-[9px] font-black text-slate-700 hover:bg-slate-50 sm:min-h-11 sm:shrink-0 sm:flex-row sm:gap-2 sm:px-3 sm:text-xs" id="certificatePreviewBtn" type="button"><i class="fa-regular fa-eye" aria-hidden="true"></i> معاينة</button>
-                            <button class="inline-flex min-h-14 min-w-0 flex-col items-center justify-center gap-1 rounded-xl border border-violet-200 bg-violet-50 px-1 text-[9px] font-black text-violet-800 hover:bg-violet-100 sm:min-h-11 sm:shrink-0 sm:flex-row sm:gap-2 sm:px-3 sm:text-xs" id="saveCertificateBtn" type="button"><i class="fa-regular fa-floppy-disk" aria-hidden="true"></i> حفظ</button>
+                            <button class="inline-flex min-h-14 min-w-0 flex-col items-center justify-center gap-1 rounded-xl border border-violet-200 bg-violet-50 px-1 text-[9px] font-black text-violet-800 hover:bg-violet-100 sm:min-h-11 sm:shrink-0 sm:flex-row sm:gap-2 sm:px-3 sm:text-xs" id="saveCertificateBtn" type="button"><i class="fa-regular fa-floppy-disk" aria-hidden="true"></i> <span id="saveCertificateButtonLabel">حفظ</span></button>
                             <button class="inline-flex min-h-14 min-w-0 flex-col items-center justify-center gap-1 rounded-xl bg-violet-700 px-1 text-[9px] font-black text-white shadow-md shadow-violet-900/15 hover:bg-violet-800 sm:min-h-11 sm:shrink-0 sm:flex-row sm:gap-2 sm:px-4 sm:text-xs" id="printCertificateBtn" type="button"><i class="fa-solid fa-print" aria-hidden="true"></i> طباعة</button>
                         </div>
                     </div>

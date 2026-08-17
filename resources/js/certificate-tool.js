@@ -31,12 +31,16 @@ if (certificateConfigElement) {
   const zoomValue = document.getElementById("certificateZoomValue");
   const saveIndicator = document.getElementById("certificateSaveIndicator");
   const workingTitle = document.getElementById("certificateWorkingTitle");
+  const renameButton = document.getElementById("renameCertificateTitleBtn");
+  const saveButton = document.getElementById("saveCertificateBtn");
+  const saveButtonLabel = document.getElementById("saveCertificateButtonLabel");
   const backgroundInput = document.getElementById("certificateBackgroundInput");
   const backgroundHint = document.getElementById("certificateBackgroundHint");
   const saveDialog = document.getElementById("saveCertificateDialog");
   const saveForm = document.getElementById("saveCertificateForm");
   const saveTitleInput = document.getElementById("certificateSaveTitle");
   const saveStatus = document.getElementById("certificateSaveStatus");
+  const saveDialogTitle = document.getElementById("saveCertificateDialogTitle");
   const confirmSaveButton = document.getElementById("confirmSaveCertificateBtn");
   const guestDialog = document.getElementById("guestCertificateDialog");
   const previewDialog = document.getElementById("certificatePreviewDialog");
@@ -198,6 +202,18 @@ if (certificateConfigElement) {
     saveStatus.textContent = message;
     saveStatus.className = "mt-2 min-h-5 text-xs font-bold";
     saveStatus.classList.add(tone === "error" ? "text-red-700" : tone === "success" ? "text-emerald-700" : "text-slate-500");
+  }
+
+  function syncCertificateTitleUi() {
+    const isSavedCertificate = Boolean(currentCertificate);
+    const title = saveTitleInput.value.trim() || currentCertificate?.title || "شهادة جديدة";
+
+    workingTitle.textContent = title;
+    renameButton.classList.toggle("hidden", !isSavedCertificate);
+    renameButton.classList.toggle("grid", isSavedCertificate);
+    saveButtonLabel.textContent = isSavedCertificate ? "تعديل" : "حفظ";
+    saveDialogTitle.textContent = isSavedCertificate ? "تعديل عنوان الشهادة" : "حفظ الشهادة";
+    confirmSaveButton.textContent = isSavedCertificate ? "حفظ التعديلات" : "حفظ في حسابي";
   }
 
   function certificateLimitMessage() {
@@ -912,7 +928,7 @@ if (certificateConfigElement) {
       localStorage.removeItem(oldDraftKey);
       localStorage.removeItem(draftKey());
       saveTitleInput.value = currentCertificate.title;
-      workingTitle.textContent = currentCertificate.title;
+      syncCertificateTitleUi();
       setSaveStatus("تم الحفظ في حسابك.", "success");
       setSaveIndicator("تم حفظ جميع التغييرات", "success");
       window.setTimeout(() => saveDialog.close(), 700);
@@ -947,6 +963,7 @@ if (certificateConfigElement) {
     }
 
     saveTitleInput.value = currentCertificate?.title || saveTitleInput.value || "شهادة جديدة";
+    syncCertificateTitleUi();
     setSaveStatus();
     saveDialog.showModal();
     window.setTimeout(() => saveTitleInput.select(), 40);
@@ -1181,7 +1198,8 @@ if (certificateConfigElement) {
   zoomRange.addEventListener("input", () => setZoom(Number(zoomRange.value) / 100));
   undoButton.addEventListener("click", () => restoreHistory(historyIndex - 1));
   redoButton.addEventListener("click", () => restoreHistory(historyIndex + 1));
-  document.getElementById("saveCertificateBtn").addEventListener("click", openSaveFlow);
+  saveButton.addEventListener("click", openSaveFlow);
+  renameButton.addEventListener("click", openSaveFlow);
   document.getElementById("guestCertificateSavePromptBtn")?.addEventListener("click", openSaveFlow);
   document.getElementById("certificatePreviewBtn").addEventListener("click", openPreview);
   document.getElementById("printCertificateBtn").addEventListener("click", openPreview);
@@ -1244,8 +1262,9 @@ if (certificateConfigElement) {
       design = normalizeDesign(initial.design);
       backgroundDataUrl = initial.backgroundDataUrl || null;
       saveTitleInput.value = initial.title || "شهادة جديدة";
-      workingTitle.textContent = initial.title || "شهادة جديدة";
     }
+
+    syncCertificateTitleUi();
 
     renderEditor();
     showSidebarPanel("templates");
