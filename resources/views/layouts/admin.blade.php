@@ -42,6 +42,12 @@
             'label' => 'قوالب الشهادات',
         ],
         [
+            'route' => 'admin.api-clients.index',
+            'active' => 'admin.api-clients.*',
+            'icon' => 'fa-shield-halved',
+            'label' => 'ربط API',
+        ],
+        [
             'route' => 'admin.analytics',
             'active' => 'admin.analytics',
             'icon' => 'fa-chart-line',

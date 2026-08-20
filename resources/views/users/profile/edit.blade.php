@@ -4,6 +4,11 @@
 
 @section('content')
     <h1 class="text-3xl font-black">الملف الشخصي</h1>
+    @if(auth()->user()->must_change_password)
+        <div class="mt-5 rounded-2xl border border-amber-300 bg-amber-50 p-4 font-bold leading-7 text-amber-900" role="alert">
+            يجب تغيير كلمة المرور المؤقتة أدناه قبل استخدام بقية خصائص الحساب.
+        </div>
+    @endif
     <div class="mt-7 grid gap-6 lg:grid-cols-2">
         <section class="rounded-3xl border border-slate-200 bg-white p-6">
             <h2 class="text-xl font-black">بيانات الحساب</h2>

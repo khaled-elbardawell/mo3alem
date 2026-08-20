@@ -16,3 +16,8 @@ Schedule::call(fn () => UniqueMetricEvent::query()
     ->dailyAt('00:15')
     ->withoutOverlapping()
     ->onOneServer();
+
+Schedule::command('sanctum:prune-expired --hours=24')
+    ->dailyAt('00:30')
+    ->withoutOverlapping()
+    ->onOneServer();

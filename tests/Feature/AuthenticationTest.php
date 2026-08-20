@@ -2,8 +2,8 @@
 
 use App\Models\User;
 use App\UserStatus;
-use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Auth\Notifications\VerifyEmail;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
 
 test('a guest may register without email verification', function () {
@@ -43,14 +43,39 @@ test('an active user may login and a suspended user may not', function () {
     $this->assertGuest();
 });
 
-test('a password reset link can be requested', function () {
-    Notification::fake();
+test('a user with a temporary password must change it before using protected features', function () {
     $user = User::factory()->create();
+    $user->forceFill(['must_change_password' => true])->save();
 
-    $this->post(route('password.email'), ['email' => $user->email])
-        ->assertSessionHasNoErrors();
+    $this->post(route('login'), [
+        'email' => $user->email,
+        'password' => 'password',
+    ])->assertRedirect(route('profile.edit'));
 
-    Notification::assertSentTo($user, ResetPassword::class);
+    $this->get(route('dashboard'))
+        ->assertRedirect(route('profile.edit'));
+
+    $this->get(route('profile.edit'))
+        ->assertOk()
+        ->assertSee('يجب تغيير كلمة المرور المؤقتة');
+
+    $this->from(route('profile.edit'))
+        ->put(route('user-password.update'), [
+            'current_password' => 'password',
+            'password' => 'NewSecurePassword123',
+            'password_confirmation' => 'NewSecurePassword123',
+        ])
+        ->assertRedirect(route('profile.edit'));
+
+    expect($user->fresh()->must_change_password)->toBeFalse()
+        ->and(Hash::check('NewSecurePassword123', $user->fresh()->password))->toBeTrue();
+});
+
+test('password reset routes are disabled because email delivery is unavailable', function () {
+    expect(app('router')->getRoutes()->getByName('password.request'))->toBeNull()
+        ->and(app('router')->getRoutes()->getByName('password.email'))->toBeNull()
+        ->and(app('router')->getRoutes()->getByName('password.reset'))->toBeNull()
+        ->and(app('router')->getRoutes()->getByName('password.update'))->toBeNull();
 });
 
 test('changing the profile email requires verification again', function () {
@@ -73,14 +98,14 @@ test('authentication routes are handled by Fortify', function () {
         ->toContain('Laravel\\Fortify');
     expect(app('router')->getRoutes()->getByName('register.store')?->getActionName())
         ->toContain('Laravel\\Fortify');
-    expect(app('router')->getRoutes()->getByName('password.email')?->getActionName())
-        ->toContain('Laravel\\Fortify');
 });
 
 test('Fortify authentication pages render successfully', function () {
     $this->get(route('login'))->assertOk();
     $this->get(route('register'))->assertOk();
-    $this->get(route('password.request'))->assertOk();
+
+    $this->get(route('login'))
+        ->assertDontSee('نسيت كلمة السر؟');
 
     $this->actingAs(User::factory()->create())
         ->get(route('password.confirm'))

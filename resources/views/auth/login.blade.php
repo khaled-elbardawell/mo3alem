@@ -25,8 +25,7 @@
         <button class="rounded-xl bg-violet-700 px-5 py-3 font-black text-white hover:bg-violet-800" type="submit">دخول</button>
     </form>
 
-    <div class="mt-5 flex items-center justify-between gap-3 text-sm font-bold">
-        <a class="text-violet-700 hover:underline" href="{{ route('password.request') }}">نسيت كلمة السر؟</a>
+    <div class="mt-5 text-center text-sm font-bold">
         <a class="text-violet-700 hover:underline" href="{{ route('register') }}">إنشاء حساب</a>
     </div>
 @endsection

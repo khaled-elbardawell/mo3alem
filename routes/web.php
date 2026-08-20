@@ -67,7 +67,7 @@ Route::middleware(['guest', 'throttle:social-authentication'])
             ->name('social.callback');
     });
 
-Route::middleware(['auth', 'active'])->group(function (): void {
+Route::middleware(['auth', 'active', 'password.changed'])->group(function (): void {
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
     Route::get('/dashboard/competitions/{competition}', [UserCompetitionController::class, 'show'])
         ->name('user.competitions.show');
@@ -121,7 +121,7 @@ Route::middleware(['auth', 'active'])->group(function (): void {
 
 Route::prefix('admin')
     ->name('admin.')
-    ->middleware(['auth', 'active', 'admin'])
+    ->middleware(['auth', 'active', 'password.changed', 'admin'])
     ->group(function (): void {
         Route::get('/', Admin\DashboardController::class)->name('dashboard');
 
@@ -163,6 +163,14 @@ Route::prefix('admin')
             ->parameters(['certificate-templates' => 'certificateTemplate'])
             ->except(['show'])
             ->withTrashed();
+
+        Route::post('/api-clients/{apiClient}/token', [Admin\ApiClientController::class, 'rotateToken'])
+            ->name('api-clients.token.rotate');
+        Route::delete('/api-clients/{apiClient}/tokens', [Admin\ApiClientController::class, 'revokeTokens'])
+            ->name('api-clients.tokens.revoke');
+        Route::resource('api-clients', Admin\ApiClientController::class)
+            ->parameters(['api-clients' => 'apiClient'])
+            ->only(['index', 'create', 'store', 'edit', 'update']);
 
         Route::get('/analytics', Admin\AnalyticsController::class)->name('analytics');
         Route::get('/seo', [Admin\SeoSettingController::class, 'edit'])->name('seo.edit');

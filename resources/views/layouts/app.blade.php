@@ -1,13 +1,19 @@
 <!doctype html>
-<html class="w-screen max-w-full scroll-smooth overflow-x-hidden motion-reduce:scroll-auto @yield('htmlClass')" lang="ar"
-    dir="rtl">
+<html class="w-screen max-w-full scroll-smooth overflow-x-hidden motion-reduce:scroll-auto @yield('htmlClass')"
+    lang="ar" dir="rtl">
 
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="icon" href="{{ asset('assets/icon.png') }}" sizes="32x32">
-    <title>@isset($seo)@yield('title', $seo->title)@else @yield('title', 'لوحة التحكم') | معلم @endisset</title>
+    <title>
+        @isset($seo)
+            @yield('title', $seo->title)
+        @else
+            @yield('title', 'لوحة التحكم') | معلم
+        @endisset
+    </title>
     @isset($seo)
         @if ($seo->description)
             <meta name="description" content="{{ $seo->description }}">
@@ -29,6 +35,27 @@
         @endif
         <meta name="twitter:card" content="{{ $seo->twitter_card }}">
     @endisset
+
+
+    <!-- Google Tag Manager -->
+    <script>
+        (function(w, d, s, l, i) {
+            w[l] = w[l] || [];
+            w[l].push({
+                'gtm.start': new Date().getTime(),
+                event: 'gtm.js'
+            });
+            var f = d.getElementsByTagName(s)[0],
+                j = d.createElement(s),
+                dl = l != 'dataLayer' ? '&l=' + l : '';
+            j.async = true;
+            j.src =
+                'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
+            f.parentNode.insertBefore(j, f);
+        })(window, document, 'script', 'dataLayer', 'GTM-NNBQPQ9Q');
+    </script>
+    <!-- End Google Tag Manager -->
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap"
@@ -41,6 +68,11 @@
 <body
     class="m-0 min-h-screen w-screen max-w-full overflow-x-hidden bg-[#fbfbff] pt-20 font-['Tajawal',system-ui,sans-serif] text-slate-900 antialiased">
     <x-public.site-header :active="$activeNavigation ?? ''" />
+
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NNBQPQ9Q" height="0" width="0"
+            style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
 
     @if ($fullWidth ?? false)
         <main>

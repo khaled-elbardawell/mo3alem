@@ -46,6 +46,11 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(Certificate::class);
     }
 
+    public function externalUserLinks(): HasMany
+    {
+        return $this->hasMany(ExternalUserLink::class);
+    }
+
     public function isAdmin(): bool
     {
         return $this->role === UserRole::Admin;
@@ -65,6 +70,7 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return [
             'email_verified_at' => 'datetime',
+            'must_change_password' => 'boolean',
             'password' => 'hashed',
             'role' => UserRole::class,
             'status' => UserStatus::class,
