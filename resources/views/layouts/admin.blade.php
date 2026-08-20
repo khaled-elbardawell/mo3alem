@@ -74,7 +74,7 @@
         <div
             class="mx-auto grid min-h-[76px] w-[min(calc(100%_-_32px),1500px)] grid-cols-[auto_1fr_auto] items-center gap-4 max-[620px]:min-h-16">
             <a class="inline-flex items-center" href="{{ route('home') }}" aria-label="معلم - الصفحة الرئيسية">
-                <img class="h-11 w-auto max-[620px]:h-10" src="{{ asset('assets/logo.png') }}" alt="معلم">
+                <img class="h-16 w-auto max-[620px]:h-14" src="{{ asset('assets/logo.png') }}" alt="معلم">
             </a>
 
             <div

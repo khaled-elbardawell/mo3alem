@@ -3,7 +3,7 @@
         aria-hidden="true"></div>
     <div class="relative mx-auto grid w-[min(calc(100%_-_2rem),1280px)] gap-10 py-14 lg:grid-cols-[1.15fr_2fr]">
         <div class="max-w-md">
-            <img class="h-14 w-auto brightness-0 invert" src="{{ asset('assets/logo.png') }}" alt="معلم">
+            <img class="h-20 w-auto brightness-0 invert" src="{{ asset('assets/logo.png') }}" alt="معلم">
             <p class="mt-4 text-sm font-medium leading-7 text-slate-300">منصة عربية تمنح المعلم أدوات عملية وسهلة لإنجاز
                 مهامه التعليمية في مكان واحد.</p>
             <div class="mt-5 flex items-center gap-2" aria-label="روابط معلم">

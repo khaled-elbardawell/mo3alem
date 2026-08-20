@@ -3,14 +3,13 @@
 <header class="site-header fixed inset-x-0 top-0 z-50 border-b border-violet-100/80 bg-white/95 backdrop-blur-xl">
     <div class="nav mx-auto flex min-h-20 w-[min(calc(100%_-_2rem),1280px)] items-center justify-between gap-6">
         <a class="brand inline-flex shrink-0 items-center" href="{{ route('home') }}" aria-label="معلم - الصفحة الرئيسية">
-            <img class="h-11 w-auto sm:h-12" src="{{ asset('assets/logo.png') }}" alt="معلم">
+            <img class="h-15 w-auto sm:h-17" src="{{ asset('assets/logo.png') }}" alt="معلم">
         </a>
 
         <nav class="nav-links hidden items-center gap-7 text-sm font-extrabold text-slate-700 xl:flex"
             aria-label="التنقل الرئيسي">
             <a class="border-b-2 border-transparent py-7 transition-[color,border-color,transform] duration-300 hover:text-violet-700 data-active:-translate-y-0.5 data-active:border-violet-700 data-active:text-violet-800"
-                href="{{ route('home') }}#home"
-                @if ($active === 'home') data-scrollspy-target="home" @endif
+                href="{{ route('home') }}#home" @if ($active === 'home') data-scrollspy-target="home" @endif
                 @if ($active === 'home') data-active aria-current="location" @endif>الرئيسية</a>
             <a class="border-b-2 border-transparent py-7 transition-[color,border-color,transform] duration-300 hover:text-violet-700 data-active:-translate-y-0.5 data-active:border-violet-700 data-active:text-violet-800"
                 href="{{ route('home') }}#tools"
@@ -22,8 +21,8 @@
                 href="{{ route('home') }}#activity"
                 @if ($active === 'home') data-scrollspy-target="activity" @endif>نشاط المنصة</a>
             <a class="border-b-2 border-transparent py-7 transition-[color,border-color,transform] duration-300 hover:text-violet-700 data-active:-translate-y-0.5 data-active:border-violet-700 data-active:text-violet-800"
-                href="{{ route('home') }}#how"
-                @if ($active === 'home') data-scrollspy-target="how" @endif>كيف تعمل المنصة؟</a>
+                href="{{ route('home') }}#how" @if ($active === 'home') data-scrollspy-target="how" @endif>كيف
+                تعمل المنصة؟</a>
             <a class="border-b-2 border-transparent py-7 transition-[color,border-color,transform] duration-300 hover:text-violet-700 data-active:-translate-y-0.5 data-active:border-violet-700 data-active:text-violet-800"
                 href="{{ route('home') }}#faq"
                 @if ($active === 'home') data-scrollspy-target="faq" @endif>الأسئلة الشائعة</a>
@@ -93,12 +92,11 @@
     <div class="mobile-drawer mx-auto mb-3 hidden w-[min(calc(100%_-_2rem),1280px)] gap-1 rounded-2xl border border-violet-100 bg-white p-3 shadow-xl [&.is-open]:grid"
         id="mobileDrawer">
         <a class="rounded-xl px-4 py-3 font-extrabold text-slate-700 transition-colors hover:bg-violet-50 hover:text-violet-700 data-active:bg-violet-50 data-active:text-violet-800"
-            href="{{ route('home') }}#home"
-            @if ($active === 'home') data-scrollspy-target="home" @endif
+            href="{{ route('home') }}#home" @if ($active === 'home') data-scrollspy-target="home" @endif
             @if ($active === 'home') data-active aria-current="location" @endif>الرئيسية</a>
         <a class="rounded-xl px-4 py-3 font-extrabold text-slate-700 transition-colors hover:bg-violet-50 hover:text-violet-700 data-active:bg-violet-50 data-active:text-violet-800"
-            href="{{ route('home') }}#tools"
-            @if ($active === 'home') data-scrollspy-target="tools" @endif>كل الأدوات</a>
+            href="{{ route('home') }}#tools" @if ($active === 'home') data-scrollspy-target="tools" @endif>كل
+            الأدوات</a>
         <a class="rounded-xl px-4 py-3 font-extrabold text-slate-700 transition-colors hover:bg-violet-50 hover:text-violet-700 data-active:bg-violet-50 data-active:text-violet-800"
             href="{{ route('home') }}#features"
             @if ($active === 'home') data-scrollspy-target="features" @endif>مميزاتنا</a>
@@ -106,8 +104,8 @@
             href="{{ route('home') }}#activity"
             @if ($active === 'home') data-scrollspy-target="activity" @endif>نشاط المنصة</a>
         <a class="rounded-xl px-4 py-3 font-extrabold text-slate-700 transition-colors hover:bg-violet-50 hover:text-violet-700 data-active:bg-violet-50 data-active:text-violet-800"
-            href="{{ route('home') }}#how"
-            @if ($active === 'home') data-scrollspy-target="how" @endif>كيف تعمل المنصة؟</a>
+            href="{{ route('home') }}#how" @if ($active === 'home') data-scrollspy-target="how" @endif>كيف
+            تعمل المنصة؟</a>
         <a class="rounded-xl px-4 py-3 font-extrabold text-slate-700 transition-colors hover:bg-violet-50 hover:text-violet-700 data-active:bg-violet-50 data-active:text-violet-800"
             href="{{ route('home') }}#faq"
             @if ($active === 'home') data-scrollspy-target="faq" @endif>الأسئلة الشائعة</a>
