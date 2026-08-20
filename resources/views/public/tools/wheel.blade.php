@@ -423,13 +423,19 @@
 
                         <div class="tab-page active hidden [&.active]:block" id="dataPage" role="tabpanel"
                             aria-labelledby="dataTab">
-                            <div class="mb-3 grid grid-cols-2 gap-2.5 rounded-2xl border border-violet-100 bg-violet-50 p-2.5"
+                            <div class="mb-3 grid grid-cols-2 gap-2.5 rounded-2xl border border-violet-100 bg-violet-50 p-2.5 sm:grid-cols-3"
                                 aria-label="إجراءات قائمة الأسماء">
                                 <button
-                                    class="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-violet-700 px-3 py-2.5 text-sm font-black text-white shadow-sm transition hover:bg-violet-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600 disabled:cursor-not-allowed disabled:opacity-55"
+                                    class="col-span-2 inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-violet-700 px-3 py-2.5 text-sm font-black text-white shadow-sm transition hover:bg-violet-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600 disabled:cursor-not-allowed disabled:opacity-55 sm:col-span-1"
                                     id="addNameBtn" type="button">
                                     <i class="fa-solid fa-user-plus" aria-hidden="true"></i>
                                     إضافة اسم
+                                </button>
+                                <button
+                                    class="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-violet-200 bg-white px-3 py-2.5 text-sm font-black text-violet-700 shadow-sm transition hover:border-violet-300 hover:bg-violet-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600 disabled:cursor-not-allowed disabled:opacity-55"
+                                    id="pasteNamesBtn" type="button" aria-controls="pasteNamesDialog">
+                                    <i class="fa-solid fa-paste" aria-hidden="true"></i>
+                                    لصق أسماء
                                 </button>
                                 <button
                                     class="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-violet-200 bg-white px-3 py-2.5 text-sm font-black text-violet-700 shadow-sm transition hover:border-violet-300 hover:bg-violet-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600 disabled:cursor-not-allowed disabled:opacity-55"
@@ -458,7 +464,8 @@
                             </div>
 
                             <div class="virtual-list relative mt-3 h-[282px] overflow-auto rounded-2xl border border-[#e7e2f0] bg-white [&.is-empty]:grid [&.is-empty]:place-items-center [&::-webkit-scrollbar]:w-[9px] [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-[#c4bdce] max-[900px]:h-[260px] [&_.name-row]:flex [&_.name-row]:h-[46px] [&_.name-row]:cursor-grab [&_.name-row]:items-center [&_.name-row]:gap-2 [&_.name-row]:border-b [&_.name-row]:border-[#f0eef7] [&_.name-row]:pr-2.5 [&_.name-row]:pl-3 [&_.name-row]:[direction:rtl] [&_.name-row]:transition-[background,box-shadow] [&_.name-row]:duration-200 [&_.name-row.is-dragging]:cursor-grabbing [&_.name-row.is-dragging]:opacity-[0.55] [&_.name-row.is-drop-target]:bg-[#f7f2ff] [&_.name-row.is-drop-target]:shadow-[inset_0_0_0_2px_rgba(51,65,85,0.16)] [&_.name-row_input]:accent-[#6d28d9] [&_.name-row__order]:min-w-7 [&_.name-row__order]:shrink-0 [&_.name-row__order]:text-center [&_.name-row__order]:text-xs [&_.name-row__order]:font-black [&_.name-row__order]:text-[#667085] [&_.name-row__name]:flex-1 [&_.name-row__name]:overflow-hidden [&_.name-row__name]:text-ellipsis [&_.name-row__name]:whitespace-nowrap [&_.name-row__name]:font-bold [&_.name-row__name]:text-[#344054] [&_.name-row__actions]:inline-flex [&_.name-row__actions]:shrink-0 [&_.name-row__actions]:items-center [&_.name-row__actions]:gap-[5px] [&_.name-row__btn]:grid [&_.name-row__btn]:h-[30px] [&_.name-row__btn]:w-[30px] [&_.name-row__btn]:cursor-pointer [&_.name-row__btn]:place-items-center [&_.name-row__btn]:rounded-[9px] [&_.name-row__btn]:border [&_.name-row__btn]:border-[#e7e2f0] [&_.name-row__btn]:bg-white [&_.name-row__btn]:text-[13px] [&_.name-row__btn]:text-[#1e293b] [&_.name-row__btn]:transition-[background,border-color,color,transform] [&_.name-row__btn]:duration-200 [&_.name-row__btn:hover:not(:disabled)]:-translate-y-px [&_.name-row__btn:hover:not(:disabled)]:border-[#cbd5e1] [&_.name-row__btn:hover:not(:disabled)]:bg-[#f4efff] [&_.name-row__btn:disabled]:cursor-not-allowed [&_.name-row__btn:disabled]:opacity-[0.38] [&_.name-row__btn--danger]:text-[#ef4444] [&_.name-row__btn--danger:hover:not(:disabled)]:border-[rgba(239,68,68,0.25)] [&_.name-row__btn--danger:hover:not(:disabled)]:bg-[#fff1f2] max-[620px]:[&_.name-row]:gap-1.5 max-[620px]:[&_.name-row]:px-2 max-[620px]:[&_.name-row__actions]:gap-[3px] max-[620px]:[&_.name-row__btn]:h-7 max-[620px]:[&_.name-row__btn]:w-7 max-[620px]:[&_.name-row__btn]:rounded-lg max-[620px]:[&_.name-row__btn]:text-xs"
-                                id="virtualList" role="listbox" aria-label="قائمة الأسماء" aria-live="polite">
+                                id="virtualList" role="listbox" aria-label="قائمة الأسماء" aria-live="polite"
+                                aria-describedby="namesPasteHint" tabindex="0">
                                 <div class="virtual-spacer hidden" id="virtualSpacer"></div>
                                 <div class="virtual-items relative z-[1]" id="virtualItems"></div>
                                 <div class="empty-state empty-state--names grid w-[min(100%,360px)] justify-items-center gap-1.5 rounded-2xl border border-dashed border-[rgba(51,65,85,0.2)] bg-[#fbf9ff] px-4 py-[18px] text-center text-[#667085] [&[hidden]]:hidden"
@@ -472,6 +479,13 @@
                                     </p>
                                 </div>
                             </div>
+
+                            <p class="mt-2.5 flex items-start gap-2 text-xs leading-5 font-bold text-slate-500"
+                                id="namesPasteHint">
+                                <i class="fa-regular fa-clipboard mt-0.5 text-violet-600" aria-hidden="true"></i>
+                                <span>يمكنك نسخ عمود من Excel، ثم النقر داخل القائمة والضغط على Ctrl+V.</span>
+                            </p>
+                            <p class="sr-only" id="namesPasteStatus" role="status" aria-live="polite"></p>
 
                             <div
                                 class="panel-footer mt-3.5 flex items-center justify-start gap-3 max-[620px]:grid max-[620px]:grid-cols-2">
@@ -684,6 +698,63 @@
                         class="btn btn--primary inline-flex min-h-11 cursor-pointer items-center justify-center gap-[9px] whitespace-nowrap rounded-xl border-0 bg-linear-to-br from-[#7c3aed] to-[#5b21b6] px-5 font-extrabold text-white shadow-[0_12px_28px_rgba(51,65,85,0.24)] transition-[transform,box-shadow,border-color,background] duration-200 hover:-translate-y-px disabled:cursor-not-allowed disabled:opacity-[0.58] disabled:shadow-none disabled:hover:translate-y-0"
                         value="confirm" id="confirmAddName" type="submit">
                         إضافة
+                    </button>
+                </div>
+            </form>
+        </dialog>
+
+        <dialog
+            class="fixed inset-0 m-auto max-h-[calc(100dvh_-_32px)] overflow-y-auto rounded-[20px] border-0 p-0 text-right shadow-[0_28px_90px_rgba(17,24,39,0.22)] backdrop:bg-slate-950/40 backdrop:backdrop-blur-[4px]"
+            id="pasteNamesDialog" aria-labelledby="pasteNamesDialogTitle" aria-describedby="pasteNamesDialogDescription">
+            <form class="w-[min(520px,calc(100vw_-_32px))] p-5 sm:p-6" method="dialog">
+                <div class="flex items-start gap-3">
+                    <span class="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-violet-100 text-lg text-violet-700"
+                        aria-hidden="true">
+                        <i class="fa-solid fa-paste"></i>
+                    </span>
+                    <div>
+                        <h3 class="m-0 text-xl font-black text-slate-900" id="pasteNamesDialogTitle">لصق قائمة أسماء</h3>
+                        <p class="mt-1 text-sm leading-6 font-semibold text-slate-500" id="pasteNamesDialogDescription">
+                            الصق عمودًا من Excel أو أسماء مفصولة بأسطر، أو بفواصل، أو بعلامات تبويب.
+                        </p>
+                    </div>
+                </div>
+
+                <label class="mt-5 block text-sm font-black text-slate-700" for="pasteNamesInput">الأسماء</label>
+                <textarea
+                    class="mt-2 min-h-48 w-full resize-y rounded-[14px] border border-[#e7e2f0] px-3.5 py-3 leading-7 outline-none placeholder:text-slate-400 focus:border-violet-400 focus:ring-4 focus:ring-violet-100"
+                    id="pasteNamesInput" rows="8" placeholder="أحمد&#10;سارة&#10;محمد"></textarea>
+
+                <fieldset class="mt-4 grid gap-2 sm:grid-cols-2">
+                    <legend class="sr-only">طريقة تطبيق الأسماء</legend>
+                    <label
+                        class="flex cursor-pointer items-start gap-2.5 rounded-xl border border-violet-200 bg-violet-50 p-3 text-sm text-slate-700 has-checked:border-violet-500 has-checked:ring-2 has-checked:ring-violet-100">
+                        <input class="mt-0.5 accent-violet-700" type="radio" name="paste_names_mode" value="append" checked>
+                        <span><strong class="block font-black">إضافة للقائمة</strong><span class="mt-0.5 block text-xs font-semibold text-slate-500">إبقاء الأسماء الحالية.</span></span>
+                    </label>
+                    <label
+                        class="flex cursor-pointer items-start gap-2.5 rounded-xl border border-slate-200 bg-white p-3 text-sm text-slate-700 has-checked:border-violet-500 has-checked:bg-violet-50 has-checked:ring-2 has-checked:ring-violet-100">
+                        <input class="mt-0.5 accent-violet-700" type="radio" name="paste_names_mode" value="replace">
+                        <span><strong class="block font-black">استبدال القائمة</strong><span class="mt-0.5 block text-xs font-semibold text-slate-500">حذف الأسماء الحالية أولًا.</span></span>
+                    </label>
+                </fieldset>
+
+                <p class="mt-4 min-h-12 rounded-xl bg-slate-50 px-3.5 py-3 text-sm leading-6 font-bold text-slate-600"
+                    id="pasteNamesPreview" role="status" aria-live="polite">
+                    الصق الأسماء لمعاينة العدد قبل الإضافة.
+                </p>
+
+                <div class="mt-5 flex flex-col-reverse gap-2.5 sm:flex-row sm:justify-start">
+                    <button
+                        class="inline-flex min-h-11 items-center justify-center rounded-xl border border-[#e7e2f0] bg-white px-5 font-extrabold text-slate-700 transition hover:bg-slate-50"
+                        value="cancel" type="submit">
+                        إلغاء
+                    </button>
+                    <button
+                        class="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border-0 bg-linear-to-br from-violet-600 to-violet-800 px-5 font-extrabold text-white shadow-lg shadow-violet-900/15 transition hover:-translate-y-px disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none"
+                        id="confirmPasteNames" value="confirm" type="submit" disabled>
+                        <i class="fa-solid fa-check" aria-hidden="true"></i>
+                        تطبيق الأسماء
                     </button>
                 </div>
             </form>

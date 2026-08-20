@@ -161,6 +161,38 @@ test('the wheel page includes an accessible progress loader for file imports', f
         ->not->toContain('emptyImportNamesBtn');
 });
 
+test('names may be pasted from spreadsheets into the names list', function () {
+    $response = $this->get(route('tools.wheel'));
+
+    $response
+        ->assertSuccessful()
+        ->assertSeeInOrder([
+            'id="addNameBtn"',
+            'id="pasteNamesBtn"',
+            'id="importTrigger"',
+            'id="virtualList"',
+        ], false)
+        ->assertSee('id="pasteNamesDialog"', false)
+        ->assertSee('id="pasteNamesInput"', false)
+        ->assertSee('id="pasteNamesPreview"', false)
+        ->assertSee('name="paste_names_mode" value="append" checked', false)
+        ->assertSee('name="paste_names_mode" value="replace"', false)
+        ->assertSee('aria-describedby="namesPasteHint" tabindex="0"', false)
+        ->assertSee('لصق أسماء');
+
+    $script = file_get_contents(resource_path('js/app.js'));
+
+    expect($script)
+        ->toContain('function parseNamesText(text, limit = maximumNames + 1)')
+        ->toContain('character === "\\t"')
+        ->toContain('parsedNames.slice(0, availableSlots)')
+        ->toContain('selection.acceptedNames.concat(names)')
+        ->toContain('virtualList.addEventListener("paste", (event) => {')
+        ->toContain('event.clipboardData?.getData("text/plain")')
+        ->toContain('openPasteNamesDialog(pastedText)')
+        ->toContain('pasteNamesDialog.showModal()');
+});
+
 test('wheel controls use move terminology', function () {
     $template = file_get_contents(resource_path('views/public/tools/wheel.blade.php'));
     $script = file_get_contents(resource_path('js/app.js'));

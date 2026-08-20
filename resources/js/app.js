@@ -312,6 +312,12 @@ const addNameBtn = document.getElementById("addNameBtn");
 const nameDialog = document.getElementById("nameDialog");
 const nameInput = document.getElementById("nameInput");
 const confirmAddName = document.getElementById("confirmAddName");
+const pasteNamesBtn = document.getElementById("pasteNamesBtn");
+const pasteNamesDialog = document.getElementById("pasteNamesDialog");
+const pasteNamesInput = document.getElementById("pasteNamesInput");
+const pasteNamesPreview = document.getElementById("pasteNamesPreview");
+const confirmPasteNames = document.getElementById("confirmPasteNames");
+const namesPasteStatus = document.getElementById("namesPasteStatus");
 const importInput = document.getElementById("importInput");
 const importTrigger = document.getElementById("importTrigger");
 const importLoader = document.getElementById("importLoader");
@@ -462,6 +468,7 @@ let isHydrating = true;
 let activeMode = wheelConfig.authenticated ? "save" : "guest";
 let importingNames = false;
 let savedWheelsCount = Number(wheelConfig.usage?.savedWheels) || 0;
+let namesPasteStatusTimer = null;
 
 const rowHeight = 46;
 const overscan = 8;
@@ -1453,7 +1460,7 @@ function updateControlStates() {
 
   setDisabled([spinBtn, centerSpinBtn], spinDisabled);
   setDisabled(
-    [addNameBtn, importTrigger, importInput],
+    [addNameBtn, pasteNamesBtn, importTrigger, importInput],
     !hasEditableWorkspace || controlsLocked
   );
   setDisabled([clearBtn, shuffleBtn], !hasNames || controlsLocked);
@@ -2182,7 +2189,7 @@ function parseNamesChunk(text, state) {
   for (let index = 0; index < text.length && state.names.length < state.limit; index++) {
     const character = text[index];
 
-    if (character === "," || character === "\r" || character === "\n") {
+    if (character === "," || character === "\t" || character === "\r" || character === "\n") {
       const importedName = state.currentName.trim().slice(0, 120);
       if (importedName) state.names.push(importedName);
       state.currentName = "";
@@ -2201,6 +2208,118 @@ function finishNamesParsing(state) {
   const importedName = state.currentName.trim().slice(0, 120);
   if (importedName) state.names.push(importedName);
   state.currentName = "";
+}
+
+function parseNamesText(text, limit = maximumNames + 1) {
+  const state = { names: [], currentName: "", limit };
+
+  parseNamesChunk(String(text || ""), state);
+  finishNamesParsing(state);
+
+  return state.names;
+}
+
+function getPasteNamesMode() {
+  return pasteNamesDialog
+    ?.querySelector('input[name="paste_names_mode"]:checked')
+    ?.value === "replace"
+    ? "replace"
+    : "append";
+}
+
+function getPasteNamesSelection() {
+  const parsedNames = parseNamesText(pasteNamesInput?.value);
+  const mode = getPasteNamesMode();
+  const existingNamesCount = mode === "replace" ? 0 : names.length;
+  const availableSlots = Math.max(maximumNames - existingNamesCount, 0);
+
+  return {
+    acceptedNames: parsedNames.slice(0, availableSlots),
+    availableSlots,
+    existingNamesCount,
+    mode,
+    parsedNames
+  };
+}
+
+function updatePasteNamesPreview() {
+  if (!pasteNamesPreview || !confirmPasteNames) return;
+
+  const selection = getPasteNamesSelection();
+  const parsedNamesCount = selection.parsedNames.length;
+  const acceptedNamesCount = selection.acceptedNames.length;
+
+  confirmPasteNames.disabled = acceptedNamesCount === 0;
+
+  if (parsedNamesCount === 0) {
+    pasteNamesPreview.textContent = "الصق الأسماء لمعاينة العدد قبل الإضافة.";
+    return;
+  }
+
+  if (selection.availableSlots === 0) {
+    pasteNamesPreview.textContent = `القائمة تحتوي بالفعل على الحد الأقصى وهو ${formatNumber(maximumNames)} اسم.`;
+    return;
+  }
+
+  if (parsedNamesCount > selection.availableSlots) {
+    const parsedCountLabel = parsedNamesCount > maximumNames
+      ? `أكثر من ${formatNumber(maximumNames)}`
+      : formatNumber(parsedNamesCount);
+
+    pasteNamesPreview.textContent = `تم التعرف على ${parsedCountLabel} اسم. سيُطبّق أول ${formatNumber(acceptedNamesCount)} اسم فقط بسبب الحد الأقصى.`;
+    return;
+  }
+
+  const finalNamesCount = selection.existingNamesCount + acceptedNamesCount;
+  pasteNamesPreview.textContent = `تم التعرف على ${formatNumber(acceptedNamesCount)} اسم. سيصبح إجمالي القائمة ${formatNumber(finalNamesCount)} اسم.`;
+}
+
+function announceNamesPaste(message) {
+  if (!namesPasteStatus) return;
+
+  namesPasteStatus.textContent = message;
+  window.clearTimeout(namesPasteStatusTimer);
+  namesPasteStatusTimer = window.setTimeout(() => {
+    namesPasteStatus.textContent = "";
+  }, 5_000);
+}
+
+function applyPastedNames() {
+  const selection = getPasteNamesSelection();
+
+  if (selection.acceptedNames.length === 0) return;
+
+  const updatedNames = selection.mode === "replace"
+    ? selection.acceptedNames
+    : selection.acceptedNames.concat(names);
+  const successMessage = selection.mode === "replace"
+    ? `تم استبدال القائمة بـ ${formatNumber(selection.acceptedNames.length)} اسم.`
+    : `تمت إضافة ${formatNumber(selection.acceptedNames.length)} اسم إلى القائمة.`;
+
+  setData(updatedNames);
+  announceNamesPaste(successMessage);
+  pasteNamesDialog?.close();
+}
+
+function openPasteNamesDialog(pastedText = "") {
+  if (!pasteNamesDialog || typeof pasteNamesDialog.showModal !== "function") {
+    const fallbackText = pastedText || prompt("الصق الأسماء، واجعل كل اسم في سطر مستقل");
+    const fallbackNames = parseNamesText(fallbackText, Math.max(maximumNames - names.length, 0));
+
+    if (fallbackNames.length > 0) {
+      setData(fallbackNames.concat(names));
+      announceNamesPaste(`تمت إضافة ${formatNumber(fallbackNames.length)} اسم إلى القائمة.`);
+    }
+
+    return;
+  }
+
+  pasteNamesInput.value = pastedText;
+  const appendMode = pasteNamesDialog.querySelector('input[name="paste_names_mode"][value="append"]');
+  if (appendMode) appendMode.checked = true;
+  updatePasteNamesPreview();
+  pasteNamesDialog.showModal();
+  window.setTimeout(() => pasteNamesInput.focus(), 50);
 }
 
 async function readNamesFromFile(file, limit) {
@@ -2742,7 +2861,32 @@ addNameBtn.addEventListener("click", () => {
     addName(prompt("اكتب الاسم"));
   }
 });
+pasteNamesBtn?.addEventListener("click", () => openPasteNamesDialog());
 importTrigger?.addEventListener("click", () => importInput.click());
+
+pasteNamesInput?.addEventListener("input", updatePasteNamesPreview);
+pasteNamesDialog
+  ?.querySelectorAll('input[name="paste_names_mode"]')
+  .forEach((input) => input.addEventListener("change", updatePasteNamesPreview));
+confirmPasteNames?.addEventListener("click", (event) => {
+  event.preventDefault();
+  applyPastedNames();
+});
+
+virtualList.addEventListener("pointerdown", (event) => {
+  if (event.target.closest("button, input")) return;
+
+  virtualList.focus({ preventScroll: true });
+});
+virtualList.addEventListener("paste", (event) => {
+  if (pasteNamesBtn?.disabled) return;
+
+  const pastedText = event.clipboardData?.getData("text/plain") || "";
+  if (!pastedText.trim()) return;
+
+  event.preventDefault();
+  openPasteNamesDialog(pastedText);
+});
 
 confirmAddName.addEventListener("click", (event) => {
   event.preventDefault();
