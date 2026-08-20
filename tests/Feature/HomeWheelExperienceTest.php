@@ -106,12 +106,11 @@ test('opening a competition exposes its participant snapshot and round history',
         ->toBe(1);
 });
 
-test('opening a saved list exposes only names and not saved results', function () {
+test('opening a saved list exposes its names', function () {
     $user = User::factory()->create();
     $wheel = SavedWheel::factory()->for($user)->create([
         'names' => ['أحمد', 'سارة'],
         'names_count' => 2,
-        'results' => [['name' => 'سارة', 'date' => now()->toISOString()]],
     ]);
 
     $response = $this->actingAs($user)->get(route('tools.wheel', ['wheel' => $wheel->id]));

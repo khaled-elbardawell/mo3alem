@@ -48,6 +48,7 @@ class SavedWheelController extends Controller
         Gate::authorize('view', $savedWheel);
 
         $savedWheel->forceFill(['last_opened_at' => now()])->save();
+        $savedWheel->load('nameEntries');
 
         return response()->json([
             'data' => SavedWheelResource::make($savedWheel)->resolve(request()),
@@ -65,7 +66,7 @@ class SavedWheelController extends Controller
             return response()->json([
                 'message' => 'عُدّلت القائمة من جهاز آخر.',
                 'conflict' => true,
-                'data' => SavedWheelResource::make($savedWheel->fresh())->resolve($request),
+                'data' => SavedWheelResource::make($savedWheel->fresh()->load('nameEntries'))->resolve($request),
             ], 409);
         }
 

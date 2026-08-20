@@ -45,7 +45,7 @@ class SavedWheelController extends Controller
         SavedWheel $savedWheel,
         AdminAuditService $audit,
     ): RedirectResponse {
-        $before = $savedWheel->toArray();
+        $before = [...$savedWheel->toArray(), 'names' => $savedWheel->names];
         $data = $request->validated();
 
         $savedWheel->update([
@@ -56,7 +56,14 @@ class SavedWheelController extends Controller
             'version' => $savedWheel->version + 1,
         ]);
 
-        $audit->record($request, 'saved-wheel.updated', $savedWheel, $before, $savedWheel->fresh()->toArray());
+        $savedWheel->refresh()->load('nameEntries');
+        $audit->record(
+            $request,
+            'saved-wheel.updated',
+            $savedWheel,
+            $before,
+            [...$savedWheel->toArray(), 'names' => $savedWheel->names],
+        );
 
         return redirect()->route('admin.saved-wheels.index')->with('status', 'تم تحديث القائمة.');
     }

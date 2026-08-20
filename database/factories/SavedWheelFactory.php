@@ -23,7 +23,6 @@ class SavedWheelFactory extends Factory
             'title' => fake()->unique()->words(3, true),
             'active_title' => fn (array $attributes): string => $attributes['title'],
             'names' => ['أحمد', 'سارة', 'محمد'],
-            'results' => [],
             'names_count' => 3,
             'version' => 1,
             'last_opened_at' => now(),

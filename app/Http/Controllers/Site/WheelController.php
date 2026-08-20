@@ -38,11 +38,15 @@ class WheelController extends Controller
         $loadedWheel = null;
 
         if ($request->filled('competition') && $request->user()) {
-            $loadedCompetition = Competition::query()->findOrFail($request->integer('competition'));
+            $loadedCompetition = Competition::query()
+                ->with(['activeParticipants', 'resultEntries'])
+                ->findOrFail($request->integer('competition'));
             Gate::authorize('view', $loadedCompetition);
             $loadedCompetition->forceFill(['last_opened_at' => now()])->save();
         } elseif ($request->filled('wheel') && $request->user()) {
-            $loadedWheel = SavedWheel::query()->findOrFail($request->integer('wheel'));
+            $loadedWheel = SavedWheel::query()
+                ->with('nameEntries')
+                ->findOrFail($request->integer('wheel'));
             Gate::authorize('view', $loadedWheel);
             $loadedWheel->forceFill(['last_opened_at' => now()])->save();
         }

@@ -51,7 +51,7 @@ class UpdateCompetitionRequest extends FormRequest
             'names.*' => ['required', 'string', 'max:120'],
             'results' => ['sometimes', 'array', 'max:10000'],
             'results.*' => ['required', 'array'],
-            'results.*.round' => ['required', 'integer', 'min:1'],
+            'results.*.round' => ['required', 'integer', 'distinct', 'min:1'],
             'results.*.name' => ['required', 'string', 'max:120'],
             'results.*.date' => ['required', 'date'],
             'results.*.position' => ['nullable', 'integer', 'min:1', 'max:2000'],

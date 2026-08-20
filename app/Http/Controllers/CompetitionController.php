@@ -58,6 +58,7 @@ class CompetitionController extends Controller
     {
         Gate::authorize('view', $competition);
         $competition->forceFill(['last_opened_at' => now()])->save();
+        $competition->load(['activeParticipants', 'resultEntries']);
 
         return response()->json([
             'data' => CompetitionResource::make($competition)->resolve(request()),
@@ -75,7 +76,9 @@ class CompetitionController extends Controller
             return response()->json([
                 'message' => 'عُدّلت المسابقة من جهاز آخر.',
                 'conflict' => true,
-                'data' => CompetitionResource::make($competition->fresh())->resolve($request),
+                'data' => CompetitionResource::make(
+                    $competition->fresh()->load(['activeParticipants', 'resultEntries']),
+                )->resolve($request),
             ], 409);
         }
 

@@ -4,13 +4,13 @@ use App\Models\DailyMetric;
 use App\Models\SavedWheel;
 use App\Models\User;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\Schema;
 
 function wheelPayload(array $overrides = []): array
 {
     return array_replace([
         'title' => 'الصف الثاني - أ',
         'names' => ['أحمد', 'سارة', 'أحمد'],
-        'results' => [['name' => 'سارة', 'date' => now()->toISOString()]],
     ], $overrides);
 }
 
@@ -201,7 +201,8 @@ test('results are not persisted or returned with a saved list', function () {
 
     $wheel = SavedWheel::query()->findOrFail($created['id']);
 
-    expect($wheel->results)->toBe([]);
+    expect($wheel->getAttributes())->not->toHaveKey('results')
+        ->and(Schema::hasTable('saved_wheel_results'))->toBeFalse();
 
     $this->actingAs($user)
         ->getJson(route('saved-wheels.show', $wheel))

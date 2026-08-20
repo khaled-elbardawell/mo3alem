@@ -44,17 +44,16 @@ class CompetitionService
             $competition = $lockedUser->competitions()->create([
                 'saved_wheel_id' => $savedWheel->id,
                 'title' => $data['title'],
-                'names' => $savedWheel->names,
-                'results' => [],
                 'names_count' => $savedWheel->names_count,
                 'results_count' => 0,
                 'sync_source_list' => $createsNewList,
                 'last_opened_at' => now(),
             ]);
+            $competition->replaceParticipants($savedWheel->names);
 
             $this->metrics->increment('competitions');
 
-            return $competition;
+            return $competition->load(['activeParticipants', 'resultEntries']);
         });
     }
 
@@ -64,26 +63,30 @@ class CompetitionService
     public function update(Competition $competition, array $data): ?Competition
     {
         return DB::transaction(function () use ($competition, $data): ?Competition {
-            $currentResults = array_key_exists('results', $data) ? $data['results'] : $competition->results;
-            $isNowActive = $competition->status === 'active' || $currentResults !== [];
-            $shouldSyncSourceList = $competition->sync_source_list
+            $lockedCompetition = Competition::query()
+                ->whereKey($competition)
+                ->lockForUpdate()
+                ->firstOrFail();
+
+            if ((int) $lockedCompetition->version !== $data['version']) {
+                return null;
+            }
+
+            $currentResults = array_key_exists('results', $data) ? $data['results'] : $lockedCompetition->results;
+            $isNowActive = $lockedCompetition->status === 'active' || $currentResults !== [];
+            $shouldSyncSourceList = $lockedCompetition->sync_source_list
                 && ! $isNowActive
                 && array_key_exists('names', $data);
 
             $attributes = [
-                'version' => DB::raw('version + 1'),
+                'version' => $lockedCompetition->version + 1,
                 'status' => $isNowActive ? 'active' : 'draft',
-                'sync_source_list' => $competition->sync_source_list && ! $isNowActive,
+                'sync_source_list' => $lockedCompetition->sync_source_list && ! $isNowActive,
                 'last_opened_at' => now(),
-                'updated_at' => now(),
             ];
 
-            foreach (['title', 'names', 'results'] as $key) {
-                if (array_key_exists($key, $data)) {
-                    $attributes[$key] = is_array($data[$key])
-                        ? json_encode($data[$key], JSON_THROW_ON_ERROR)
-                        : $data[$key];
-                }
+            if (array_key_exists('title', $data)) {
+                $attributes['title'] = $data['title'];
             }
 
             if (array_key_exists('names', $data)) {
@@ -94,19 +97,22 @@ class CompetitionService
                 $attributes['results_count'] = count($data['results']);
             }
 
-            $updated = Competition::query()
-                ->whereKey($competition)
-                ->where('version', $data['version'])
-                ->update($attributes);
+            $lockedCompetition->forceFill($attributes)->save();
 
-            if ($updated === 0) {
-                return null;
+            if (array_key_exists('names', $data)) {
+                $lockedCompetition->replaceParticipants($data['names']);
             }
 
-            if ($shouldSyncSourceList && $competition->saved_wheel_id) {
+            if (array_key_exists('results', $data)) {
+                $lockedCompetition->replaceResults($data['results']);
+            }
+
+            $lockedCompetition->pruneInactiveParticipants();
+
+            if ($shouldSyncSourceList && $lockedCompetition->saved_wheel_id) {
                 $sourceList = SavedWheel::query()
-                    ->whereKey($competition->saved_wheel_id)
-                    ->where('user_id', $competition->user_id)
+                    ->whereKey($lockedCompetition->saved_wheel_id)
+                    ->where('user_id', $lockedCompetition->user_id)
                     ->lockForUpdate()
                     ->firstOrFail();
 
@@ -116,7 +122,7 @@ class CompetitionService
                 ]);
             }
 
-            return $competition->refresh();
+            return $lockedCompetition->load(['activeParticipants', 'resultEntries']);
         });
     }
 

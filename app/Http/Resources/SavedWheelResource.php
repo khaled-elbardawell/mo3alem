@@ -19,7 +19,7 @@ class SavedWheelResource extends JsonResource
             'updated_at' => $this->updated_at,
         ];
 
-        if (array_key_exists('names', $this->resource->getAttributes())) {
+        if ($this->resource->relationLoaded('nameEntries')) {
             $data['names'] = $this->names;
         }
 

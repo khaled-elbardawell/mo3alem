@@ -84,7 +84,6 @@ test('a user can view a saved list with all names and without competition result
         'title' => 'قائمة الفصل',
         'names' => ['ليان', 'عمر', 'نور'],
         'names_count' => 3,
-        'results' => [['name' => 'نتيجة قديمة لا تخص مسابقة']],
     ]);
 
     $this->actingAs($user)

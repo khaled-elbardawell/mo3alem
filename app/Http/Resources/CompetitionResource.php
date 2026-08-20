@@ -23,11 +23,11 @@ class CompetitionResource extends JsonResource
             'updated_at' => $this->updated_at,
         ];
 
-        if (array_key_exists('names', $this->resource->getAttributes())) {
+        if ($this->resource->relationLoaded('activeParticipants')) {
             $data['names'] = $this->names;
         }
 
-        if (array_key_exists('results', $this->resource->getAttributes())) {
+        if ($this->resource->relationLoaded('resultEntries')) {
             $data['results'] = $this->results;
         }
 

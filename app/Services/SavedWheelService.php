@@ -34,10 +34,10 @@ class SavedWheelService
                 $savedWheel = $lockedUser->savedWheels()->create([
                     'title' => $data['title'],
                     'active_title' => $data['title'],
-                    'names' => $data['names'],
                     'names_count' => count($data['names']),
                     'last_opened_at' => now(),
                 ]);
+                $savedWheel->replaceNames($data['names']);
             } catch (QueryException $exception) {
                 if ($exception->getCode() === '23000') {
                     throw ValidationException::withMessages([
@@ -54,7 +54,7 @@ class SavedWheelService
                 $this->metrics->increment('names_saved', $savedWheel->names_count);
             }
 
-            return $savedWheel;
+            return $savedWheel->load('nameEntries');
         });
     }
 
@@ -63,39 +63,49 @@ class SavedWheelService
      */
     public function update(SavedWheel $savedWheel, array $data): ?SavedWheel
     {
-        $previousNames = $savedWheel->names;
-
         if (array_key_exists('names', $data)) {
             $this->ensureNamesAreWithinLimit($data['names']);
         }
 
-        $attributes = [
-            'version' => DB::raw('version + 1'),
-            'last_opened_at' => now(),
-            'updated_at' => now(),
-        ];
-
-        foreach (['title', 'names'] as $key) {
-            if (array_key_exists($key, $data)) {
-                $attributes[$key] = is_array($data[$key])
-                    ? json_encode($data[$key], JSON_THROW_ON_ERROR)
-                    : $data[$key];
-            }
-        }
-
-        if (array_key_exists('title', $data)) {
-            $attributes['active_title'] = $data['title'];
-        }
-
-        if (array_key_exists('names', $data)) {
-            $attributes['names_count'] = count($data['names']);
-        }
-
         try {
-            $updated = SavedWheel::query()
-                ->whereKey($savedWheel)
-                ->where('version', $data['version'])
-                ->update($attributes);
+            return DB::transaction(function () use ($savedWheel, $data): ?SavedWheel {
+                $lockedSavedWheel = SavedWheel::query()
+                    ->whereKey($savedWheel)
+                    ->lockForUpdate()
+                    ->firstOrFail();
+
+                if ((int) $lockedSavedWheel->version !== $data['version']) {
+                    return null;
+                }
+
+                $previousNames = $lockedSavedWheel->names;
+                $attributes = [
+                    'version' => $lockedSavedWheel->version + 1,
+                    'last_opened_at' => now(),
+                ];
+
+                if (array_key_exists('title', $data)) {
+                    $attributes['title'] = $data['title'];
+                    $attributes['active_title'] = $data['title'];
+                }
+
+                if (array_key_exists('names', $data)) {
+                    $attributes['names_count'] = count($data['names']);
+                }
+
+                $lockedSavedWheel->forceFill($attributes)->save();
+
+                if (array_key_exists('names', $data)) {
+                    $lockedSavedWheel->replaceNames($data['names']);
+                    $addedNamesCount = $this->addedNamesCount($previousNames, $data['names']);
+
+                    if ($addedNamesCount > 0) {
+                        $this->metrics->increment('names_saved', $addedNamesCount);
+                    }
+                }
+
+                return $lockedSavedWheel->load('nameEntries');
+            });
         } catch (QueryException $exception) {
             if ($exception->getCode() === '23000') {
                 throw ValidationException::withMessages([
@@ -105,22 +115,6 @@ class SavedWheelService
 
             throw $exception;
         }
-
-        if ($updated === 0) {
-            return null;
-        }
-
-        $savedWheel->refresh();
-
-        if (array_key_exists('names', $data)) {
-            $addedNamesCount = $this->addedNamesCount($previousNames, $savedWheel->names);
-
-            if ($addedNamesCount > 0) {
-                $this->metrics->increment('names_saved', $addedNamesCount);
-            }
-        }
-
-        return $savedWheel;
     }
 
     public function addName(SavedWheel $savedWheel, string $name, int $version): ?SavedWheel
@@ -181,7 +175,7 @@ class SavedWheelService
 
             $savedWheel->restore();
 
-            return $savedWheel->refresh();
+            return $savedWheel->refresh()->load('nameEntries');
         });
     }
 

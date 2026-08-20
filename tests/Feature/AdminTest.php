@@ -174,10 +174,9 @@ test('an administrator cannot restore a saved wheel above the user limit', funct
     $this->assertSoftDeleted($wheel);
 });
 
-test('an administrator may empty saved names without changing legacy results', function () {
+test('an administrator may empty saved names', function () {
     $admin = User::factory()->create(['role' => UserRole::Admin]);
-    $legacyResults = [['name' => 'فائز قديم', 'date' => now()->toISOString()]];
-    $wheel = SavedWheel::factory()->create(['results' => $legacyResults]);
+    $wheel = SavedWheel::factory()->create();
 
     $this->actingAs($admin)
         ->put(route('admin.saved-wheels.update', $wheel), [
@@ -189,6 +188,5 @@ test('an administrator may empty saved names without changing legacy results', f
     $wheel->refresh();
 
     expect($wheel->names)->toBe([])
-        ->and($wheel->names_count)->toBe(0)
-        ->and($wheel->results)->toBe($legacyResults);
+        ->and($wheel->names_count)->toBe(0);
 });
