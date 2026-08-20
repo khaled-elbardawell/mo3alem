@@ -148,7 +148,7 @@
     </header>
 
     <aside
-        class="fixed inset-y-[76px] right-0 hidden w-[280px] border-l border-violet-100 bg-white/[0.9] p-5 backdrop-blur-xl lg:flex lg:flex-col">
+        class="fixed inset-y-[76px] right-0 hidden w-[280px] border-l border-violet-100 bg-white/[0.9] p-5 backdrop-blur-xl lg:flex lg:flex-col lg:overflow-y-auto">
         <div
             class="rounded-2xl bg-linear-to-br from-violet-700 to-indigo-700 p-4 text-white shadow-[0_16px_35px_rgba(91,33,182,0.2)]">
             <p class="text-xs font-bold text-violet-100">مساحة التحكم</p>

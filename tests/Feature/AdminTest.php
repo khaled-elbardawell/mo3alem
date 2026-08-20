@@ -113,6 +113,15 @@ test('the admin header links back to the main site instead of the wheel', functi
         ->assertDontSee('العودة للعجلة');
 });
 
+test('the desktop admin sidebar scrolls when its content exceeds the viewport', function () {
+    $admin = User::factory()->create(['role' => UserRole::Admin]);
+
+    $this->actingAs($admin)
+        ->get(route('admin.dashboard'))
+        ->assertSuccessful()
+        ->assertSee('lg:overflow-y-auto', false);
+});
+
 test('an administrator may suspend a user and their sessions are ended and audited', function () {
     $admin = User::factory()->create(['role' => UserRole::Admin]);
     $user = User::factory()->create();
