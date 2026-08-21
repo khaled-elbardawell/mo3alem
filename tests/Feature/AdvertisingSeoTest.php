@@ -151,7 +151,7 @@ test('expired campaigns reject impressions and clicks', function () {
     $this->get(route('ads.click', $campaign))->assertNotFound();
 });
 
-test('seo settings are rendered in the homepage source and robots response', function () {
+test('page seo settings are rendered and noindex pages are removed from the sitemap', function () {
     SeoSetting::factory()->create([
         'title' => 'عنوان مخصص',
         'description' => 'وصف مخصص لمحركات البحث',
@@ -161,11 +161,17 @@ test('seo settings are rendered in the homepage source and robots response', fun
     $this->get(route('home'))
         ->assertSuccessful()
         ->assertSee('<title>عنوان مخصص</title>', false)
-        ->assertSee('noindex,nofollow', false);
+        ->assertSee('noindex,follow', false);
 
     $this->get(route('robots'))
         ->assertSuccessful()
-        ->assertSee('Disallow: /');
+        ->assertSee('Allow: /')
+        ->assertSee('Sitemap: '.route('sitemap'));
+
+    $this->get(route('sitemap'))
+        ->assertSuccessful()
+        ->assertDontSee('<loc>'.route('home').'</loc>', false)
+        ->assertSee('<loc>'.route('tools.wheel').'</loc>', false);
 });
 
 test('svg advertising uploads are rejected', function () {
@@ -200,7 +206,13 @@ test('administrators can create and replace advertising campaign gif images', fu
     $this->actingAs($admin)
         ->get(route('admin.ad-campaigns.create'))
         ->assertSuccessful()
-        ->assertSee('accept=".jpg,.jpeg,.png,.webp,.gif"', false);
+        ->assertSee('accept=".jpg,.jpeg,.png,.webp,.gif"', false)
+        ->assertSee('data-ad-placement-select', false)
+        ->assertSee('data-image-dimensions="1200 × 300 بكسل"', false)
+        ->assertSee('data-image-dimensions="300 × 600 بكسل"', false)
+        ->assertSee('<strong data-ad-placement-dimensions>1200 × 300 بكسل</strong>', false)
+        ->assertSee('المقاس المقترح:')
+        ->assertSee('(العرض × الارتفاع)');
 
     $this->actingAs($admin)
         ->post(route('admin.ad-campaigns.store'), [

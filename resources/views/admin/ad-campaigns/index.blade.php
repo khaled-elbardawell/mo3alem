@@ -16,7 +16,6 @@
     </div>
 
     @php
-        $placementLabels = ['top' => 'علوي', 'side' => 'جانبي', 'bottom' => 'سفلي'];
         $statusLabels = ['draft' => 'مسودة', 'active' => 'نشطة', 'paused' => 'متوقفة'];
     @endphp
     <div class="mt-6 grid gap-4">
@@ -42,7 +41,7 @@
                             ])>{{ $statusLabels[$campaign->status->value] }}</span>
                         @endif
                     </div>
-                    <p class="mt-2 text-sm text-slate-500">{{ $placementLabels[$campaign->placement->value] }} · وزن {{ $campaign->weight }}</p>
+                    <p class="mt-2 text-sm text-slate-500">{{ $campaign->placement->label() }} · وزن {{ $campaign->weight }}</p>
                     <div class="mt-3 flex flex-wrap gap-2 text-sm">
                         <span class="rounded-lg bg-violet-50 px-3 py-1.5 font-bold text-violet-700"><i class="fa-regular fa-eye ms-1"></i>{{ number_format($impressions) }} مشاهد</span>
                         <span class="rounded-lg bg-blue-50 px-3 py-1.5 font-bold text-blue-700"><i class="fa-solid fa-arrow-pointer ms-1"></i>{{ number_format($clicks) }} نقرة</span>

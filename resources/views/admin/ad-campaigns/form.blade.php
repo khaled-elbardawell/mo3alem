@@ -3,6 +3,10 @@
 @section('title', $campaign->exists ? 'تعديل حملة' : 'حملة جديدة')
 
 @section('content')
+    @php
+        $selectedPlacement = App\AdPlacement::tryFrom(old('placement', $campaign->placement?->value) ?? '') ?? App\AdPlacement::Top;
+    @endphp
+
     <div class="flex flex-wrap items-start justify-between gap-4">
         <div>
             <p class="text-sm font-black text-violet-600">الحملات الإعلانية</p>
@@ -35,7 +39,22 @@
         </section>
 
         <section class="grid gap-4 border-t border-slate-100 pt-6 sm:grid-cols-3">
-            <label class="grid gap-2 text-sm font-bold text-slate-700">الموضع<select class="min-h-12 rounded-xl border border-slate-200 bg-white px-4 outline-none focus:border-violet-400 focus:ring-4 focus:ring-violet-100" name="placement">@foreach($placements as $placement)<option value="{{ $placement->value }}" @selected(old('placement', $campaign->placement?->value) === $placement->value)>{{ ['top' => 'علوي', 'side' => 'جانبي', 'bottom' => 'سفلي'][$placement->value] }}</option>@endforeach</select></label>
+            <label class="grid gap-2 text-sm font-bold text-slate-700" for="placement">
+                الموضع
+                <select class="min-h-12 rounded-xl border border-slate-200 bg-white px-4 outline-none focus:border-violet-400 focus:ring-4 focus:ring-violet-100"
+                    id="placement" name="placement" aria-describedby="placementImageDimensions" data-ad-placement-select>
+                    @foreach ($placements as $placement)
+                        <option value="{{ $placement->value }}" data-image-dimensions="{{ $placement->recommendedImageDimensions() }}"
+                            @selected($selectedPlacement === $placement)>{{ $placement->label() }}</option>
+                    @endforeach
+                </select>
+                <span class="flex items-center gap-1.5 text-xs font-bold text-violet-600" id="placementImageDimensions">
+                    <i class="fa-regular fa-image" aria-hidden="true"></i>
+                    المقاس المقترح:
+                    <strong data-ad-placement-dimensions>{{ $selectedPlacement->recommendedImageDimensions() }}</strong>
+                    <span class="font-medium text-slate-400">(العرض × الارتفاع)</span>
+                </span>
+            </label>
             <label class="grid gap-2 text-sm font-bold text-slate-700">الحالة<select class="min-h-12 rounded-xl border border-slate-200 bg-white px-4 outline-none focus:border-violet-400 focus:ring-4 focus:ring-violet-100" name="status">@foreach($statuses as $status)<option value="{{ $status->value }}" @selected(old('status', $campaign->status?->value) === $status->value)>{{ ['draft' => 'مسودة', 'active' => 'نشطة', 'paused' => 'متوقفة'][$status->value] }}</option>@endforeach</select></label>
             <label class="grid gap-2 text-sm font-bold text-slate-700">الوزن<input class="min-h-12 rounded-xl border border-slate-200 px-4 outline-none focus:border-violet-400 focus:ring-4 focus:ring-violet-100" type="number" min="1" max="1000" name="weight" value="{{ old('weight', $campaign->weight ?? 1) }}" required></label>
         </section>

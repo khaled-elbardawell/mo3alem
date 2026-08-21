@@ -5,9 +5,10 @@ namespace App\Http\Controllers\Site;
 use App\AdPlacement;
 use App\Http\Controllers\Controller;
 use App\Models\DailyMetric;
-use App\Models\SeoSetting;
+use App\SeoPage;
 use App\Services\AdCampaignSelector;
 use App\Services\MetricService;
+use App\Services\SeoManager;
 use App\Services\VisitorIdentity;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -22,6 +23,7 @@ class HomeController extends Controller
         Request $request,
         AdCampaignSelector $ads,
         MetricService $metrics,
+        SeoManager $seoManager,
         VisitorIdentity $visitors,
     ): View|RedirectResponse {
         if ($request->filled('competition') || $request->filled('wheel')) {
@@ -31,13 +33,7 @@ class HomeController extends Controller
         $visitorIdentifier = $visitors->for($request);
         defer(fn () => $metrics->recordSiteVisit($visitorIdentifier));
 
-        $seoValues = Cache::remember('seo:home', 300, function (): array {
-            $seo = SeoSetting::query()->first() ?? new SeoSetting;
-
-            return $seo->getAttributes();
-        });
-
-        $seo = (new SeoSetting)->forceFill($seoValues);
+        $seo = $seoManager->forPage(SeoPage::Home);
         $platformActivity = Cache::remember(MetricService::PLATFORM_ACTIVITY_CACHE_KEY, 300, function (): array {
             $totals = DailyMetric::query()
                 ->toBase()

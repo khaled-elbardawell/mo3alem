@@ -48,6 +48,7 @@ test('an administrator can render every administration screen', function () {
         route('admin.api-clients.create'),
         route('admin.api-clients.edit', $apiClient),
         route('admin.analytics'),
+        route('admin.settings.edit'),
         route('admin.seo.edit'),
         route('admin.audit-logs'),
     ];

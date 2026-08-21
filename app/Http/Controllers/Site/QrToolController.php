@@ -7,12 +7,12 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\QrCodeResource;
 use App\Models\QrCode;
 use App\Models\QrTemplate;
-use App\Models\SeoSetting;
+use App\SeoPage;
 use App\Services\AdCampaignSelector;
 use App\Services\MetricService;
+use App\Services\SeoManager;
 use App\Services\VisitorIdentity;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 
@@ -24,6 +24,7 @@ class QrToolController extends Controller
         Request $request,
         AdCampaignSelector $ads,
         MetricService $metrics,
+        SeoManager $seoManager,
         VisitorIdentity $visitors,
     ): View {
         $visitorIdentifier = $visitors->for($request);
@@ -37,12 +38,7 @@ class QrToolController extends Controller
             $loadedQrCode->forceFill(['last_opened_at' => now()])->save();
         }
 
-        $seoValues = Cache::remember('seo:home', 300, function (): array {
-            $seo = SeoSetting::query()->first() ?? new SeoSetting;
-
-            return $seo->getAttributes();
-        });
-        $seo = (new SeoSetting)->forceFill($seoValues);
+        $seo = $seoManager->forPage(SeoPage::Qr);
         $campaigns = [
             'top' => $ads->select(AdPlacement::Top),
             'side' => $ads->select(AdPlacement::Side),

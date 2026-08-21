@@ -1,8 +1,5 @@
 @extends('layouts.public', ['activeNavigation' => 'qr'])
 
-@section('title', 'إنشاء رمز QR احترافي')
-@section('canonical', route('tools.qr'))
-
 @section('content')
     <div
         class="min-h-[calc(100vh-5rem)] overflow-hidden bg-[radial-gradient(circle_at_12%_10%,rgba(124,58,237,0.1),transparent_26%),radial-gradient(circle_at_88%_18%,rgba(59,130,246,0.07),transparent_24%),#fbfbff] pb-28 lg:pb-16">

@@ -7,12 +7,12 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\CertificateResource;
 use App\Models\Certificate;
 use App\Models\CertificateTemplate;
-use App\Models\SeoSetting;
+use App\SeoPage;
 use App\Services\AdCampaignSelector;
 use App\Services\MetricService;
+use App\Services\SeoManager;
 use App\Services\VisitorIdentity;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 
@@ -24,6 +24,7 @@ class CertificateToolController extends Controller
         Request $request,
         AdCampaignSelector $ads,
         MetricService $metrics,
+        SeoManager $seoManager,
         VisitorIdentity $visitors,
     ): View {
         $visitorIdentifier = $visitors->for($request);
@@ -37,12 +38,7 @@ class CertificateToolController extends Controller
             $loadedCertificate->forceFill(['last_opened_at' => now()])->save();
         }
 
-        $seoValues = Cache::remember('seo:home', 300, function (): array {
-            $seo = SeoSetting::query()->first() ?? new SeoSetting;
-
-            return $seo->getAttributes();
-        });
-        $seo = (new SeoSetting)->forceFill($seoValues);
+        $seo = $seoManager->forPage(SeoPage::Certificates);
         $campaigns = [
             'top' => $ads->select(AdPlacement::Top),
             'side' => $ads->select(AdPlacement::Side),

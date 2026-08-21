@@ -1,8 +1,5 @@
 @extends('layouts.public', ['activeNavigation' => 'home'])
 
-@section('title', $seo->title)
-@section('canonical', $seo->canonical_url ?: route('home'))
-
 @section('content')
     <section class="relative isolate overflow-hidden border-b border-violet-100/70 bg-white" id="home">
         <div class="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_12%_24%,rgba(124,58,237,0.13),transparent_25%),radial-gradient(circle_at_84%_18%,rgba(59,130,246,0.08),transparent_23%)]" aria-hidden="true"></div>

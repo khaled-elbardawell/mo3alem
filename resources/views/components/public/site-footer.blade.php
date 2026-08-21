@@ -1,22 +1,22 @@
-<footer class="relative overflow-hidden bg-[#111a35] text-white">
+<footer class="relative overflow-hidden bg-[#111a35] text-white" id="footer">
     <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_12%_15%,rgba(124,58,237,0.2),transparent_28%),radial-gradient(circle_at_88%_82%,rgba(37,99,235,0.14),transparent_25%)]"
         aria-hidden="true"></div>
     <div class="relative mx-auto grid w-[min(calc(100%_-_2rem),1280px)] gap-10 py-14 lg:grid-cols-[1.15fr_2fr]">
         <div class="max-w-md">
-            <img class="h-20 w-auto brightness-0 invert" src="{{ asset('assets/logo.png') }}" alt="معلم">
+            <img class="h-14 w-auto brightness-0 invert" src="{{ asset('assets/logo.png') }}" alt="معلم">
             <p class="mt-4 text-sm font-medium leading-7 text-slate-300">منصة عربية تمنح المعلم أدوات عملية وسهلة لإنجاز
                 مهامه التعليمية في مكان واحد.</p>
-            <div class="mt-5 flex items-center gap-2" aria-label="روابط معلم">
-                <a class="grid h-10 w-10 place-items-center rounded-xl border border-white/10 bg-white/5 text-slate-300 transition-colors hover:bg-violet-600 hover:text-white"
-                    href="https://cmp-tch.com" target="_blank" rel="noopener noreferrer"
-                    aria-label="موقع معلم الحاسب"><i class="fa-solid fa-globe" aria-hidden="true"></i></a>
-                <a class="grid h-10 w-10 place-items-center rounded-xl border border-white/10 bg-white/5 text-slate-300 transition-colors hover:bg-violet-600 hover:text-white"
-                    href="{{ route('home') }}#tools" aria-label="أدوات معلم"><i class="fa-solid fa-toolbox"
-                        aria-hidden="true"></i></a>
-                <a class="grid h-10 w-10 place-items-center rounded-xl border border-white/10 bg-white/5 text-slate-300 transition-colors hover:bg-violet-600 hover:text-white"
-                    href="{{ route('home') }}#faq" aria-label="مركز المساعدة"><i class="fa-regular fa-circle-question"
-                        aria-hidden="true"></i></a>
-            </div>
+            @if (! empty($footerLinks))
+                <div class="mt-5 flex flex-wrap items-center gap-2" aria-label="روابط معلم">
+                    @foreach ($footerLinks as $link)
+                        <a class="grid h-10 w-10 place-items-center rounded-xl border border-white/10 bg-white/5 text-slate-300 transition-colors hover:bg-violet-600 hover:text-white"
+                            href="{{ $link['url'] }}" @if ($link['open_in_new_tab']) target="_blank" rel="noopener noreferrer" @endif
+                            aria-label="{{ $link['label'] }}">
+                            <i class="{{ $link['icon'] }}" aria-hidden="true"></i>
+                        </a>
+                    @endforeach
+                </div>
+            @endif
         </div>
         <div class="grid grid-cols-2 gap-8 sm:grid-cols-3">
             <div>

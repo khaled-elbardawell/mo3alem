@@ -3135,6 +3135,18 @@ document.querySelectorAll('input[type="file"][accept*=".webp"]').forEach((input)
   });
 });
 
+document.querySelectorAll("[data-ad-placement-select]").forEach((select) => {
+  const dimensions = select.closest("label")?.querySelector("[data-ad-placement-dimensions]");
+  if (!dimensions) return;
+
+  const updateDimensions = () => {
+    dimensions.textContent = select.selectedOptions[0]?.dataset.imageDimensions || "";
+  };
+
+  select.addEventListener("change", updateDimensions);
+  updateDimensions();
+});
+
 document.querySelectorAll("[data-confirm]").forEach((form) => {
   form.addEventListener("submit", (event) => {
     if (!confirm(form.dataset.confirm)) event.preventDefault();
@@ -3169,3 +3181,101 @@ document.querySelectorAll("[data-rename-wheel]").forEach((button) => {
     location.reload();
   });
 });
+
+const footerLinksEditor = document.querySelector("[data-footer-links-editor]");
+
+if (footerLinksEditor) {
+  const rowsContainer = footerLinksEditor.querySelector("[data-footer-links-rows]");
+  const rowTemplate = footerLinksEditor.querySelector("[data-footer-link-template]");
+  const addButton = footerLinksEditor.querySelector('[data-footer-link-action="add"]');
+  const emptyState = footerLinksEditor.querySelector("[data-footer-links-empty]");
+  const countLabel = footerLinksEditor.querySelector("[data-footer-links-count]");
+  const preview = footerLinksEditor.querySelector("[data-footer-links-preview]");
+  const previewEmpty = footerLinksEditor.querySelector("[data-footer-links-preview-empty]");
+  const visibleCount = footerLinksEditor.querySelector("[data-footer-links-visible-count]");
+  const maximumLinks = Number(footerLinksEditor.dataset.maxItems || 12);
+
+  const rows = () => [...rowsContainer.querySelectorAll("[data-footer-link-row]")];
+
+  const updatePreview = () => {
+    preview.replaceChildren();
+    let activeLinks = 0;
+
+    rows().forEach((row) => {
+      const activeInput = row.querySelector('[data-footer-link-field="is_active"]');
+      if (!activeInput?.checked) return;
+
+      const platformInput = row.querySelector('[data-footer-link-field="platform"]');
+      const labelInput = row.querySelector('[data-footer-link-field="label"]');
+      const previewItem = document.createElement("span");
+      const icon = document.createElement("i");
+
+      previewItem.className = "grid size-10 place-items-center rounded-xl border border-white/10 bg-white/5 text-slate-200";
+      previewItem.setAttribute("aria-label", labelInput?.value.trim() || "رابط الفوتر");
+      icon.className = platformInput?.selectedOptions[0]?.dataset.icon || "fa-solid fa-link";
+      icon.setAttribute("aria-hidden", "true");
+      previewItem.append(icon);
+      preview.append(previewItem);
+      activeLinks += 1;
+    });
+
+    visibleCount.textContent = String(activeLinks);
+    previewEmpty.classList.toggle("hidden", activeLinks > 0);
+  };
+
+  const synchronizeRows = () => {
+    const currentRows = rows();
+
+    currentRows.forEach((row, index) => {
+      row.querySelector("[data-footer-link-number]").textContent = String(index + 1);
+      row.querySelector('[data-footer-link-action="up"]').disabled = index === 0;
+      row.querySelector('[data-footer-link-action="down"]').disabled = index === currentRows.length - 1;
+
+      row.querySelectorAll("[data-footer-link-field]").forEach((field) => {
+        field.name = `footer_links[${index}][${field.dataset.footerLinkField}]`;
+      });
+      row.querySelectorAll("[data-footer-link-field-name]").forEach((field) => {
+        field.name = `footer_links[${index}][${field.dataset.footerLinkFieldName}]`;
+      });
+
+      const platformInput = row.querySelector('[data-footer-link-field="platform"]');
+      const icon = row.querySelector("[data-footer-link-icon]");
+      const labelInput = row.querySelector('[data-footer-link-field="label"]');
+      const title = row.querySelector("[data-footer-link-title]");
+
+      icon.className = platformInput?.selectedOptions[0]?.dataset.icon || "fa-solid fa-link";
+      title.textContent = labelInput?.value.trim() || "رابط جديد";
+    });
+
+    emptyState.classList.toggle("hidden", currentRows.length > 0);
+    countLabel.textContent = String(currentRows.length);
+    addButton.disabled = currentRows.length >= maximumLinks;
+    updatePreview();
+  };
+
+  footerLinksEditor.addEventListener("click", (event) => {
+    const actionButton = event.target.closest("[data-footer-link-action]");
+    if (!actionButton) return;
+
+    const action = actionButton.dataset.footerLinkAction;
+    const row = actionButton.closest("[data-footer-link-row]");
+
+    if (action === "add" && rows().length < maximumLinks) {
+      const newRow = rowTemplate.content.firstElementChild.cloneNode(true);
+      rowsContainer.append(newRow);
+      newRow.querySelector('[data-footer-link-field="label"]')?.focus();
+    } else if (action === "remove" && row) {
+      row.remove();
+    } else if (action === "up" && row?.previousElementSibling) {
+      rowsContainer.insertBefore(row, row.previousElementSibling);
+    } else if (action === "down" && row?.nextElementSibling) {
+      rowsContainer.insertBefore(row.nextElementSibling, row);
+    }
+
+    synchronizeRows();
+  });
+
+  footerLinksEditor.addEventListener("input", synchronizeRows);
+  footerLinksEditor.addEventListener("change", synchronizeRows);
+  synchronizeRows();
+}

@@ -2,24 +2,36 @@
 
 namespace App\Http\Controllers;
 
+use App\SeoPage;
+use App\Services\SeoManager;
 use Illuminate\Http\Response;
 
 class SitemapController extends Controller
 {
-    public function __invoke(): Response
+    public function __invoke(SeoManager $seoManager): Response
     {
-        $lastModified = now()->toAtomString();
-        $home = e(route('home'));
-        $wheel = e(route('tools.wheel'));
-        $qr = e(route('tools.qr'));
-        $certificates = e(route('tools.certificates'));
+        $urls = collect(SeoPage::cases())
+            ->map(function (SeoPage $page) use ($seoManager): ?string {
+                $seo = $seoManager->forPage($page);
+
+                if (! $seo->allow_indexing || ! $seo->include_in_sitemap) {
+                    return null;
+                }
+
+                $location = e($seo->canonical_url ?: route($page->routeName()));
+                $lastModified = $seo->updated_at?->toAtomString() ?? now()->toAtomString();
+                $changeFrequency = e($seo->sitemap_change_frequency);
+                $priority = number_format($seo->sitemap_priority, 1);
+
+                return "    <url><loc>{$location}</loc><lastmod>{$lastModified}</lastmod><changefreq>{$changeFrequency}</changefreq><priority>{$priority}</priority></url>";
+            })
+            ->filter()
+            ->implode("\n");
+
         $xml = <<<XML
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-    <url><loc>{$home}</loc><lastmod>{$lastModified}</lastmod><changefreq>weekly</changefreq><priority>1.0</priority></url>
-    <url><loc>{$wheel}</loc><lastmod>{$lastModified}</lastmod><changefreq>weekly</changefreq><priority>0.9</priority></url>
-    <url><loc>{$qr}</loc><lastmod>{$lastModified}</lastmod><changefreq>weekly</changefreq><priority>0.9</priority></url>
-    <url><loc>{$certificates}</loc><lastmod>{$lastModified}</lastmod><changefreq>weekly</changefreq><priority>0.9</priority></url>
+{$urls}
 </urlset>
 XML;
 

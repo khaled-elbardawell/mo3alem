@@ -1,8 +1,5 @@
 @extends('layouts.public', ['activeNavigation' => 'certificates'])
 
-@section('title', 'إنشاء شهادات احترافية')
-@section('canonical', route('tools.certificates'))
-
 @push('head')
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

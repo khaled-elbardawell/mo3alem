@@ -9,10 +9,11 @@ use App\Http\Resources\SavedWheelResource;
 use App\Models\Competition;
 use App\Models\DailyMetric;
 use App\Models\SavedWheel;
-use App\Models\SeoSetting;
 use App\Models\User;
+use App\SeoPage;
 use App\Services\AdCampaignSelector;
 use App\Services\MetricService;
+use App\Services\SeoManager;
 use App\Services\VisitorIdentity;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -27,6 +28,7 @@ class WheelController extends Controller
         Request $request,
         AdCampaignSelector $ads,
         MetricService $metrics,
+        SeoManager $seoManager,
         VisitorIdentity $visitors,
     ): View {
         $visitorIdentifier = $visitors->for($request);
@@ -51,12 +53,7 @@ class WheelController extends Controller
             $loadedWheel->forceFill(['last_opened_at' => now()])->save();
         }
 
-        $seoValues = Cache::remember('seo:home', 300, function (): array {
-            $seo = SeoSetting::query()->first() ?? new SeoSetting;
-
-            return $seo->getAttributes();
-        });
-        $seo = (new SeoSetting)->forceFill($seoValues);
+        $seo = $seoManager->forPage(SeoPage::Wheel);
         $publicStats = Cache::remember('public:stats', 300, fn (): array => [
             'users' => User::query()->count(),
             'wheels' => SavedWheel::query()->count(),

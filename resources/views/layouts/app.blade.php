@@ -7,33 +7,47 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="icon" href="{{ asset('assets/icon.png') }}" sizes="32x32">
-    <title>
-        @isset($seo)
-            @yield('title', $seo->title)
-        @else
-            @yield('title', 'لوحة التحكم') | معلم
-        @endisset
-    </title>
+    <title>@isset($seo){{ $seo->title }}@else @yield('title', 'لوحة التحكم') | معلم @endisset</title>
     @isset($seo)
+        @php
+            $canonicalUrl = $seo->canonical_url ?: url()->current();
+            $socialTitle = $seo->og_title ?: $seo->title;
+            $socialDescription = $seo->og_description ?: $seo->description;
+            $robots = ($seo->allow_indexing ? 'index' : 'noindex') . ',' . ($seo->allow_following ? 'follow' : 'nofollow');
+            $socialImageUrl = $seo->og_image_path ? Storage::disk('public')->url($seo->og_image_path) : null;
+        @endphp
         @if ($seo->description)
             <meta name="description" content="{{ $seo->description }}">
         @endif
         @if ($seo->keywords)
             <meta name="keywords" content="{{ $seo->keywords }}">
         @endif
-        <meta name="robots" content="{{ $seo->allow_indexing ? 'index,follow' : 'noindex,nofollow' }}">
-        <link rel="canonical" href="@yield('canonical', $seo->canonical_url ?: route('home'))">
+        <meta name="robots" content="{{ $robots }}">
+        <link rel="canonical" href="{{ $canonicalUrl }}">
         <meta property="og:type" content="website">
         <meta property="og:site_name" content="{{ $seo->site_name }}">
-        <meta property="og:title" content="@yield('title', $seo->title)">
-        @if ($seo->description)
-            <meta property="og:description" content="{{ $seo->description }}">
+        <meta property="og:title" content="{{ $socialTitle }}">
+        @if ($socialDescription)
+            <meta property="og:description" content="{{ $socialDescription }}">
         @endif
-        <meta property="og:url" content="@yield('canonical', $seo->canonical_url ?: route('home'))">
-        @if ($seo->og_image_path)
-            <meta property="og:image" content="{{ Storage::disk('public')->url($seo->og_image_path) }}">
+        <meta property="og:url" content="{{ $canonicalUrl }}">
+        @if ($socialImageUrl)
+            <meta property="og:image" content="{{ $socialImageUrl }}">
+            @if ($seo->og_image_alt)
+                <meta property="og:image:alt" content="{{ $seo->og_image_alt }}">
+            @endif
         @endif
         <meta name="twitter:card" content="{{ $seo->twitter_card }}">
+        <meta name="twitter:title" content="{{ $socialTitle }}">
+        @if ($socialDescription)
+            <meta name="twitter:description" content="{{ $socialDescription }}">
+        @endif
+        @if ($socialImageUrl)
+            <meta name="twitter:image" content="{{ $socialImageUrl }}">
+            @if ($seo->og_image_alt)
+                <meta name="twitter:image:alt" content="{{ $seo->og_image_alt }}">
+            @endif
+        @endif
     @endisset
 
 

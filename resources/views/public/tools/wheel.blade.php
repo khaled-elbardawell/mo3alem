@@ -1,8 +1,5 @@
 @extends('layouts.public', ['activeNavigation' => 'wheel'])
 
-@section('title', 'عجلة الأسماء العشوائية | معلم')
-@section('canonical', route('tools.wheel'))
-
 @section('content')
     <x-public.tool-page-header title="أداة عجلة الأسماء العشوائية"
         description="أضف الأسماء وأدر العجلة لاختيار اسم عشوائي بسرعة ووضوح داخل الصف." current="عجلة الأسماء"

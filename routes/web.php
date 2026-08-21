@@ -173,7 +173,10 @@ Route::prefix('admin')
             ->only(['index', 'create', 'store', 'edit', 'update']);
 
         Route::get('/analytics', Admin\AnalyticsController::class)->name('analytics');
+        Route::get('/settings', [Admin\SiteSettingController::class, 'edit'])->name('settings.edit');
+        Route::put('/settings/footer-links', [Admin\SiteSettingController::class, 'updateFooterLinks'])
+            ->name('settings.footer-links.update');
         Route::get('/seo', [Admin\SeoSettingController::class, 'edit'])->name('seo.edit');
-        Route::put('/seo', [Admin\SeoSettingController::class, 'update'])->name('seo.update');
+        Route::put('/seo/{page}', [Admin\SeoSettingController::class, 'update'])->name('seo.update');
         Route::get('/audit-logs', Admin\AuditLogController::class)->name('audit-logs');
     });

@@ -5,6 +5,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+     <link rel="icon" href="{{ asset('assets/icon.png') }}" sizes="32x32">
+
     <title>@yield('title', 'الإدارة') | معلم</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -52,6 +54,12 @@
             'active' => 'admin.analytics',
             'icon' => 'fa-chart-line',
             'label' => 'الإحصائيات',
+        ],
+        [
+            'route' => 'admin.settings.edit',
+            'active' => 'admin.settings.*',
+            'icon' => 'fa-sliders',
+            'label' => 'إعدادات الموقع',
         ],
         [
             'route' => 'admin.seo.edit',
@@ -205,6 +213,7 @@
             @yield('content')
         </div>
     </main>
+    @stack('scripts')
 </body>
 
 </html>
