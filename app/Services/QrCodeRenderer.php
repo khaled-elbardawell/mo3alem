@@ -6,7 +6,6 @@ use BaconQrCode\Common\ErrorCorrectionLevel;
 use BaconQrCode\Exception\WriterException;
 use BaconQrCode\Renderer\Color\Rgb;
 use BaconQrCode\Renderer\Eye\EyeInterface;
-use BaconQrCode\Renderer\Eye\SimpleCircleEye;
 use BaconQrCode\Renderer\Eye\SquareEye;
 use BaconQrCode\Renderer\Image\SvgImageBackEnd;
 use BaconQrCode\Renderer\ImageRenderer;
@@ -55,7 +54,7 @@ class QrCodeRenderer
     private function shapes(string $style): array
     {
         return match ($style) {
-            'dots' => [new DotsModule(DotsModule::MEDIUM), SimpleCircleEye::instance()],
+            'dots' => [new DotsModule(DotsModule::MEDIUM), new RoundedSquareEye],
             'rounded' => $this->roundedShapes(),
             default => [SquareModule::instance(), SquareEye::instance()],
         };

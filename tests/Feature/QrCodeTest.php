@@ -73,6 +73,22 @@ test('the rounded qr style curves modules and all finder pattern corners', funct
         ->not->toContain('A0.35 0.35');
 });
 
+test('the dots qr style keeps dotted modules and rounds all finder pattern corners', function () {
+    $renderer = app(QrCodeRenderer::class);
+    $dotsSvg = $renderer->render('https://example.com/dots', [
+        ...qrPayload()['design'],
+        'style' => 'dots',
+    ]);
+
+    expect($dotsSvg)
+        ->toContain('A0.4 0.4')
+        ->toContain('A1.15 1.15')
+        ->toContain('A0.85 0.85')
+        ->toContain('A0.6 0.6')
+        ->not->toContain('A0.35 0.35')
+        ->not->toContain('M-3.5 -3.5L3.5 -3.5L3.5 3.5L-3.5 3.5Z');
+});
+
 test('a verified user can save update and delete an encrypted qr design', function () {
     $user = User::factory()->create();
 

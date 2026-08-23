@@ -756,7 +756,6 @@ if (certificateConfigElement) {
 
   function deleteSelectedElement() {
     if (!selectedElementId) return;
-    if (!confirm("هل تريد حذف هذا العنصر النصي؟ لا يمكن التراجع عن الحذف بعد حفظ الشهادة.")) return;
 
     design.elements = design.elements.filter((element) => element.id !== selectedElementId);
     selectedElementId = null;

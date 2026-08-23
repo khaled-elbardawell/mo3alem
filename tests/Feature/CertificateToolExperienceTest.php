@@ -168,7 +168,7 @@ test('selected certificate text exposes contextual lock copy and delete actions'
         ->toContain('--certificate-actions-scale')
         ->toContain('toggleElementLock')
         ->toContain('نسخ العنصر')
-        ->toContain('هل تريد حذف هذا العنصر النصي؟')
+        ->not->toContain('هل تريد حذف هذا العنصر النصي؟')
         ->and($styles)
         ->toContain('.certificate-element-actions.is-visible')
         ->toContain('.certificate-element-action.is-danger:hover')
