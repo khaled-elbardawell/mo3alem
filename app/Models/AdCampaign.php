@@ -37,6 +37,13 @@ class AdCampaign extends Model
             ->where(fn (Builder $query) => $query->whereNull('ends_at')->orWhere('ends_at', '>=', now()));
     }
 
+    public function safeTargetUrl(): string
+    {
+        $scheme = parse_url($this->target_url, PHP_URL_SCHEME);
+
+        return in_array($scheme, ['http', 'https'], true) ? $this->target_url : '#';
+    }
+
     protected function casts(): array
     {
         return [

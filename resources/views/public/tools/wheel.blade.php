@@ -14,11 +14,12 @@
         <div id="wheel">
             @if ($campaigns['top'])
                 <section
-                    class="h-banner mx-auto w-[min(calc(100%_-_44px),1040px)] max-[620px]:w-[min(calc(100%_-_28px),1040px)]">
-                    <a class="ad-link ad-link--top mt-[18px] block overflow-hidden rounded-[18px] leading-none shadow-[0_18px_50px_rgba(76,29,149,0.08)] max-[900px]:mt-3 [&_img]:block [&_img]:h-full [&_img]:w-full [&_img]:object-cover"
-                        href="{{ route('ads.click', $campaigns['top']) }}"
-                        data-ad-impression-url="{{ route('ads.impression', $campaigns['top']) }}" target="_blank"
-                        rel="noopener noreferrer sponsored" aria-label="{{ $campaigns['top']->alt_text }}">
+                    class="media-strip mx-auto w-[min(calc(100%_-_44px),1040px)] max-[620px]:w-[min(calc(100%_-_28px),1040px)]">
+                    <a class="media-card-link media-card-link--wide mt-[18px] block overflow-hidden rounded-[18px] leading-none shadow-[0_18px_50px_rgba(76,29,149,0.08)] max-[900px]:mt-3 [&_img]:block [&_img]:h-full [&_img]:w-full [&_img]:object-cover"
+                        href="{{ $campaigns['top']->safeTargetUrl() }}"
+                        data-open-endpoint="{{ route('ads.click', $campaigns['top']) }}"
+                        data-view-endpoint="{{ route('ads.impression', $campaigns['top']) }}" target="_blank"
+                        rel="noopener noreferrer sponsored">
                         <img src="{{ Storage::disk('public')->url($campaigns['top']->image_path) }}"
                             alt="{{ $campaigns['top']->alt_text }}" fetchpriority="high" />
                     </a>
@@ -109,11 +110,12 @@
                 ],
             ]) aria-label="تطبيق العجلة">
                 @if ($campaigns['side'])
-                    <aside class="side-ad-card rounded-[22px] max-[1180px]:col-span-full max-[900px]:order-3">
-                        <a class="ad-link ad-link--side block overflow-hidden rounded-[18px] border border-[#e7e2f0] bg-white leading-none shadow-[0_18px_50px_rgba(76,29,149,0.08)] max-[1180px]:max-h-[220px] max-[900px]:max-h-[260px] max-[620px]:max-h-none [&_img]:block [&_img]:h-full [&_img]:w-full [&_img]:object-cover"
-                            href="{{ route('ads.click', $campaigns['side']) }}"
-                            data-ad-impression-url="{{ route('ads.impression', $campaigns['side']) }}" target="_blank"
-                            rel="noopener noreferrer sponsored" aria-label="{{ $campaigns['side']->alt_text }}">
+                    <aside class="side-media-card rounded-[22px] max-[1180px]:col-span-full max-[900px]:order-3">
+                        <a class="media-card-link media-card-link--side block overflow-hidden rounded-[18px] border border-[#e7e2f0] bg-white leading-none shadow-[0_18px_50px_rgba(76,29,149,0.08)] max-[1180px]:max-h-[220px] max-[900px]:max-h-[260px] max-[620px]:max-h-none [&_img]:block [&_img]:h-full [&_img]:w-full [&_img]:object-cover"
+                            href="{{ $campaigns['side']->safeTargetUrl() }}"
+                            data-open-endpoint="{{ route('ads.click', $campaigns['side']) }}"
+                            data-view-endpoint="{{ route('ads.impression', $campaigns['side']) }}" target="_blank"
+                            rel="noopener noreferrer sponsored">
                             <img src="{{ Storage::disk('public')->url($campaigns['side']->image_path) }}"
                                 alt="{{ $campaigns['side']->alt_text }}" loading="lazy" />
                         </a>
@@ -664,11 +666,12 @@
 
             @if ($campaigns['bottom'])
                 <section
-                    class="h-banner mx-auto w-[min(calc(100%_-_44px),1040px)] max-[620px]:w-[min(calc(100%_-_28px),1040px)]">
-                    <a class="ad-link ad-link--top mt-[18px] block overflow-hidden rounded-[18px] leading-none shadow-[0_18px_50px_rgba(76,29,149,0.08)] max-[900px]:mt-3 [&_img]:block [&_img]:h-full [&_img]:w-full [&_img]:object-cover"
-                        href="{{ route('ads.click', $campaigns['bottom']) }}"
-                        data-ad-impression-url="{{ route('ads.impression', $campaigns['bottom']) }}" target="_blank"
-                        rel="noopener noreferrer sponsored" aria-label="{{ $campaigns['bottom']->alt_text }}">
+                    class="media-strip mx-auto w-[min(calc(100%_-_44px),1040px)] max-[620px]:w-[min(calc(100%_-_28px),1040px)]">
+                    <a class="media-card-link media-card-link--wide mt-[18px] block overflow-hidden rounded-[18px] leading-none shadow-[0_18px_50px_rgba(76,29,149,0.08)] max-[900px]:mt-3 [&_img]:block [&_img]:h-full [&_img]:w-full [&_img]:object-cover"
+                        href="{{ $campaigns['bottom']->safeTargetUrl() }}"
+                        data-open-endpoint="{{ route('ads.click', $campaigns['bottom']) }}"
+                        data-view-endpoint="{{ route('ads.impression', $campaigns['bottom']) }}" target="_blank"
+                        rel="noopener noreferrer sponsored">
                         <img src="{{ Storage::disk('public')->url($campaigns['bottom']->image_path) }}"
                             alt="{{ $campaigns['bottom']->alt_text }}" loading="lazy" />
                     </a>

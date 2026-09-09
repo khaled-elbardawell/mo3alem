@@ -5,6 +5,7 @@ use App\AdPlacement;
 use App\Models\AdCampaign;
 use App\Models\Certificate;
 use App\Models\User;
+use Illuminate\Support\Facades\Storage;
 
 test('the certificate tool presents templates upload editing preview and print controls', function () {
     $response = $this->get(route('tools.certificates'))
@@ -71,11 +72,15 @@ test('top side and bottom campaigns appear in the certificate tool', function ()
         ]),
     ]);
 
-    $response = $this->get(route('tools.certificates'))->assertSuccessful();
+    $response = $this->get(route('tools.certificates'))
+        ->assertSuccessful()
+        ->assertDontSee('aria-label="إعلان', false);
 
     $campaigns->each(fn (AdCampaign $campaign) => $response
+        ->assertSee('href="'.$campaign->target_url.'"', false)
         ->assertSee(route('ads.click', $campaign), false)
-        ->assertSee(route('ads.impression', $campaign), false));
+        ->assertSee(route('ads.impression', $campaign), false)
+        ->assertSee(Storage::disk('public')->url($campaign->image_path), false));
 });
 
 test('a saved certificate can be reopened in the editor only by its owner', function () {

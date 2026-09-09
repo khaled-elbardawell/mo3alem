@@ -5,6 +5,7 @@ use App\AdPlacement;
 use App\Models\AdCampaign;
 use App\Models\QrCode;
 use App\Models\User;
+use Illuminate\Support\Facades\Storage;
 
 test('the qr tool presents an easy guest flow and all customization controls', function () {
     $response = $this->get(route('tools.qr'))
@@ -79,11 +80,15 @@ test('top side and bottom campaigns appear in the qr tool', function () {
         ]),
     ]);
 
-    $response = $this->get(route('tools.qr'))->assertSuccessful();
+    $response = $this->get(route('tools.qr'))
+        ->assertSuccessful()
+        ->assertDontSee('aria-label="إعلان', false);
 
     $campaigns->each(fn (AdCampaign $campaign) => $response
+        ->assertSee('href="'.$campaign->target_url.'"', false)
         ->assertSee(route('ads.click', $campaign), false)
-        ->assertSee(route('ads.impression', $campaign), false));
+        ->assertSee(route('ads.impression', $campaign), false)
+        ->assertSee(Storage::disk('public')->url($campaign->image_path), false));
 });
 
 test('a saved qr can be reopened in the editor by its owner', function () {

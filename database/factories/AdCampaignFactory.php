@@ -21,7 +21,7 @@ class AdCampaignFactory extends Factory
     {
         return [
             'title' => fake()->words(3, true),
-            'image_path' => 'ads/example.webp',
+            'image_path' => 'campaign-media/example.webp',
             'target_url' => fake()->url(),
             'alt_text' => fake()->sentence(5),
             'placement' => fake()->randomElement(AdPlacement::cases()),

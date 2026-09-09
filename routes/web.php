@@ -47,10 +47,10 @@ Route::get('/tools/certificates/auth/{action}', CertificateAuthRedirectControlle
     ->name('tools.certificates.auth');
 Route::get('/sitemap.xml', SitemapController::class)->name('sitemap');
 Route::get('/robots.txt', RobotsController::class)->name('robots');
-Route::get('/ads/{adCampaign}/click', AdClickController::class)
+Route::post('/c/{adCampaign}/open', AdClickController::class)
     ->middleware('throttle:120,1')
     ->name('ads.click');
-Route::post('/ads/{adCampaign}/impression', AdImpressionController::class)
+Route::post('/c/{adCampaign}/view', AdImpressionController::class)
     ->middleware('throttle:120,1')
     ->name('ads.impression');
 Route::post('/activity-metrics', ActivityMetricController::class)

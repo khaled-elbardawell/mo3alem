@@ -1,16 +1,26 @@
 import "./qr-tool";
 import "./certificate-tool";
 
-function setupAdImpressionTracking() {
-  const advertisements = [...document.querySelectorAll("[data-ad-impression-url]")];
+function setupCampaignTracking() {
+  const placements = [...document.querySelectorAll("[data-view-endpoint]")];
 
-  if (!advertisements.length) return;
+  if (!placements.length) return;
 
   const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || "";
   const visibilityTimers = new WeakMap();
 
-  const isHalfVisible = (advertisement) => {
-    const rectangle = advertisement.getBoundingClientRect();
+  const postEngagement = (endpoint) => fetch(endpoint, {
+    method: "POST",
+    credentials: "same-origin",
+    keepalive: true,
+    headers: {
+      Accept: "application/json",
+      "X-CSRF-TOKEN": csrfToken
+    }
+  });
+
+  const isHalfVisible = (placement) => {
+    const rectangle = placement.getBoundingClientRect();
     const visibleWidth = Math.max(
       0,
       Math.min(rectangle.right, window.innerWidth) - Math.max(rectangle.left, 0)
@@ -19,38 +29,38 @@ function setupAdImpressionTracking() {
       0,
       Math.min(rectangle.bottom, window.innerHeight) - Math.max(rectangle.top, 0)
     );
-    const advertisementArea = rectangle.width * rectangle.height;
+    const placementArea = rectangle.width * rectangle.height;
 
-    return advertisementArea > 0
-      && (visibleWidth * visibleHeight) / advertisementArea >= 0.5;
+    return placementArea > 0
+      && (visibleWidth * visibleHeight) / placementArea >= 0.5;
   };
 
-  const clearVisibilityTimer = (advertisement) => {
-    const timer = visibilityTimers.get(advertisement);
+  const clearVisibilityTimer = (placement) => {
+    const timer = visibilityTimers.get(placement);
 
     if (timer) {
       window.clearTimeout(timer);
-      visibilityTimers.delete(advertisement);
+      visibilityTimers.delete(placement);
     }
   };
 
-  const scheduleImpression = (advertisement, observer) => {
+  const scheduleView = (placement, observer) => {
     if (
-      advertisement.dataset.adImpressionState
-      || visibilityTimers.has(advertisement)
-      || !isHalfVisible(advertisement)
+      placement.dataset.viewState
+      || visibilityTimers.has(placement)
+      || !isHalfVisible(placement)
     ) {
       return;
     }
 
-    const image = advertisement.querySelector("img");
+    const image = placement.querySelector("img");
 
     if (image && (!image.complete || image.naturalWidth === 0)) {
-      if (!image.dataset.adImpressionLoadListener) {
-        image.dataset.adImpressionLoadListener = "waiting";
+      if (!image.dataset.viewLoadListener) {
+        image.dataset.viewLoadListener = "waiting";
         image.addEventListener("load", () => {
-          image.dataset.adImpressionLoadListener = "loaded";
-          scheduleImpression(advertisement, observer);
+          image.dataset.viewLoadListener = "loaded";
+          scheduleView(placement, observer);
         }, { once: true });
       }
 
@@ -58,44 +68,42 @@ function setupAdImpressionTracking() {
     }
 
     const timer = window.setTimeout(() => {
-      visibilityTimers.delete(advertisement);
+      visibilityTimers.delete(placement);
 
-      if (document.visibilityState === "visible" && isHalfVisible(advertisement)) {
-        recordImpression(advertisement, observer);
+      if (document.visibilityState === "visible" && isHalfVisible(placement)) {
+        recordView(placement, observer);
       }
     }, 1000);
 
-    visibilityTimers.set(advertisement, timer);
+    visibilityTimers.set(placement, timer);
   };
 
-  const recordImpression = async (advertisement, observer = null) => {
-    if (advertisement.dataset.adImpressionState) return;
+  const recordView = async (placement, observer = null) => {
+    if (placement.dataset.viewState) return;
 
-    clearVisibilityTimer(advertisement);
-    advertisement.dataset.adImpressionState = "pending";
+    clearVisibilityTimer(placement);
+    placement.dataset.viewState = "pending";
 
     try {
-      const response = await fetch(advertisement.dataset.adImpressionUrl, {
-        method: "POST",
-        credentials: "same-origin",
-        keepalive: true,
-        headers: {
-          Accept: "application/json",
-          "X-CSRF-TOKEN": csrfToken
-        }
-      });
+      const response = await postEngagement(placement.dataset.viewEndpoint);
 
-      if (!response.ok) throw new Error("Advertising impression was not recorded.");
+      if (!response.ok) throw new Error("Campaign view was not recorded.");
 
-      advertisement.dataset.adImpressionState = "recorded";
-      observer?.unobserve(advertisement);
+      placement.dataset.viewState = "recorded";
+      observer?.unobserve(placement);
     } catch (_) {
-      delete advertisement.dataset.adImpressionState;
+      delete placement.dataset.viewState;
     }
   };
 
+  placements.forEach((placement) => {
+    placement.addEventListener("click", () => {
+      postEngagement(placement.dataset.openEndpoint).catch(() => {});
+    });
+  });
+
   if (!("IntersectionObserver" in window)) {
-    advertisements.forEach((advertisement) => recordImpression(advertisement));
+    placements.forEach((placement) => recordView(placement));
     return;
   }
 
@@ -106,18 +114,18 @@ function setupAdImpressionTracking() {
         return;
       }
 
-      scheduleImpression(entry.target, observer);
+      scheduleView(entry.target, observer);
     });
   }, {
     threshold: [0, 0.5]
   });
 
-  advertisements.forEach((advertisement) => {
-    observer.observe(advertisement);
+  placements.forEach((placement) => {
+    observer.observe(placement);
   });
 }
 
-setupAdImpressionTracking();
+setupCampaignTracking();
 
 function setupPublicScrollSpy() {
   const navigationLinks = [...document.querySelectorAll("[data-scrollspy-target]")];
@@ -2685,7 +2693,7 @@ function isInteractiveElement(element) {
 
 function setupScrollAnimations() {
   const animatedElements = document.querySelectorAll([
-    ".ad-link",
+    ".media-card-link",
     ".wheel-toolbar",
     ".wheel-stage",
     ".names-panel",

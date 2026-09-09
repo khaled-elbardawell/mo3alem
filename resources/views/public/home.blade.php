@@ -58,7 +58,7 @@
     </section>
 
     @if($campaigns['top'])
-        <section class="mx-auto w-[min(calc(100%_-_2rem),1040px)] py-6" aria-label="إعلان علوي">
+        <section class="mx-auto w-[min(calc(100%_-_2rem),1040px)] py-6">
             <x-public.advertisement :campaign="$campaigns['top']" />
         </section>
     @endif
@@ -219,7 +219,7 @@
     </section>
 
     @if($campaigns['bottom'])
-        <section class="mx-auto w-[min(calc(100%_-_2rem),1040px)] pb-16" aria-label="إعلان سفلي">
+        <section class="mx-auto w-[min(calc(100%_-_2rem),1040px)] pb-16">
             <x-public.advertisement :campaign="$campaigns['bottom']" placement="bottom" />
         </section>
     @endif

@@ -43,18 +43,18 @@ test('an eligible campaign is displayed and unique impressions and clicks are co
 
     $this->get(route('home'))
         ->assertSuccessful()
+        ->assertSee('href="https://example.com/offer"', false)
         ->assertSee(route('ads.click', $campaign), false)
-        ->assertSee(route('ads.impression', $campaign), false);
+        ->assertSee(route('ads.impression', $campaign), false)
+        ->assertSee(Storage::disk('public')->url($campaign->image_path), false);
 
     expect(AdDailyStat::query()->whereBelongsTo($campaign, 'campaign')->value('impressions'))->toBeNull();
 
     $this->post(route('ads.impression', $campaign))->assertNoContent();
     $this->post(route('ads.impression', $campaign))->assertNoContent();
 
-    $this->get(route('ads.click', $campaign))
-        ->assertRedirect('https://example.com/offer');
-    $this->get(route('ads.click', $campaign))
-        ->assertRedirect('https://example.com/offer');
+    $this->post(route('ads.click', $campaign))->assertNoContent();
+    $this->post(route('ads.click', $campaign))->assertNoContent();
 
     $stats = AdDailyStat::query()->whereBelongsTo($campaign, 'campaign')->firstOrFail();
     $dailyMetrics = DailyMetric::query()->where('date', today()->toDateString())->firstOrFail();
@@ -99,7 +99,28 @@ test('no unmanaged fallback advertisement is shown when no campaign is eligible'
     $this->get(route('home'))
         ->assertSuccessful()
         ->assertDontSee('المعرفة وراء الأدوات')
-        ->assertDontSee('data-ad-impression-url', false);
+        ->assertDontSee('data-view-endpoint', false);
+});
+
+test('public campaign markup avoids common blocking signatures', function () {
+    $campaign = AdCampaign::factory()->create([
+        'placement' => AdPlacement::Top,
+        'status' => AdCampaignStatus::Active,
+    ]);
+
+    $content = $this->get(route('home'))->assertSuccessful()->getContent();
+
+    expect($content)
+        ->not->toContain('/ads/')
+        ->not->toContain('ad-link')
+        ->not->toContain('data-ad-')
+        ->not->toContain('aria-label="إعلان')
+        ->not->toContain('aria-label="'.e($campaign->alt_text).'"')
+        ->not->toContain('absolute top-2 right-2 z-10 rounded-full')
+        ->toContain('media-card-link')
+        ->toContain('data-open-endpoint')
+        ->toContain('data-view-endpoint')
+        ->toContain(Storage::disk('public')->url($campaign->image_path));
 });
 
 test('a bottom campaign is rendered before the frequently asked questions', function () {
@@ -148,7 +169,33 @@ test('expired campaigns reject impressions and clicks', function () {
     ]);
 
     $this->post(route('ads.impression', $campaign))->assertNotFound();
-    $this->get(route('ads.click', $campaign))->assertNotFound();
+    $this->post(route('ads.click', $campaign))->assertNotFound();
+});
+
+test('campaign media uses a direct neutral public storage URL', function () {
+    $campaign = AdCampaign::factory()->create([
+        'placement' => AdPlacement::Top,
+        'image_path' => 'campaign-media/example.webp',
+        'status' => AdCampaignStatus::Active,
+    ]);
+
+    $this->get(route('home'))
+        ->assertSuccessful()
+        ->assertSee(Storage::disk('public')->url($campaign->image_path), false)
+        ->assertDontSee("/c/{$campaign->id}/media", false);
+});
+
+test('legacy campaign media can be copied to the neutral storage directory', function () {
+    Storage::fake('public');
+    Storage::disk('public')->put('ads/legacy.gif', base64_decode('R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw=='));
+
+    $campaign = AdCampaign::factory()->create(['image_path' => 'ads/legacy.gif']);
+
+    $this->artisan('campaign-media:migrate')->assertSuccessful();
+
+    expect($campaign->refresh()->image_path)->toBe('campaign-media/legacy.gif');
+    Storage::disk('public')->assertExists('campaign-media/legacy.gif');
+    Storage::disk('public')->assertExists('ads/legacy.gif');
 });
 
 test('page seo settings are rendered and noindex pages are removed from the sitemap', function () {
@@ -223,6 +270,7 @@ test('administrators can create and replace advertising campaign gif images', fu
 
     $campaign = AdCampaign::query()->latest('id')->firstOrFail();
     $originalImagePath = $campaign->image_path;
+    expect($originalImagePath)->toStartWith('campaign-media/');
     Storage::disk('public')->assertExists($originalImagePath);
 
     $this->actingAs($admin)

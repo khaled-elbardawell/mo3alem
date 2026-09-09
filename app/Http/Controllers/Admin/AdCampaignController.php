@@ -43,7 +43,7 @@ class AdCampaignController extends Controller
     ): RedirectResponse {
         $data = $request->safe()->except('image');
         $data = $this->utcDates($data);
-        $data['image_path'] = $request->file('image')->store('ads', 'public');
+        $data['image_path'] = $request->file('image')->store('campaign-media', 'public');
         $campaign = AdCampaign::query()->create($data);
         $audit->record($request, 'ad-campaign.created', $campaign, null, $campaign->toArray());
 
@@ -71,7 +71,7 @@ class AdCampaignController extends Controller
 
         if ($request->hasFile('image')) {
             $oldImage = $adCampaign->image_path;
-            $data['image_path'] = $request->file('image')->store('ads', 'public');
+            $data['image_path'] = $request->file('image')->store('campaign-media', 'public');
         }
 
         $adCampaign->update($data);
