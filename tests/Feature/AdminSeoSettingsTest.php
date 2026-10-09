@@ -18,6 +18,7 @@ test('administrators can manage seo settings for every public page', function ()
         ->assertSee('الصفحة الرئيسية')
         ->assertSee('عجلة الأسماء')
         ->assertSee('إنشاء رمز QR')
+        ->assertSee('اختصار الروابط')
         ->assertSee('إنشاء الشهادات')
         ->assertSee('إنشاء رمز QR احترافي | معلم');
 });

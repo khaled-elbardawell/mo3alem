@@ -72,6 +72,22 @@ class AppServiceProvider extends ServiceProvider
             ];
         });
 
+        RateLimiter::for('short-link-creation', function (Request $request): array {
+            $userIdentifier = $request->user()?->getAuthIdentifier() ?? $request->ip();
+
+            return [
+                Limit::perMinute(10)->by("minute:{$userIdentifier}"),
+                Limit::perDay(100)->by("day:{$userIdentifier}"),
+            ];
+        });
+
+        RateLimiter::for('short-link-redirect', function (Request $request): array {
+            return [
+                Limit::perMinute(120)->by('minute:'.$request->ip()),
+                Limit::perHour(2000)->by('hour:'.$request->ip()),
+            ];
+        });
+
         RateLimiter::for('certificate-creation', function (Request $request): array {
             $userIdentifier = $request->user()?->getAuthIdentifier() ?? $request->ip();
 

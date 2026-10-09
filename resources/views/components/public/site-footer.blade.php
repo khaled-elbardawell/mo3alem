@@ -24,6 +24,7 @@
                 <div class="mt-4 grid gap-3 text-sm font-medium text-slate-300">
                     <a class="hover:text-white" href="{{ route('tools.wheel') }}">عجلة الأسماء</a>
                     <a class="hover:text-white" href="{{ route('tools.qr') }}">إنشاء QR</a>
+                    <a class="hover:text-white" href="{{ route('tools.short-url') }}">اختصار الروابط</a>
                     <a class="hover:text-white" href="{{ route('tools.certificates') }}">إنشاء الشهادات</a>
                 </div>
             </div>

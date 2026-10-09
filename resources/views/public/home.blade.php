@@ -72,7 +72,7 @@
             </div>
 
             <div @class(['mt-10 grid gap-5', 'lg:grid-cols-[1fr_260px]' => $campaigns['side']])>
-                <div class="grid items-start gap-5 sm:grid-cols-2 xl:grid-cols-3" data-reveal-group>
+                <div class="grid items-start gap-5 sm:grid-cols-2 xl:grid-cols-4" data-reveal-group>
                     <a class="group flex h-fit flex-col rounded-2xl border border-violet-200 bg-white p-4 shadow-[0_16px_50px_rgba(49,46,129,0.08)] transition-[transform,box-shadow,border-color] hover:-translate-y-1 hover:border-violet-300 hover:shadow-[0_24px_65px_rgba(76,29,149,0.14)] focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-violet-600" href="{{ route('tools.wheel') }}" data-tool-card="wheel" data-reveal data-lift-card>
                         <div class="flex items-center gap-3">
                             <span class="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-violet-100 text-xl text-violet-700"><i class="fa-solid fa-dharmachakra" aria-hidden="true"></i></span>
@@ -96,6 +96,25 @@
                         <p class="mt-2.5 text-sm font-medium leading-7 text-slate-500">حوّل الروابط والنصوص إلى رمز QR مخصص بالألوان والشعار، جاهز للطباعة والمشاركة.</p>
                         <div class="mt-3 mb-3 grid h-32 shrink-0 place-items-center overflow-hidden rounded-xl bg-slate-50/70 p-2 sm:h-36">
                             <img class="block h-auto max-h-28 w-auto max-w-full object-contain transition-transform duration-300 group-hover:scale-[1.03] sm:max-h-32" src="{{ asset('assets/qr-small-card.png') }}" alt="واجهة أداة إنشاء رمز QR" loading="lazy">
+                        </div>
+                        <span class="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-xl bg-violet-700 px-5 font-black text-white transition-colors group-hover:bg-violet-800">
+                            استخدم الأداة
+                            <i class="fa-solid fa-arrow-left text-xs" aria-hidden="true"></i>
+                        </span>
+                    </a>
+
+                    <a class="group flex h-fit flex-col rounded-2xl border border-violet-100 bg-white p-4 shadow-[0_16px_50px_rgba(49,46,129,0.06)] transition-[transform,box-shadow,border-color] hover:-translate-y-1 hover:border-violet-300 hover:shadow-[0_24px_65px_rgba(76,29,149,0.14)] focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-violet-600" href="{{ route('tools.short-url') }}" data-tool-card="short-url" data-reveal data-lift-card>
+                        <div class="flex items-center gap-3">
+                            <span class="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-emerald-100 text-xl text-emerald-700"><i class="fa-solid fa-link" aria-hidden="true"></i></span>
+                            <h3 class="text-lg font-black text-[#111a35]">اختصار الروابط</h3>
+                        </div>
+                        <p class="mt-2.5 text-sm font-medium leading-7 text-slate-500">أنشئ رابطًا قصيرًا بمقطع مخصص، وحمّل QR وتابع الزيارات بسهولة.</p>
+                        <div class="mt-3 mb-3 grid h-32 shrink-0 place-items-center overflow-hidden rounded-xl bg-linear-to-br from-emerald-50 to-violet-50 p-4 sm:h-36">
+                            <div class="w-full max-w-52 rounded-2xl border border-white bg-white p-3 shadow-lg transition-transform duration-300 group-hover:scale-[1.03]">
+                                <div class="flex items-center gap-2 text-xs font-black text-slate-400"><i class="fa-solid fa-link text-emerald-600" aria-hidden="true"></i> الرابط المختصر</div>
+                                <div class="mt-2 rounded-lg bg-violet-50 px-3 py-2 text-left text-sm font-black text-violet-700" dir="ltr">/short/my-class</div>
+                                <div class="mt-3 flex gap-1.5" aria-hidden="true"><span class="h-2 flex-1 rounded-full bg-emerald-200"></span><span class="h-2 w-10 rounded-full bg-violet-200"></span></div>
+                            </div>
                         </div>
                         <span class="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-xl bg-violet-700 px-5 font-black text-white transition-colors group-hover:bg-violet-800">
                             استخدم الأداة

@@ -1,5 +1,6 @@
 import "./qr-tool";
 import "./certificate-tool";
+import "./short-links";
 
 function setupCampaignTracking() {
   const placements = [...document.querySelectorAll("[data-view-endpoint]")];

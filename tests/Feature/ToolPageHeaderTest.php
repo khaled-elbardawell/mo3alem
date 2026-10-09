@@ -12,5 +12,6 @@ test('each public tool starts with the shared compact page header', function (st
 })->with([
     'wheel' => ['tools.wheel', 'أداة عجلة الأسماء العشوائية', 'عجلة الأسماء', 'fa-dharmachakra'],
     'qr' => ['tools.qr', 'أداة إنشاء رمز QR', 'إنشاء رمز QR', 'fa-qrcode'],
+    'short-url' => ['tools.short-url', 'أداة اختصار الروابط', 'اختصار الروابط', 'fa-link'],
     'certificates' => ['tools.certificates', 'أداة إنشاء الشهادات', 'إنشاء الشهادات', 'fa-award'],
 ]);

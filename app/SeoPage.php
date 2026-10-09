@@ -7,6 +7,7 @@ enum SeoPage: string
     case Home = 'home';
     case Wheel = 'wheel';
     case Qr = 'qr';
+    case ShortUrl = 'short_url';
     case Certificates = 'certificates';
 
     public function label(): string
@@ -15,6 +16,7 @@ enum SeoPage: string
             self::Home => 'الصفحة الرئيسية',
             self::Wheel => 'عجلة الأسماء',
             self::Qr => 'إنشاء رمز QR',
+            self::ShortUrl => 'اختصار الروابط',
             self::Certificates => 'إنشاء الشهادات',
         };
     }
@@ -25,6 +27,7 @@ enum SeoPage: string
             self::Home => 'واجهة المنصة ونقطة الدخول الرئيسية للزوار.',
             self::Wheel => 'أداة الاختيار العشوائي وعجلة الأسماء.',
             self::Qr => 'أداة إنشاء وتصميم رموز QR.',
+            self::ShortUrl => 'أداة اختصار الروابط وإنشاء QR وتتبع الزيارات.',
             self::Certificates => 'أداة تصميم الشهادات وطباعتها.',
         };
     }
@@ -35,6 +38,7 @@ enum SeoPage: string
             self::Home => 'fa-house',
             self::Wheel => 'fa-dharmachakra',
             self::Qr => 'fa-qrcode',
+            self::ShortUrl => 'fa-link',
             self::Certificates => 'fa-award',
         };
     }
@@ -45,6 +49,7 @@ enum SeoPage: string
             self::Home => 'home',
             self::Wheel => 'tools.wheel',
             self::Qr => 'tools.qr',
+            self::ShortUrl => 'tools.short-url',
             self::Certificates => 'tools.certificates',
         };
     }
@@ -73,6 +78,7 @@ enum SeoPage: string
             self::Home => 'معلم | أدوات ذكية لكل معلم',
             self::Wheel => 'عجلة الأسماء العشوائية | معلم',
             self::Qr => 'إنشاء رمز QR احترافي | معلم',
+            self::ShortUrl => 'اختصار الروابط وإنشاء QR | معلم',
             self::Certificates => 'إنشاء شهادات احترافية | معلم',
         };
     }
@@ -83,6 +89,7 @@ enum SeoPage: string
             self::Home => 'منصة أدوات تعليمية عربية تساعد المعلم على إنشاء الأنشطة ورموز QR والشهادات بسهولة واحترافية.',
             self::Wheel => 'أضف الأسماء وأدر عجلة الأسماء العشوائية لاختيار اسم بسرعة ووضوح داخل الصف.',
             self::Qr => 'أنشئ رمز QR احترافياً وخصص تصميمه ثم نزّله أو احفظه في حسابك بسهولة.',
+            self::ShortUrl => 'اختصر روابطك بمقطع مخصص، أنشئ رمز QR، وتابع الزيارات بإحصائيات تحافظ على الخصوصية.',
             self::Certificates => 'صمم شهادات احترافية بقوالب جاهزة، وخصص النصوص ثم نزّلها أو اطبعها بجودة عالية.',
         };
     }
@@ -93,6 +100,7 @@ enum SeoPage: string
             self::Home => 'أدوات المعلم، عجلة الأسماء، إنشاء QR، إنشاء شهادات، معلم',
             self::Wheel => 'عجلة الأسماء، اختيار عشوائي، عجلة الحظ، أدوات المعلم',
             self::Qr => 'إنشاء QR، رمز QR، باركود، مولد QR',
+            self::ShortUrl => 'اختصار الروابط، رابط قصير، إنشاء QR للرابط، إحصائيات الروابط',
             self::Certificates => 'إنشاء شهادات، تصميم شهادات، شهادات تقدير، قوالب شهادات',
         };
     }

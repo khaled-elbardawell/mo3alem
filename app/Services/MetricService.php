@@ -6,6 +6,8 @@ use App\Models\AdDailyStat;
 use App\Models\DailyMetric;
 use App\Models\QrCode;
 use App\Models\QrCodeDailyStat;
+use App\Models\ShortLink;
+use App\Models\ShortLinkDailyStat;
 use App\Models\UniqueMetricEvent;
 use App\Models\User;
 use Illuminate\Support\Facades\Cache;
@@ -115,6 +117,45 @@ class MetricService
                     ->increment('unique_scans');
 
                 QrCode::query()->whereKey($qrCode)->increment('unique_scan_count');
+            },
+        );
+    }
+
+    public function recordShortLinkVisit(ShortLink $shortLink, string $visitorIdentifier): void
+    {
+        $date = today()->toDateString();
+        $timestamp = now();
+
+        DB::transaction(function () use ($shortLink, $date, $timestamp): void {
+            DB::table((new ShortLinkDailyStat)->getTable())->insertOrIgnore([
+                'short_link_id' => $shortLink->id,
+                'date' => $date,
+                'created_at' => $timestamp,
+                'updated_at' => $timestamp,
+            ]);
+
+            ShortLinkDailyStat::query()
+                ->whereBelongsTo($shortLink)
+                ->where('date', $date)
+                ->increment('visits', 1, ['updated_at' => $timestamp]);
+
+            ShortLink::query()
+                ->whereKey($shortLink)
+                ->increment('visit_count', 1, [
+                    'last_visited_at' => $timestamp,
+                    'updated_at' => $timestamp,
+                ]);
+        });
+
+        $this->recordUnique(
+            "short-link-visit:{$shortLink->id}:{$this->identifierHash($visitorIdentifier)}",
+            function (string $uniqueDate) use ($shortLink): void {
+                ShortLinkDailyStat::query()
+                    ->whereBelongsTo($shortLink)
+                    ->where('date', $uniqueDate)
+                    ->increment('unique_visits');
+
+                ShortLink::query()->whereKey($shortLink)->increment('unique_visit_count');
             },
         );
     }

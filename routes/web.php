@@ -17,15 +17,21 @@ use App\Http\Controllers\QrPreviewController;
 use App\Http\Controllers\QrRedirectController;
 use App\Http\Controllers\RobotsController;
 use App\Http\Controllers\SavedWheelController;
+use App\Http\Controllers\ShortLinkController;
+use App\Http\Controllers\ShortLinkQrController;
+use App\Http\Controllers\ShortLinkRedirectController;
+use App\Http\Controllers\ShortUrlAuthRedirectController;
 use App\Http\Controllers\Site\CertificateToolController;
 use App\Http\Controllers\Site\HomeController;
 use App\Http\Controllers\Site\QrToolController;
+use App\Http\Controllers\Site\ShortUrlToolController;
 use App\Http\Controllers\Site\WheelController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\User\CompetitionController as UserCompetitionController;
 use App\Http\Controllers\User\CompetitionNameController;
 use App\Http\Controllers\User\SavedWheelController as UserSavedWheelController;
 use App\Http\Controllers\User\SavedWheelNameController;
+use App\Http\Controllers\User\ShortLinkController as UserShortLinkController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', HomeController::class)->name('home');
@@ -42,11 +48,19 @@ Route::get('/tools/qr/auth/{action}', QrAuthRedirectController::class)
     ->whereIn('action', ['login', 'register'])
     ->name('tools.qr.auth');
 Route::get('/tools/certificates', CertificateToolController::class)->name('tools.certificates');
+Route::get('/tools/short-url', ShortUrlToolController::class)->name('tools.short-url');
+Route::get('/tools/short-url/auth/{action}', ShortUrlAuthRedirectController::class)
+    ->whereIn('action', ['login', 'register'])
+    ->name('tools.short-url.auth');
 Route::get('/tools/certificates/auth/{action}', CertificateAuthRedirectController::class)
     ->whereIn('action', ['login', 'register'])
     ->name('tools.certificates.auth');
 Route::get('/sitemap.xml', SitemapController::class)->name('sitemap');
 Route::get('/robots.txt', RobotsController::class)->name('robots');
+Route::get('/short/{shortLink:slug}', ShortLinkRedirectController::class)
+    ->withTrashed()
+    ->middleware('throttle:short-link-redirect')
+    ->name('short-links.redirect');
 Route::post('/c/{adCampaign}/open', AdClickController::class)
     ->middleware('throttle:120,1')
     ->name('ads.click');
@@ -80,6 +94,8 @@ Route::middleware(['auth', 'active', 'password.changed'])->group(function (): vo
         ->name('user.competitions.names.destroy');
     Route::get('/dashboard/lists/{savedWheel}', [UserSavedWheelController::class, 'show'])
         ->name('user.saved-wheels.show');
+    Route::get('/dashboard/links/{shortLink}', [UserShortLinkController::class, 'show'])
+        ->name('user.short-links.show');
     Route::post('/dashboard/lists/{savedWheel}/names', [SavedWheelNameController::class, 'store'])
         ->middleware('throttle:120,1')
         ->name('user.saved-wheels.names.store');
@@ -103,6 +119,17 @@ Route::middleware(['auth', 'active', 'password.changed'])->group(function (): vo
     Route::resource('qr-codes', QrCodeController::class)
         ->parameters(['qr-codes' => 'qrCode'])
         ->only(['index', 'show', 'update', 'destroy']);
+
+    Route::post('/short-links', [ShortLinkController::class, 'store'])
+        ->middleware(['verified', 'throttle:short-link-creation'])
+        ->name('short-links.store');
+    Route::get('/short-links/{shortLink}/qr', ShortLinkQrController::class)
+        ->middleware('verified')
+        ->name('short-links.qr');
+    Route::resource('short-links', ShortLinkController::class)
+        ->parameters(['short-links' => 'shortLink'])
+        ->only(['update', 'destroy'])
+        ->middleware('verified');
 
     Route::post('/certificates', [CertificateController::class, 'store'])
         ->middleware('throttle:certificate-creation')

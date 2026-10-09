@@ -1,3 +1,5 @@
+import { downloadBlob, svgToPngBlob } from "./qr-downloads";
+
 const qrForm = document.getElementById("qrForm");
 
 if (qrForm) {
@@ -619,17 +621,6 @@ if (qrForm) {
     renderTimer = window.setTimeout(() => renderPreview(), 450);
   }
 
-  function downloadBlob(blob, filename) {
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = filename;
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    window.setTimeout(() => URL.revokeObjectURL(url), 1000);
-  }
-
   async function pngBlob() {
     await loadTemplateDataUrl(currentDesign().frame);
     const svg = serializedOutput();
@@ -637,22 +628,7 @@ if (qrForm) {
     if (!svg || !output) return null;
     const width = Number(output.documentElement.getAttribute("width"));
     const height = Number(output.documentElement.getAttribute("height"));
-    const imageUrl = URL.createObjectURL(new Blob([svg], { type: "image/svg+xml" }));
-    const image = new Image();
-    await new Promise((resolve, reject) => {
-      image.onload = resolve;
-      image.onerror = reject;
-      image.src = imageUrl;
-    });
-    const canvas = document.createElement("canvas");
-    canvas.width = width * 2;
-    canvas.height = height * 2;
-    const context = canvas.getContext("2d");
-    context.scale(2, 2);
-    context.drawImage(image, 0, 0, width, height);
-    URL.revokeObjectURL(imageUrl);
-
-    return new Promise((resolve) => canvas.toBlob(resolve, "image/png", 1));
+    return svgToPngBlob(svg, width, height);
   }
 
   function blobToDataUrl(blob) {

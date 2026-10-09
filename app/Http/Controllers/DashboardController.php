@@ -11,7 +11,7 @@ class DashboardController extends Controller
     public function __invoke(Request $request): View
     {
         $requestedSection = $request->string('section')->toString();
-        $section = in_array($requestedSection, ['competitions', 'lists', 'qr', 'certificates'], true)
+        $section = in_array($requestedSection, ['competitions', 'lists', 'links', 'qr', 'certificates'], true)
             ? $requestedSection
             : 'competitions';
         $search = $request->string('search')->trim()->toString();
@@ -21,6 +21,7 @@ class DashboardController extends Controller
             $sort === 'title' => ['title', 'asc'],
             $sort === 'names' && in_array($section, ['competitions', 'lists'], true) => ['names_count', 'desc'],
             $sort === 'results' && $section === 'competitions' => ['results_count', 'desc'],
+            $sort === 'visits' && $section === 'links' => ['visit_count', 'desc'],
             $sort === 'oldest' => ['updated_at', 'asc'],
             default => ['updated_at', 'desc'],
         };
@@ -28,12 +29,21 @@ class DashboardController extends Controller
         $query = match ($section) {
             'lists' => $request->user()->savedWheels(),
             'qr' => $request->user()->qrCodes(),
+            'links' => $request->user()->shortLinks(),
             'certificates' => $request->user()->certificates(),
             default => $request->user()->competitions(),
         };
 
         $items = $query
-            ->when($search, fn (Builder $query) => $query->where('title', 'like', '%'.$search.'%'))
+            ->when($search, function (Builder $query) use ($search, $section): void {
+                $query->where(function (Builder $query) use ($search, $section): void {
+                    $query->where('title', 'like', '%'.$search.'%');
+
+                    if ($section === 'links') {
+                        $query->orWhere('slug', 'like', '%'.$search.'%');
+                    }
+                });
+            })
             ->orderBy(...$order)
             ->paginate(12)
             ->withQueryString();

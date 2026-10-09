@@ -16,6 +16,7 @@ test('the home page presents the muallem tools hub', function () {
         ->assertSee('كل ما يحتاجه المعلم')
         ->assertSee('عجلة الأسماء العشوائية')
         ->assertSee('إنشاء QR احترافي')
+        ->assertSee('اختصار الروابط')
         ->assertSee('إنشاء الشهادات')
         ->assertSee('مميزاتنا')
         ->assertSee('نشاط المنصة')
@@ -98,6 +99,8 @@ test('the home hero and tool cards link directly to the three tools', function (
             ->assertSee("data-hero-tool=\"{$tool}\"", false)
             ->assertSee("data-tool-card=\"{$tool}\"", false);
     }
+
+    $response->assertSee('data-tool-card="short-url"', false);
 
     expect(substr_count($response->getContent(), 'motion-safe:animate-hero-tool-pulse'))->toBe(3);
 });

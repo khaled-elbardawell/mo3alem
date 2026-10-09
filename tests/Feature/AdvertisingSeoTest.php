@@ -218,7 +218,8 @@ test('page seo settings are rendered and noindex pages are removed from the site
     $this->get(route('sitemap'))
         ->assertSuccessful()
         ->assertDontSee('<loc>'.route('home').'</loc>', false)
-        ->assertSee('<loc>'.route('tools.wheel').'</loc>', false);
+        ->assertSee('<loc>'.route('tools.wheel').'</loc>', false)
+        ->assertSee('<loc>'.route('tools.short-url').'</loc>', false);
 });
 
 test('svg advertising uploads are rejected', function () {

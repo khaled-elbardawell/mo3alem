@@ -18,7 +18,7 @@ test('the dashboard starts with competitions and keeps saved lists in a separate
         ->assertViewIs('users.dashboard')
         ->assertSee('aria-label="التنقل الرئيسي"', false)
         ->assertSee('صُممت لتجعل يوم المعلم أسهل.')
-        ->assertSee('مسابقاتي وقوائمي')
+        ->assertSee('لوحة مواردي')
         ->assertSee('مسابقة العلوم')
         ->assertSee(route('user.competitions.show', $user->competitions()->first()), false)
         ->assertDontSee('قائمة الصف الخامس');
