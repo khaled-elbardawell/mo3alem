@@ -18,6 +18,7 @@
         $qrUrl = $shortLink ? route('short-links.qr', $shortLink) : '';
         $updateSlugUrl = $shortLink ? route('short-links.slug.update', $shortLink) : '';
         $managementUrl = $shortLink ? route('user.short-links.show', $shortLink) : '';
+        $shortUrlPrefix = str_replace('__slug__', '', route('short-links.redirect', '__slug__'));
         $hasExpiry = old('expires_at') !== null && old('expires_at') !== '';
     @endphp
 
@@ -98,7 +99,11 @@
                                         data-short-url="{{ $shortUrl }}"
                                         data-qr-url="{{ $qrUrl }}"
                                         data-filename="{{ $shortLink ? 'muallem-'.$shortLink->slug : 'muallem-short-link' }}">
-                                        <div class="rounded-3xl border border-emerald-200 bg-emerald-50/60 p-5 sm:p-7">
+                                        <form class="rounded-3xl border border-emerald-200 bg-emerald-50/60 p-5 sm:p-7" method="POST" action="{{ $updateSlugUrl }}" data-short-link-slug-form data-short-link-combined-result novalidate>
+                                            @csrf
+                                            @method('PATCH')
+                                            <input type="hidden" name="version" value="{{ $shortLink?->version }}" data-short-link-version>
+
                                             <div class="flex items-center gap-3">
                                                 <span class="grid size-10 shrink-0 place-items-center rounded-full bg-emerald-600 text-white">
                                                     <i class="fa-solid fa-check" aria-hidden="true"></i>
@@ -109,36 +114,25 @@
                                                 </div>
                                             </div>
 
-                                            <div class="mt-5 flex flex-col gap-2 sm:flex-row">
-                                                <input class="min-h-13 min-w-0 flex-1 rounded-xl border border-emerald-200 bg-white px-4 text-left font-bold text-violet-800 outline-none" value="{{ $shortUrl }}" dir="ltr" readonly data-short-url-output aria-label="الرابط المختصر">
-                                                <button class="inline-flex min-h-13 items-center justify-center gap-2 rounded-xl bg-violet-700 px-6 font-black text-white transition hover:bg-violet-800" type="button" data-copy-short-link>
+                                            <span class="sr-only" data-short-url-output>{{ $shortUrl }}</span>
+                                            <div class="mt-5 flex flex-col gap-2 lg:flex-row">
+                                                <div class="flex min-w-0 flex-1 flex-col overflow-hidden rounded-xl border border-emerald-200 bg-white focus-within:border-violet-500 focus-within:ring-3 focus-within:ring-violet-100 sm:flex-row sm:items-stretch" dir="ltr">
+                                                    <span class="flex min-h-12 shrink-0 items-center border-b border-emerald-100 bg-white px-4 text-left text-sm font-bold text-violet-700 sm:border-r sm:border-b-0" data-short-url-prefix>{{ $shortUrlPrefix }}</span>
+                                                    <label class="sr-only" for="short-link-slug">المقطع الأخير من الرابط</label>
+                                                    <input id="short-link-slug" class="min-h-13 min-w-0 flex-1 px-3 text-left font-black text-slate-900 outline-none" type="text" name="slug" value="{{ $shortLink?->slug }}" maxlength="50" autocomplete="off" autocapitalize="none" spellcheck="false" required data-short-link-slug aria-describedby="short-link-slug-help">
+                                                    <button class="grid min-h-13 w-full shrink-0 place-items-center border-t border-emerald-100 bg-emerald-600 px-5 text-lg text-white transition hover:bg-emerald-700 disabled:cursor-wait disabled:opacity-60 sm:w-auto sm:border-t-0 sm:border-l" type="submit" data-save-short-link-slug aria-label="حفظ المقطع" title="حفظ المقطع">
+                                                        <i class="fa-solid fa-check" aria-hidden="true"></i>
+                                                    </button>
+                                                </div>
+                                                <button class="inline-flex min-h-13 shrink-0 items-center justify-center gap-2 rounded-xl bg-violet-700 px-6 font-black text-white transition hover:bg-violet-800" type="button" dir="rtl" data-copy-short-link>
                                                     <i class="fa-regular fa-copy" aria-hidden="true"></i>
-                                                    نسخ
+                                                    نسخ الرابط
                                                 </button>
                                             </div>
-                                        </div>
+                                            <p id="short-link-slug-help" class="mt-2 text-xs font-medium text-emerald-800">عدّل المقطع الأخير ثم اضغط علامة الصح للحفظ. يُسمح بالأحرف الإنجليزية الصغيرة والأرقام والشرطة.</p>
 
-                                        <form class="mt-5 rounded-2xl border border-slate-200 p-5" method="POST" action="{{ $updateSlugUrl }}" data-short-link-slug-form novalidate>
-                                            @csrf
-                                            @method('PATCH')
-                                            <input type="hidden" name="version" value="{{ $shortLink?->version }}" data-short-link-version>
-                                            <div class="flex flex-col gap-3 lg:flex-row lg:items-end">
-                                                <label class="grid min-w-0 flex-1 gap-2 font-bold text-slate-800" for="short-link-slug">
-                                                    <span>خصّص المقطع</span>
-                                                    <span class="flex min-h-13 overflow-hidden rounded-xl border border-slate-200 bg-white focus-within:border-violet-500 focus-within:ring-3 focus-within:ring-violet-100" dir="ltr">
-                                                        <span class="grid shrink-0 place-items-center border-r border-slate-200 bg-slate-50 px-3 text-sm font-semibold text-slate-500">/short/</span>
-                                                        <input id="short-link-slug" class="min-w-0 flex-1 px-3 font-bold text-slate-900 outline-none" type="text" name="slug" value="{{ $shortLink?->slug }}" maxlength="50" autocomplete="off" autocapitalize="none" spellcheck="false" required data-short-link-slug>
-                                                    </span>
-                                                </label>
-                                                <button class="inline-flex min-h-13 shrink-0 items-center justify-center gap-2 rounded-xl border border-violet-200 bg-violet-50 px-6 font-black text-violet-800 transition hover:bg-violet-100 disabled:cursor-wait disabled:opacity-60" type="submit" data-save-short-link-slug>
-                                                    <i class="fa-solid fa-floppy-disk" aria-hidden="true"></i>
-                                                    حفظ المقطع
-                                                </button>
-                                            </div>
-                                            <p class="mt-2 text-xs font-medium text-slate-500">أحرف إنجليزية صغيرة وأرقام وشرطة فقط، من 4 إلى 50 حرفًا.</p>
+                                            <div class="mt-4 hidden rounded-2xl border px-4 py-3 text-sm font-bold" data-short-link-status role="status" aria-live="polite"></div>
                                         </form>
-
-                                        <div class="mt-5 hidden rounded-2xl border px-4 py-3 text-sm font-bold" data-short-link-status role="status" aria-live="polite"></div>
 
                                         <div class="mt-7 grid gap-6 rounded-3xl bg-slate-50 p-5 sm:p-7 md:grid-cols-[220px_minmax(0,1fr)] md:items-center">
                                             <div class="grid place-items-center rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">

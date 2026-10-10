@@ -84,7 +84,12 @@ function applyShortLinkResult(result, message) {
   tools.dataset.shortUrl = result.short_url;
   tools.dataset.qrUrl = result.qr_url;
   tools.dataset.filename = result.filename;
-  resultSection.querySelector("[data-short-url-output]").value = result.short_url;
+  const shortUrlOutput = resultSection.querySelector("[data-short-url-output]");
+  if (shortUrlOutput instanceof HTMLInputElement) {
+    shortUrlOutput.value = result.short_url;
+  } else if (shortUrlOutput) {
+    shortUrlOutput.textContent = result.short_url;
+  }
   resultSection.querySelector("[data-short-link-slug]").value = result.slug;
   resultSection.querySelector("[data-short-link-version]").value = result.version;
   slugForm.action = result.update_slug_url;
