@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-labelledby="title">
+  <title id="title">صف دراسي هادئ بألوان دافئة</title>
+  <defs>
+    <linearGradient id="wall" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#fefce8"/><stop offset="1" stop-color="#fef3c7"/>
+    </linearGradient>
+    <linearGradient id="floor" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#d6d3d1"/><stop offset="1" stop-color="#a8a29e"/>
+    </linearGradient>
+  </defs>
+  <rect width="1600" height="650" fill="url(#wall)"/>
+  <path d="M0 650h1600v250H0z" fill="url(#floor)"/>
+  <rect x="380" y="100" width="840" height="430" rx="28" fill="#14532d" stroke="#92400e" stroke-width="28"/>
+  <g fill="#fff" opacity=".18">
+    <rect x="455" y="175" width="520" height="18" rx="9"/>
+    <rect x="455" y="235" width="650" height="18" rx="9"/>
+    <rect x="455" y="295" width="430" height="18" rx="9"/>
+  </g>
+  <g fill="#7c3aed" opacity=".22">
+    <path d="M110 150h170v300H110z"/><path d="M1320 150h170v300h-170z"/>
+  </g>
+  <g fill="#78350f" opacity=".65">
+    <path d="M180 690h330v95H180zM1090 690h330v95h-330z"/>
+    <path d="M220 785h32v115h-32zM438 785h32v115h-32zM1130 785h32v115h-32zM1348 785h32v115h-32z"/>
+  </g>
+</svg>

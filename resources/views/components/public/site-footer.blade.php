@@ -25,6 +25,7 @@
                     <a class="hover:text-white" href="{{ route('tools.wheel') }}">عجلة الأسماء</a>
                     <a class="hover:text-white" href="{{ route('tools.qr') }}">إنشاء QR</a>
                     <a class="hover:text-white" href="{{ route('tools.certificates') }}">إنشاء الشهادات</a>
+                    <a class="hover:text-white" href="{{ route('tools.smart-board') }}">السبورة الذكية</a>
                 </div>
             </div>
             <div>

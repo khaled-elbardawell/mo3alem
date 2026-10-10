@@ -46,6 +46,16 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(Certificate::class);
     }
 
+    public function smartBoards(): HasMany
+    {
+        return $this->hasMany(SmartBoard::class);
+    }
+
+    public function smartBoardSessions(): HasMany
+    {
+        return $this->hasMany(SmartBoardSession::class);
+    }
+
     public function externalUserLinks(): HasMany
     {
         return $this->hasMany(ExternalUserLink::class);

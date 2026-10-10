@@ -20,8 +20,14 @@ use App\Http\Controllers\SavedWheelController;
 use App\Http\Controllers\Site\CertificateToolController;
 use App\Http\Controllers\Site\HomeController;
 use App\Http\Controllers\Site\QrToolController;
+use App\Http\Controllers\Site\SmartBoardToolController;
 use App\Http\Controllers\Site\WheelController;
 use App\Http\Controllers\SitemapController;
+use App\Http\Controllers\SmartBoardAssetController;
+use App\Http\Controllers\SmartBoardController;
+use App\Http\Controllers\SmartBoardJoinController;
+use App\Http\Controllers\SmartBoardPollResponseController;
+use App\Http\Controllers\SmartBoardSessionController;
 use App\Http\Controllers\User\CompetitionController as UserCompetitionController;
 use App\Http\Controllers\User\CompetitionNameController;
 use App\Http\Controllers\User\SavedWheelController as UserSavedWheelController;
@@ -42,6 +48,25 @@ Route::get('/tools/qr/auth/{action}', QrAuthRedirectController::class)
     ->whereIn('action', ['login', 'register'])
     ->name('tools.qr.auth');
 Route::get('/tools/certificates', CertificateToolController::class)->name('tools.certificates');
+Route::get('/tools/smart-board', SmartBoardToolController::class)->name('tools.smart-board');
+Route::get('/board/join/{smartBoardSession:public_code}', SmartBoardJoinController::class)
+    ->middleware('throttle:smart-board-join')
+    ->name('smart-board.join');
+Route::post('/smart-board-sessions', [SmartBoardSessionController::class, 'store'])
+    ->middleware('throttle:smart-board-session-creation')
+    ->name('smart-board-sessions.store');
+Route::get('/smart-board-sessions/{smartBoardSession:public_code}', [SmartBoardSessionController::class, 'show'])
+    ->middleware('throttle:smart-board-polling')
+    ->name('smart-board-sessions.show');
+Route::patch('/smart-board-sessions/{smartBoardSession:public_code}', [SmartBoardSessionController::class, 'update'])
+    ->middleware('throttle:smart-board-session-updates')
+    ->name('smart-board-sessions.update');
+Route::delete('/smart-board-sessions/{smartBoardSession:public_code}', [SmartBoardSessionController::class, 'destroy'])
+    ->middleware('throttle:smart-board-session-updates')
+    ->name('smart-board-sessions.destroy');
+Route::post('/smart-board-sessions/{smartBoardSession:public_code}/responses', SmartBoardPollResponseController::class)
+    ->middleware('throttle:smart-board-responses')
+    ->name('smart-board-sessions.responses.store');
 Route::get('/tools/certificates/auth/{action}', CertificateAuthRedirectController::class)
     ->whereIn('action', ['login', 'register'])
     ->name('tools.certificates.auth');
@@ -116,6 +141,19 @@ Route::middleware(['auth', 'active', 'password.changed'])->group(function (): vo
         ->middleware('throttle:competition-creation')
         ->name('competitions.store');
     Route::resource('competitions', CompetitionController::class)
+        ->only(['index', 'show', 'update', 'destroy']);
+
+    Route::post('/smart-boards/{smartBoard}/assets', [SmartBoardAssetController::class, 'store'])
+        ->name('smart-boards.assets.store');
+    Route::get('/smart-board-assets/{smartBoardAsset}', [SmartBoardAssetController::class, 'show'])
+        ->name('smart-board-assets.show');
+    Route::delete('/smart-board-assets/{smartBoardAsset}', [SmartBoardAssetController::class, 'destroy'])
+        ->name('smart-board-assets.destroy');
+    Route::post('/smart-boards', [SmartBoardController::class, 'store'])
+        ->middleware('throttle:smart-board-creation')
+        ->name('smart-boards.store');
+    Route::resource('smart-boards', SmartBoardController::class)
+        ->parameters(['smart-boards' => 'smartBoard'])
         ->only(['index', 'show', 'update', 'destroy']);
 });
 

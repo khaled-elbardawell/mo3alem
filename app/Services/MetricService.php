@@ -23,6 +23,9 @@ class MetricService
         'qr_saved',
         'certificate_generated',
         'certificate_saved',
+        'smart_boards_created',
+        'smart_board_sessions',
+        'smart_board_responses',
     ];
 
     public function increment(string $column, int $amount = 1): void

@@ -80,8 +80,14 @@
 </head>
 
 <body
-    class="m-0 min-h-screen w-screen max-w-full overflow-x-hidden bg-[#fbfbff] pt-20 font-['Tajawal',system-ui,sans-serif] text-slate-900 antialiased">
-    <x-public.site-header :active="$activeNavigation ?? ''" />
+    @class([
+        "m-0 min-h-screen w-screen max-w-full overflow-x-hidden bg-[#fbfbff] font-['Tajawal',system-ui,sans-serif] text-slate-900 antialiased",
+        'pt-20' => ! ($immersive ?? false),
+        'overflow-hidden' => $immersive ?? false,
+    ])>
+    @unless($immersive ?? false)
+        <x-public.site-header :active="$activeNavigation ?? ''" />
+    @endunless
 
     <!-- Google Tag Manager (noscript) -->
     <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NNBQPQ9Q" height="0" width="0"
@@ -113,13 +119,15 @@
         </main>
     @endif
 
-    <x-public.site-footer />
+    @unless($immersive ?? false)
+        <x-public.site-footer />
 
-    <button
+        <button
         class="back-to-top pointer-events-none fixed bottom-[18px] left-[18px] z-80 grid h-[42px] w-[42px] translate-y-2.5 cursor-pointer place-items-center rounded-xl border border-slate-300/70 bg-white text-violet-700 opacity-0 shadow-[0_14px_34px_rgba(30,41,59,0.16)] transition-[opacity,transform,background,color] duration-200 hover:bg-violet-700 hover:text-white [&.is-visible]:pointer-events-auto [&.is-visible]:translate-y-0 [&.is-visible]:opacity-100"
         type="button" id="backToTopBtn" aria-label="الرجوع للأعلى" title="الرجوع للأعلى">
         <i class="fa-solid fa-arrow-up" aria-hidden="true"></i>
-    </button>
+        </button>
+    @endunless
 
     @stack('scripts')
 </body>

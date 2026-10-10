@@ -11,7 +11,7 @@ class DashboardController extends Controller
     public function __invoke(Request $request): View
     {
         $requestedSection = $request->string('section')->toString();
-        $section = in_array($requestedSection, ['competitions', 'lists', 'qr', 'certificates'], true)
+        $section = in_array($requestedSection, ['competitions', 'lists', 'qr', 'certificates', 'boards'], true)
             ? $requestedSection
             : 'competitions';
         $search = $request->string('search')->trim()->toString();
@@ -29,6 +29,7 @@ class DashboardController extends Controller
             'lists' => $request->user()->savedWheels(),
             'qr' => $request->user()->qrCodes(),
             'certificates' => $request->user()->certificates(),
+            'boards' => $request->user()->smartBoards(),
             default => $request->user()->competitions(),
         };
 

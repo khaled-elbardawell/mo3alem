@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\SmartBoardSession;
 use App\Models\UniqueMetricEvent;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
@@ -19,5 +20,13 @@ Schedule::call(fn () => UniqueMetricEvent::query()
 
 Schedule::command('sanctum:prune-expired --hours=24')
     ->dailyAt('00:30')
+    ->withoutOverlapping()
+    ->onOneServer();
+
+Schedule::call(fn () => SmartBoardSession::query()
+    ->where('expires_at', '<', now()->subDay())
+    ->delete())
+    ->name('smart-boards:prune-sessions')
+    ->dailyAt('00:45')
     ->withoutOverlapping()
     ->onOneServer();
