@@ -59,11 +59,18 @@ test('a verified user sees the creation form and its latest result', function ()
         ->get(route('tools.short-url', ['short_link' => $shortLink]))
         ->assertSuccessful()
         ->assertSee('action="'.route('short-links.store').'"', false)
+        ->assertSee('data-short-link-create', false)
+        ->assertSee('data-expiry-toggle', false)
+        ->assertSee('data-short-link-result', false)
+        ->assertSee('action="'.route('short-links.slug.update', $shortLink).'"', false)
+        ->assertSee('data-short-link-slug', false)
         ->assertSee(route('short-links.redirect', $shortLink->slug), false)
         ->assertSee(route('short-links.qr', $shortLink), false)
         ->assertSee('data-download-qr="png"', false)
         ->assertSee('data-download-qr="svg"', false)
-        ->assertSee(route('user.short-links.show', $shortLink), false);
+        ->assertSee(route('user.short-links.show', $shortLink), false)
+        ->assertDontSee('اسم داخلي (اختياري)')
+        ->assertDontSee('تفعيل الرابط فورًا');
 });
 
 test('the dashboard lists searches and sorts the current users short links', function () {
@@ -130,6 +137,9 @@ test('the short link javascript shares qr conversion helpers with the qr tool', 
     expect($shortLinkScript)
         ->toContain('svgToPngBlob')
         ->toContain('data-download-qr')
+        ->toContain('data-short-link-create')
+        ->toContain('data-short-link-slug-form')
+        ->toContain('applyShortLinkResult')
         ->and($qrToolScript)
         ->toContain('from "./qr-downloads"')
         ->and($sharedScript)

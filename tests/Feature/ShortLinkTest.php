@@ -54,6 +54,28 @@ test('a random seven character slug and destination host title are generated whe
         ->and($shortLink->expires_at)->toBeNull();
 });
 
+test('the short url tool can create a link without optional fields using json', function () {
+    $user = User::factory()->create();
+
+    $response = $this->actingAs($user)
+        ->postJson(route('short-links.store'), [
+            'destination_url' => 'https://example.com/a/very/long/path',
+        ]);
+
+    $shortLink = ShortLink::query()->firstOrFail();
+
+    $response
+        ->assertCreated()
+        ->assertJsonPath('message', 'تم إنشاء الرابط المختصر بنجاح.')
+        ->assertJsonPath('data.slug', $shortLink->slug)
+        ->assertJsonPath('data.short_url', route('short-links.redirect', $shortLink->slug))
+        ->assertJsonPath('data.qr_url', route('short-links.qr', $shortLink))
+        ->assertJsonPath('data.update_slug_url', route('short-links.slug.update', $shortLink));
+
+    expect($shortLink->is_active)->toBeTrue()
+        ->and($shortLink->expires_at)->toBeNull();
+});
+
 test('custom aliases are validated globally and remain reserved after deletion', function () {
     $owner = User::factory()->create();
     $otherUser = User::factory()->create();
@@ -101,7 +123,7 @@ test('creation requires a verified account and respects the configurable saved l
         ->assertSessionHasErrors('destination_url');
 });
 
-test('an owner can update fields but cannot change the published slug', function () {
+test('an owner can update the link management fields without changing its slug', function () {
     $user = User::factory()->create();
     $shortLink = ShortLink::factory()->for($user)->create([
         'slug' => 'fixed-link',
@@ -124,6 +146,64 @@ test('an owner can update fields but cannot change the published slug', function
         ->and($shortLink->destination_url)->toBe('https://example.org/new-destination')
         ->and($shortLink->is_active)->toBeFalse()
         ->and($shortLink->version)->toBe(2);
+});
+
+test('an owner can customize the generated slug and receives the updated result', function () {
+    $user = User::factory()->create();
+    $shortLink = ShortLink::factory()->for($user)->create([
+        'slug' => 'random1',
+        'version' => 1,
+    ]);
+
+    $this->actingAs($user)
+        ->patchJson(route('short-links.slug.update', $shortLink), [
+            'slug' => '  My-Class-Link  ',
+            'version' => 1,
+        ])
+        ->assertSuccessful()
+        ->assertJsonPath('message', 'تم حفظ المقطع الجديد بنجاح.')
+        ->assertJsonPath('data.slug', 'my-class-link')
+        ->assertJsonPath('data.short_url', route('short-links.redirect', 'my-class-link'))
+        ->assertJsonPath('data.version', 2);
+
+    expect($shortLink->refresh()->slug)->toBe('my-class-link')
+        ->and($shortLink->version)->toBe(2);
+});
+
+test('customizing a slug reports reserved aliases and stale versions', function () {
+    $user = User::factory()->create();
+    $shortLink = ShortLink::factory()->for($user)->create(['version' => 3]);
+    $reserved = ShortLink::factory()->create(['slug' => 'reserved-link']);
+    $reserved->delete();
+
+    $this->actingAs($user)
+        ->patchJson(route('short-links.slug.update', $shortLink), [
+            'slug' => 'reserved-link',
+            'version' => 3,
+        ])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors('slug');
+
+    $this->actingAs($user)
+        ->patchJson(route('short-links.slug.update', $shortLink), [
+            'slug' => 'fresh-link',
+            'version' => 2,
+        ])
+        ->assertConflict()
+        ->assertJsonPath('errors.version.0', 'تم تعديل الرابط من جلسة أخرى. حدّث الصفحة ثم أعد المحاولة.');
+});
+
+test('another user cannot customize a short link slug', function () {
+    $owner = User::factory()->create();
+    $intruder = User::factory()->create();
+    $shortLink = ShortLink::factory()->for($owner)->create();
+
+    $this->actingAs($intruder)
+        ->patchJson(route('short-links.slug.update', $shortLink), [
+            'slug' => 'stolen-link',
+            'version' => $shortLink->version,
+        ])
+        ->assertForbidden();
 });
 
 test('stale updates are rejected and other users cannot manage a link', function () {

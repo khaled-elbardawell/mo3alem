@@ -126,6 +126,9 @@ Route::middleware(['auth', 'active', 'password.changed'])->group(function (): vo
     Route::get('/short-links/{shortLink}/qr', ShortLinkQrController::class)
         ->middleware('verified')
         ->name('short-links.qr');
+    Route::patch('/short-links/{shortLink}/slug', [ShortLinkController::class, 'updateSlug'])
+        ->middleware('verified')
+        ->name('short-links.slug.update');
     Route::resource('short-links', ShortLinkController::class)
         ->parameters(['short-links' => 'shortLink'])
         ->only(['update', 'destroy'])

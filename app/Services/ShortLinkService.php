@@ -80,6 +80,31 @@ class ShortLinkService
         return $updated === 1 ? $shortLink->refresh() : null;
     }
 
+    /** @param array{slug: string, version: int} $data */
+    public function updateSlug(ShortLink $shortLink, array $data): ?ShortLink
+    {
+        try {
+            $updated = ShortLink::query()
+                ->whereKey($shortLink)
+                ->where('version', $data['version'])
+                ->update([
+                    'slug' => $data['slug'],
+                    'version' => DB::raw('version + 1'),
+                    'updated_at' => now(),
+                ]);
+        } catch (QueryException $exception) {
+            if (! $this->isUniqueConstraintViolation($exception)) {
+                throw $exception;
+            }
+
+            throw ValidationException::withMessages([
+                'slug' => 'هذا المقطع مستخدم أو محجوز سابقًا. جرّب مقطعًا آخر.',
+            ]);
+        }
+
+        return $updated === 1 ? $shortLink->refresh() : null;
+    }
+
     private function title(?string $title, string $destinationUrl): string
     {
         if (filled($title)) {
