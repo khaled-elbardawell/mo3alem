@@ -1,5 +1,5 @@
 export const WIDGET_TYPES = [
-  "text", "clock", "timer", "stopwatch", "traffic-light",
+  "text", "clock", "calendar", "timer", "stopwatch", "traffic-light",
   "scoreboard", "dice", "randomizer", "groups", "image",
   "embed", "qr", "poll"
 ];
@@ -52,6 +52,7 @@ const defaults = {
     lineHeight: 1.5
   },
   clock: { mode: "analog", hourFormat: "12", showSeconds: true },
+  calendar: { year: new Date().getFullYear(), month: new Date().getMonth() },
   timer: { duration: 300, remaining: 300, running: false, endsAt: null },
   stopwatch: { elapsed: 0, running: false, startedAt: null },
   "traffic-light": { active: "green" },
@@ -70,7 +71,7 @@ const defaults = {
 };
 
 const sizes = {
-  text: [34, 22], clock: [16, 35], timer: [25, 25], stopwatch: [25, 24],
+  text: [34, 22], clock: [16, 35], calendar: [40, 46], timer: [25, 25], stopwatch: [25, 24],
   "traffic-light": [18, 34], scoreboard: [34, 30],
   dice: [22, 38], randomizer: [30, 28], groups: [34, 32],
   image: [34, 32], embed: [38, 34], qr: [24, 30], poll: [34, 34]
@@ -83,6 +84,46 @@ export function makeId(prefix = "widget") {
 
 export function randomDiceValue(random = Math.random) {
   return Math.floor(Math.min(Math.max(Number(random()) || 0, 0), 0.999999) * 6) + 1;
+}
+
+export function normalizeCalendarMonth(year, month, today = new Date()) {
+  const fallbackDate = today instanceof Date && !Number.isNaN(today.getTime()) ? today : new Date();
+  const safeYear = Number.isInteger(Number(year)) ? Number(year) : fallbackDate.getFullYear();
+  const safeMonth = Number.isInteger(Number(month)) ? Number(month) : fallbackDate.getMonth();
+  const normalizedDate = new Date(safeYear, safeMonth, 1);
+  const normalizedYear = normalizedDate.getFullYear();
+
+  if (normalizedYear < 1900) return { year: 1900, month: 0 };
+  if (normalizedYear > 2100) return { year: 2100, month: 11 };
+
+  return { year: normalizedYear, month: normalizedDate.getMonth() };
+}
+
+export function shiftCalendarMonth(year, month, offset) {
+  const current = normalizeCalendarMonth(year, month);
+  const target = new Date(current.year, current.month + Math.trunc(Number(offset) || 0), 1);
+
+  return normalizeCalendarMonth(target.getFullYear(), target.getMonth());
+}
+
+export function calendarMonthGrid(year, month, today = new Date()) {
+  const current = normalizeCalendarMonth(year, month, today);
+  const firstDay = new Date(current.year, current.month, 1);
+  const leadingDays = (firstDay.getDay() + 6) % 7;
+
+  return Array.from({ length: 42 }, (_, index) => {
+    const date = new Date(current.year, current.month, index - leadingDays + 1);
+
+    return {
+      year: date.getFullYear(),
+      month: date.getMonth(),
+      day: date.getDate(),
+      isCurrentMonth: date.getMonth() === current.month && date.getFullYear() === current.year,
+      isToday: date.getFullYear() === today.getFullYear()
+        && date.getMonth() === today.getMonth()
+        && date.getDate() === today.getDate()
+    };
+  });
 }
 
 export function shouldRunSelectionAction(armedAction, requestedAction) {

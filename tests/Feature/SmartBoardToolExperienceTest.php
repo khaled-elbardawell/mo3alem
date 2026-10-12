@@ -51,7 +51,7 @@ test('the smart board opens for guests with classroom widgets and full board dra
     expect(substr_count($response->getContent(), 'id="boardAppearanceBtn"'))->toBe(1);
 
     foreach ([
-        'text', 'clock', 'timer', 'stopwatch', 'traffic-light', 'scoreboard',
+        'text', 'clock', 'calendar', 'timer', 'stopwatch', 'traffic-light', 'scoreboard',
         'dice', 'randomizer', 'groups', 'image', 'embed', 'qr', 'poll',
     ] as $type) {
         $response->assertSee("data-add-widget data-widget-type=\"{$type}\"", false);

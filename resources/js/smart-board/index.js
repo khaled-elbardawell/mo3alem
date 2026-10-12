@@ -1,5 +1,6 @@
 import {
   boardKeyboardCommand,
+  calendarMonthGrid,
   calculatePointerGeometry,
   clamp,
   commitHistory,
@@ -13,6 +14,7 @@ import {
   reduceBoard,
   shouldRunSelectionAction,
   shouldWidgetScroll,
+  shiftCalendarMonth,
   undoHistory
 } from "./state.js";
 import { decodeImageSource, optimizeBackgroundImage, safeBoardBackgroundImage } from "./image.js";
@@ -437,6 +439,7 @@ async function setupBoard(root) {
       return `<div class="smart-board-text-widget" style="--widget-font-size:${clamp(value.fontSize, 14, 64)}px;--widget-line-height:${clamp(Number(value.lineHeight) || 1.5, 1, 2)};text-align:${align};color:${safeColor(value.color)};background:${safeColor(value.backgroundColor || "#ffffff")};font-family:${safeTextFont(value.fontFamily)};font-weight:${fontWeight};font-style:${fontStyle};text-decoration:${textDecoration}">${escapeHtml(value.content).replaceAll("\n", "<br>")}</div>`;
     }
     if (widget.type === "clock") return '<time class="smart-board-clock" data-live-clock></time>';
+    if (widget.type === "calendar") return calendarWidget(value);
     if (widget.type === "timer") return timeWidget("timer", widget, currentTimerSeconds(widget));
     if (widget.type === "stopwatch") return timeWidget("stopwatch", widget, currentStopwatchSeconds(widget));
     if (widget.type === "traffic-light") {
@@ -511,6 +514,15 @@ async function setupBoard(root) {
       const groups = Array.from({ length: count }, () => []);
       shuffled.forEach((name, index) => groups[index % count].push(name));
       return updateWidget(widget.id, { config: { ...widget.config, groups } });
+    }
+    if (["calendar-previous", "calendar-next"].includes(action)) {
+      const visibleMonth = shiftCalendarMonth(
+        widget.config.year,
+        widget.config.month,
+        action === "calendar-next" ? 1 : -1
+      );
+
+      return updateWidget(widget.id, { config: { ...widget.config, ...visibleMonth } });
     }
     if (action === "timer-toggle") {
       const remaining = currentTimerSeconds(widget);
@@ -1673,6 +1685,27 @@ function field(label, name, value, type = "text") {
   return `<label class="smart-board-field">${label}<input name="${name}" type="${type}" value="${safeValue}" ${type === "range" ? 'min="1" max="20"' : ""}></label>`;
 }
 
+function calendarWidget(value) {
+  const visibleMonth = shiftCalendarMonth(value.year, value.month, 0);
+  const monthLabel = new Intl.DateTimeFormat("ar-EG-u-ca-gregory-nu-latn", {
+    month: "long",
+    year: "numeric"
+  }).format(new Date(visibleMonth.year, visibleMonth.month, 1));
+  const weekDays = ["اثن", "ثلا", "أرب", "خمي", "جمع", "سبت", "أحد"];
+  const days = calendarMonthGrid(visibleMonth.year, visibleMonth.month);
+
+  return `<div class="smart-board-calendar">
+    <div class="smart-board-calendar-heading">
+      <button type="button" data-widget-control="calendar-previous" aria-label="الشهر السابق" title="الشهر السابق"><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button>
+      <strong>${escapeHtml(monthLabel)}</strong>
+      <button type="button" data-widget-control="calendar-next" aria-label="الشهر التالي" title="الشهر التالي"><i class="fa-solid fa-chevron-left" aria-hidden="true"></i></button>
+    </div>
+    <div class="smart-board-calendar-weekdays" aria-hidden="true">${weekDays.map((day) => `<span>${day}</span>`).join("")}</div>
+    <div class="smart-board-calendar-days" role="grid" aria-label="${escapeHtml(monthLabel)}">${days.map((day) =>
+      `<span class="smart-board-calendar-day${day.isCurrentMonth ? "" : " is-outside"}${day.isToday ? " is-today" : ""}" role="gridcell"${day.isToday ? ' aria-current="date"' : ""}><b>${day.day}</b></span>`).join("")}</div>
+  </div>`;
+}
+
 function selectField(label, name, options, selected) {
   return `<label class="smart-board-field">${label}<select name="${name}">${options.map(([value, text]) =>
     `<option value="${value}" ${value === selected ? "selected" : ""}>${text}</option>`).join("")}</select></label>`;
@@ -1684,7 +1717,7 @@ function lines(value) {
 
 function widgetLabel(type) {
   return {
-    text: "نص", clock: "ساعة", timer: "مؤقت", stopwatch: "ساعة إيقاف",
+    text: "نص", clock: "ساعة", calendar: "تقويم", timer: "مؤقت", stopwatch: "ساعة إيقاف",
     "traffic-light": "إشارة المرور", scoreboard: "لوحة النتائج",
     dice: "النرد", randomizer: "الاختيار العشوائي", groups: "المجموعات",
     image: "صورة", embed: "فيديو أو عرض", qr: "رمز QR", poll: "استطلاع"
@@ -1693,7 +1726,7 @@ function widgetLabel(type) {
 
 function widgetIcon(type) {
   return {
-    text: "fa-font", clock: "fa-clock", timer: "fa-hourglass-half", stopwatch: "fa-stopwatch",
+    text: "fa-font", clock: "fa-clock", calendar: "fa-calendar-days", timer: "fa-hourglass-half", stopwatch: "fa-stopwatch",
     "traffic-light": "fa-traffic-light", scoreboard: "fa-ranking-star",
     dice: "fa-dice", randomizer: "fa-shuffle", groups: "fa-users-rectangle",
     image: "fa-image", embed: "fa-circle-play", qr: "fa-qrcode", poll: "fa-square-poll-vertical"

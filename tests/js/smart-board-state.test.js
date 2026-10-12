@@ -3,9 +3,9 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 import { fitImageDimensions, safeBoardBackgroundImage } from "../../resources/js/smart-board/image.js";
 import {
-  boardKeyboardCommand, calculatePointerGeometry, commitHistory, createDefaultBoard, createHistory, createWidget, formatDuration,
+  boardKeyboardCommand, calendarMonthGrid, calculatePointerGeometry, commitHistory, createDefaultBoard, createHistory, createWidget, formatDuration,
   migrateState, normalizeBoardAppearance, normalizeWidget, randomDiceValue, redoHistory, reduceBoard, shouldRunSelectionAction,
-  shouldWidgetScroll, undoHistory
+  shouldWidgetScroll, shiftCalendarMonth, undoHistory
 } from "../../resources/js/smart-board/state.js";
 
 const boardInterfaceSource = readFileSync(new URL("../../resources/js/smart-board/index.js", import.meta.url), "utf8");
@@ -245,6 +245,36 @@ test("new clocks default to a fitted analog face with seconds", () => {
   assert.equal(clock.config.showSeconds, true);
   assert.equal(clock.width, 16);
   assert.equal(clock.height, 35);
+});
+
+test("calendar builds a Monday-first six-week month grid", () => {
+  const days = calendarMonthGrid(2026, 9, new Date(2026, 9, 13));
+
+  assert.equal(days.length, 42);
+  assert.deepEqual(days[0], {
+    year: 2026,
+    month: 8,
+    day: 28,
+    isCurrentMonth: false,
+    isToday: false
+  });
+  assert.equal(days[3].day, 1);
+  assert.equal(days[15].day, 13);
+  assert.equal(days[15].isToday, true);
+});
+
+test("calendar navigation crosses year boundaries and calendar controls are rendered", () => {
+  assert.deepEqual(shiftCalendarMonth(2026, 0, -1), { year: 2025, month: 11 });
+  assert.deepEqual(shiftCalendarMonth(2026, 11, 1), { year: 2027, month: 0 });
+
+  const calendar = createWidget("calendar");
+
+  assert.equal(calendar.width, 40);
+  assert.equal(calendar.height, 46);
+  assert.equal(Number.isInteger(calendar.config.year), true);
+  assert.equal(Number.isInteger(calendar.config.month), true);
+  assert.match(boardInterfaceSource, /data-widget-control="calendar-previous"/);
+  assert.match(boardInterfaceSource, /data-widget-control="calendar-next"/);
 });
 
 test("text widgets use safe structured rich text defaults", () => {

@@ -1142,6 +1142,123 @@
         box-shadow: 0 2px 7px rgb(30 64 175 / 30%);
     }
 
+    .smart-board-widget[data-widget-type="calendar"] {
+        border-color: #c7d2fe;
+        background: rgb(255 255 255 / 98%);
+        box-shadow: 0 18px 45px rgb(79 70 229 / 16%);
+    }
+
+    .smart-board-widget[data-widget-type="calendar"] .smart-board-widget-handle {
+        border-bottom-color: #e0e7ff;
+        background: linear-gradient(90deg, #eef2ff, white);
+        color: #4338ca;
+    }
+
+    .smart-board-widget[data-widget-type="calendar"] .smart-board-widget-content {
+        align-items: stretch;
+        justify-content: stretch;
+        padding: clamp(0.35rem, 2cqb, 0.7rem);
+    }
+
+    .smart-board-calendar {
+        display: grid;
+        width: 100%;
+        height: 100%;
+        min-height: 0;
+        grid-template-rows: auto auto minmax(0, 1fr);
+        gap: clamp(0.22rem, 1.5cqb, 0.55rem);
+        color: #111827;
+    }
+
+    .smart-board-calendar-heading {
+        display: grid;
+        grid-template-columns: 2.25rem minmax(0, 1fr) 2.25rem;
+        align-items: center;
+        gap: 0.4rem;
+    }
+
+    .smart-board-calendar-heading strong {
+        overflow: hidden;
+        font-size: clamp(0.72rem, min(4.2cqi, 5cqb), 1.2rem);
+        text-align: center;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .smart-board-calendar-heading button {
+        display: grid;
+        width: 2.25rem;
+        aspect-ratio: 1;
+        place-items: center;
+        border: 0;
+        border-radius: 999px;
+        background: transparent;
+        color: #312e81;
+        transition: background 150ms ease, color 150ms ease;
+    }
+
+    .smart-board-calendar-heading button:hover,
+    .smart-board-calendar-heading button:focus-visible {
+        background: #eef2ff;
+        color: #4f46e5;
+        outline: none;
+    }
+
+    .smart-board-calendar-weekdays,
+    .smart-board-calendar-days {
+        direction: ltr;
+        display: grid;
+        grid-template-columns: repeat(7, minmax(0, 1fr));
+    }
+
+    .smart-board-calendar-weekdays {
+        color: #64748b;
+        font-size: clamp(0.52rem, min(2.8cqi, 3.4cqb), 0.82rem);
+        font-weight: 800;
+        text-align: center;
+    }
+
+    .smart-board-calendar-days {
+        min-height: 0;
+        overflow: hidden;
+        grid-template-rows: repeat(6, minmax(0, 1fr));
+        border: 1px solid #d1d5db;
+        border-radius: clamp(0.45rem, 2cqi, 0.85rem);
+        background: white;
+    }
+
+    .smart-board-calendar-day {
+        display: grid;
+        min-width: 0;
+        place-items: center;
+        border-right: 1px solid #d1d5db;
+        border-bottom: 1px solid #d1d5db;
+        font-size: clamp(0.55rem, min(3.3cqi, 4.3cqb), 1rem);
+        font-variant-numeric: tabular-nums;
+    }
+
+    .smart-board-calendar-day:nth-child(7n) { border-right: 0; }
+    .smart-board-calendar-day:nth-last-child(-n + 7) { border-bottom: 0; }
+
+    .smart-board-calendar-day b {
+        display: grid;
+        min-width: clamp(1.2rem, min(5.2cqi, 7cqb), 2rem);
+        aspect-ratio: 1;
+        place-items: center;
+        border-radius: 999px;
+    }
+
+    .smart-board-calendar-day.is-outside {
+        background: #f8fafc;
+        color: #cbd5e1;
+    }
+
+    .smart-board-calendar-day.is-today b {
+        background: #6366f1;
+        color: white;
+        box-shadow: 0 5px 14px rgb(79 70 229 / 30%);
+    }
+
     .smart-board-time-widget,
     .smart-board-randomizer {
         display: grid;

@@ -120,6 +120,7 @@
                     ['dice', 'fa-dice', 'نرد'],
                     ['randomizer', 'fa-shuffle', 'اختيار'],
                     ['image', 'fa-image', 'صورة'],
+                    ['calendar', 'fa-calendar-days', 'تقويم'],
                 ] as [$type, $icon, $label])
                     <button class="smart-board-tool-button" type="button" data-add-widget data-widget-type="{{ $type }}"
                         data-dock-priority="{{ $loop->iteration }}" aria-label="إضافة {{ $label }}">
@@ -153,6 +154,7 @@
                     @foreach([
                         ['text', 'fa-font', 'نص'],
                         ['clock', 'fa-clock', 'ساعة'],
+                        ['calendar', 'fa-calendar-days', 'تقويم'],
                         ['timer', 'fa-hourglass-half', 'مؤقت'],
                         ['stopwatch', 'fa-stopwatch', 'إيقاف'],
                         ['traffic-light', 'fa-traffic-light', 'إشارة'],
