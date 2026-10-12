@@ -14,9 +14,13 @@ test('the smart board opens for guests with classroom widgets and full board dra
         ->assertSee('id="toggleBoardDockBtn"', false)
         ->assertSee('id="smartBoardMoreBtn"', false)
         ->assertSee('id="smartBoardMoreMenu"', false)
+        ->assertSee('aria-label="أدوات السبورة غير الظاهرة"', false)
+        ->assertSee('تظهر هنا الأدوات غير الموجودة في الشريط حاليًا')
         ->assertSee('id="newBoardBtn"', false)
         ->assertSee('id="clearBoardBtn"', false)
         ->assertSee('id="boardBackgroundImageInput"', false)
+        ->assertSee('id="boardBackgroundImagePreview" alt="معاينة صورة الخلفية" hidden', false)
+        ->assertSee('id="boardBackgroundImageEmpty"', false)
         ->assertSee('id="boardBackgroundColor"', false)
         ->assertSee('id="boardBackgroundSize"', false)
         ->assertSee('id="boardBackgroundOverlay"', false)
@@ -24,7 +28,15 @@ test('the smart board opens for guests with classroom widgets and full board dra
         ->assertDontSee('شبكة إرشادية')
         ->assertDontSee('قالب بداية')
         ->assertDontSee('data-board-template', false)
-        ->assertSee('value="image-mountains"', false)
+        ->assertSee('value="image-school-supplies"', false)
+        ->assertSee('value="image-learning-journey"', false)
+        ->assertSee('value="image-creativity"', false)
+        ->assertSee('value="image-science"', false)
+        ->assertSee('images/smart-board/backgrounds/board-bg-img1.png', false)
+        ->assertSee('images/smart-board/backgrounds/board-bg-img2.png', false)
+        ->assertSee('images/smart-board/backgrounds/board-bg-img3.png', false)
+        ->assertSee('images/smart-board/backgrounds/board-bg-img4.png', false)
+        ->assertDontSee('images/smart-board/backgrounds/mountains.svg', false)
         ->assertSee('value="custom-image"', false)
         ->assertSee('aria-controls="smartBoardDockTools"', false)
         ->assertSee('aria-expanded="true"', false)
@@ -56,5 +68,8 @@ test('the home page promotes the smart board', function () {
 test('students may open the poll page without an account', function () {
     $session = SmartBoardSession::factory()->create();
     $this->get(route('smart-board.join', $session))->assertSuccessful()
-        ->assertSee('data-smart-board-join', false)->assertSee($session->public_code);
+        ->assertSee('data-smart-board-join', false)
+        ->assertSee('data-response-endpoint=', false)
+        ->assertDontSee('data-endpoint=', false)
+        ->assertSee($session->public_code);
 });

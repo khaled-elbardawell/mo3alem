@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
-import { fitImageDimensions } from "../../resources/js/smart-board/image.js";
+import { fitImageDimensions, safeBoardBackgroundImage } from "../../resources/js/smart-board/image.js";
 import {
   boardKeyboardCommand, calculatePointerGeometry, commitHistory, createDefaultBoard, createHistory, createWidget, formatDuration,
   migrateState, normalizeBoardAppearance, normalizeWidget, randomDiceValue, redoHistory, reduceBoard, shouldRunSelectionAction,
@@ -33,9 +33,40 @@ test("saved names are imported only after choosing a saved list", () => {
   assert.doesNotMatch(boardInterfaceSource, /const first = payload\.data\?\.\[0\]/);
 });
 
+test("successful board saves use the top status without a duplicate toast", () => {
+  assert.match(boardInterfaceSource, /elements\.status\.textContent = "تم الحفظ على حسابك"/);
+  assert.doesNotMatch(boardInterfaceSource, /notify\("تم حفظ السبورة\."\)/);
+});
+
+test("the more menu contains only tools currently hidden from the dock", () => {
+  assert.match(boardInterfaceSource, /if \(open\) syncMoreMenuTools\(\)/);
+  assert.match(boardInterfaceSource, /window\.getComputedStyle\(button\)\.display !== "none"/);
+  assert.match(boardInterfaceSource, /moreTool\.hidden = visibleDockTypes\.has\(moreTool\.dataset\.widgetType\)/);
+  assert.match(boardInterfaceSource, /if \(!elements\.moreMenu\.hidden\) syncMoreMenuTools\(\)/);
+});
+
+test("poll results refresh only when the teacher presses the refresh button", () => {
+  assert.match(boardInterfaceSource, /data-widget-control="poll-refresh"/);
+  assert.match(boardInterfaceSource, /if \(action === "poll-refresh"\) refreshPollResults\(widget\.id, control\)/);
+  assert.match(boardInterfaceSource, /async function refreshPollResults\(widgetId, control\)/);
+  assert.doesNotMatch(boardInterfaceSource, /startSessionPolling/);
+  assert.doesNotMatch(boardInterfaceSource, /sessionPollTimer/);
+  assert.doesNotMatch(boardInterfaceSource, /window\.setInterval\(async/);
+});
+
 test("large background images are fitted to full HD before persistence", () => {
   assert.deepEqual(fitImageDimensions(4000, 3000), { width: 1920, height: 1440 });
   assert.deepEqual(fitImageDimensions(1200, 800), { width: 1200, height: 800 });
+});
+
+test("an empty or unsafe background image never creates a broken preview", () => {
+  const origin = "https://mo3alem.test";
+
+  assert.equal(safeBoardBackgroundImage("", origin), "");
+  assert.equal(safeBoardBackgroundImage("https://outside.test/image.png", origin), "");
+  assert.equal(safeBoardBackgroundImage("/storage/background.png", origin), `${origin}/storage/background.png`);
+  assert.match(boardInterfaceSource, /appearanceImagePreview\.removeAttribute\("src"\)/);
+  assert.match(boardInterfaceSource, /appearanceImagePreview\.addEventListener\("error"/);
 });
 
 test("board keyboard shortcuts map to editing commands", () => {
@@ -92,8 +123,20 @@ test("legacy image backgrounds migrate to a no-crop fit", () => {
     backgroundSize: "cover"
   });
 
+  assert.equal(appearance.background, "image-school-supplies");
   assert.equal(appearance.backgroundSize, "contain");
   assert.equal(appearance.backgroundSizeCustomized, false);
+});
+
+test("new ready-made image backgrounds are accepted", () => {
+  for (const background of [
+    "image-school-supplies",
+    "image-learning-journey",
+    "image-creativity",
+    "image-science"
+  ]) {
+    assert.equal(normalizeBoardAppearance({ background }).background, background);
+  }
 });
 
 test("history supports undo and redo", () => {

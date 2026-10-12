@@ -3,7 +3,6 @@
 @section('content')
     <div class="smart-board-join-page" data-smart-board-join
         data-session='@json($sessionData)'
-        data-endpoint="{{ route('smart-board-sessions.show', $smartBoardSession) }}"
         data-response-endpoint="{{ route('smart-board-sessions.responses.store', $smartBoardSession) }}">
         <div class="smart-board-join-card">
             <div class="smart-board-join-logo"><i class="fa-solid fa-chalkboard-user" aria-hidden="true"></i></div>

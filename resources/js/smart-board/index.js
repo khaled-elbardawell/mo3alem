@@ -15,7 +15,7 @@ import {
   shouldWidgetScroll,
   undoHistory
 } from "./state.js";
-import { decodeImageSource, optimizeBackgroundImage } from "./image.js";
+import { decodeImageSource, optimizeBackgroundImage, safeBoardBackgroundImage } from "./image.js";
 import { loadDraft, saveDraft } from "./storage.js";
 
 const joinRoot = document.querySelector("[data-smart-board-join]");
@@ -35,6 +35,7 @@ async function setupBoard(root) {
     drawingWidth: document.getElementById("smartBoardDrawingWidth"),
     drawingWidthValue: document.getElementById("smartBoardDrawingWidthValue"),
     dock: document.getElementById("smartBoardDock"),
+    dockTools: document.getElementById("smartBoardDockTools"),
     dockToggle: document.getElementById("toggleBoardDockBtn"),
     moreToggle: document.getElementById("smartBoardMoreBtn"),
     moreMenu: document.getElementById("smartBoardMoreMenu"),
@@ -69,7 +70,6 @@ async function setupBoard(root) {
   let saveTimer = null;
   let draftTimer = null;
   let qrGenerationTimer = null;
-  let sessionPollTimer = null;
   let selectionToolbarTimer = null;
   let selectionActionsEnabledAt = 0;
   let armedSelectionAction = null;
@@ -165,6 +165,9 @@ async function setupBoard(root) {
   document.addEventListener("click", (event) => {
     if (!event.target.closest("#smartBoardDock")) setMoreMenuOpen(false);
   });
+  window.addEventListener("resize", () => {
+    if (!elements.moreMenu.hidden) syncMoreMenuTools();
+  });
   elements.drawingToolbar.addEventListener("click", (event) => {
     const tool = event.target.closest("[data-drawing-tool]")?.dataset.drawingTool;
     if (tool) updateDrawingSettings({ tool });
@@ -256,6 +259,10 @@ async function setupBoard(root) {
   });
   elements.appearanceApply.addEventListener("click", applyAppearance);
   elements.appearanceImageInput.addEventListener("change", handleAppearanceImage);
+  elements.appearanceImagePreview.addEventListener("error", () => {
+    elements.appearanceImagePreview.hidden = true;
+    elements.appearanceImageEmpty.hidden = false;
+  });
   document.getElementById("removeBoardBackgroundImageBtn").addEventListener("click", removeAppearanceImage);
   document.getElementById("boardBackgroundColor").addEventListener("input", () => {
     selectAppearanceBackground("color");
@@ -315,7 +322,6 @@ async function setupBoard(root) {
 
     clearTimeout(saveTimer);
     clearTimeout(draftTimer);
-    clearTimeout(sessionPollTimer);
     boardId = null;
     boardVersion = null;
     selectedId = null;
@@ -469,8 +475,8 @@ async function setupBoard(root) {
     if (widget.type === "qr") return `<div class="smart-board-qr" data-qr-widget="${escapeHtml(widget.id)}">${value.svg || '<i class="fa-solid fa-qrcode"></i><span>جارٍ إنشاء الرمز…</span>'}</div>`;
     if (widget.type === "poll") {
       const counts = new Map((value.session?.poll?.options || []).map((option) => [option.key, option.count]));
-      return `<div class="smart-board-poll"><h3>${escapeHtml(value.question)}</h3><div>${value.options.map((option) =>
-        `<p><span>${escapeHtml(option.label)}</span><strong>${counts.get(option.key) || 0}</strong></p>`).join("")}</div><button data-widget-control="poll-session"><i class="fa-solid fa-users"></i> ${value.session ? "عرض رمز المشاركة" : "بدء الاستطلاع"}</button></div>`;
+      return `<div class="smart-board-poll"><h3>${escapeHtml(value.question)}</h3><div class="smart-board-poll-results">${value.options.map((option) =>
+        `<p><span>${escapeHtml(option.label)}</span><strong>${counts.get(option.key) || 0}</strong></p>`).join("")}</div><div class="smart-board-poll-actions"><button data-widget-control="poll-session"><i class="fa-solid fa-users"></i> ${value.session ? "عرض رمز المشاركة" : "بدء الاستطلاع"}</button>${value.session ? '<button data-widget-control="poll-refresh"><i class="fa-solid fa-rotate"></i> تحديث النتائج</button>' : ""}</div></div>`;
     }
     return "";
   }
@@ -517,6 +523,7 @@ async function setupBoard(root) {
     }
     if (action === "stopwatch-reset") updateWidget(widget.id, { config: { ...widget.config, elapsed: 0, running: false, startedAt: null } });
     if (action === "poll-session") openPollSession(widget);
+    if (action === "poll-refresh") refreshPollResults(widget.id, control);
   }
 
   function updateWidget(id, changes, shouldRender = true) {
@@ -1050,7 +1057,8 @@ async function setupBoard(root) {
     const source = safeBoardBackgroundImage(pendingAppearancePreviewImage || pendingAppearanceImage);
     elements.appearanceImagePreview.hidden = !source;
     elements.appearanceImageEmpty.hidden = Boolean(source);
-    elements.appearanceImagePreview.src = source || "";
+    if (source) elements.appearanceImagePreview.src = source;
+    else elements.appearanceImagePreview.removeAttribute("src");
     if (source && !elements.appearanceImageInput.files?.[0]) elements.appearanceImageName.textContent = "صورة الخلفية الحالية";
     if (!source) elements.appearanceImageName.textContent = "لم تُرفع صورة بعد";
     document.getElementById("removeBoardBackgroundImageBtn").hidden = !source;
@@ -1178,7 +1186,6 @@ async function setupBoard(root) {
       }
       await saveDraft(history.present);
       elements.status.textContent = "تم الحفظ على حسابك";
-      notify("تم حفظ السبورة.");
     } catch (error) {
       elements.status.textContent = "تعذر الحفظ السحابي؛ المسودة آمنة محليًا";
       notify(error.message, true);
@@ -1246,7 +1253,6 @@ async function setupBoard(root) {
       if (!response.ok) throw new Error(firstError(payload) || "تعذر إنشاء الجلسة.");
       updateWidget(widget.id, { config: { ...widget.config, session: payload.data } });
       showSession(findWidget(widget.id));
-      startSessionPolling(widget.id);
     } catch (error) {
       elements.sessionContent.innerHTML = `<p class="text-red-700">${escapeHtml(error.message)}</p>`;
     }
@@ -1261,22 +1267,29 @@ async function setupBoard(root) {
     if (target) target.innerHTML = svg;
   }
 
-  function startSessionPolling(widgetId) {
-    clearInterval(sessionPollTimer);
-    sessionPollTimer = window.setInterval(async () => {
-      if (document.hidden) return;
-      const widget = findWidget(widgetId);
-      const session = widget?.config.session;
-      if (!session?.code) return clearInterval(sessionPollTimer);
-      try {
-        const response = await fetch(`${config.routes.sessions}/${session.code}`, { headers: { Accept: "application/json" } });
-        const payload = await response.json();
-        if (response.ok && payload.data.version !== session.version) {
-          history.present = reduceBoard(history.present, { type: "update", id: widgetId, changes: { config: { ...widget.config, session: { ...session, ...payload.data } } } });
-          renderWidget(widgetId);
-        }
-      } catch {}
-    }, 2000);
+  async function refreshPollResults(widgetId, control) {
+    const widget = findWidget(widgetId);
+    const session = widget?.config.session;
+    if (!session?.code) return;
+
+    control.disabled = true;
+    control.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جارٍ التحديث…';
+
+    try {
+      const response = await fetch(`${config.routes.sessions}/${session.code}`, { headers: { Accept: "application/json" } });
+      const payload = await response.json();
+      if (!response.ok) throw new Error(firstError(payload) || "تعذر تحديث نتائج الاستطلاع.");
+      history.present = reduceBoard(history.present, {
+        type: "update",
+        id: widgetId,
+        changes: { config: { ...widget.config, session: { ...session, ...payload.data } } }
+      });
+      renderWidget(widgetId);
+    } catch (error) {
+      control.disabled = false;
+      control.innerHTML = '<i class="fa-solid fa-rotate"></i> تحديث النتائج';
+      notify(error.message, true);
+    }
   }
 
   function togglePresentation() {
@@ -1395,9 +1408,22 @@ async function setupBoard(root) {
   }
 
   function setMoreMenuOpen(open) {
+    if (open) syncMoreMenuTools();
     elements.moreMenu.hidden = !open;
     elements.moreToggle.classList.toggle("is-active", open);
     elements.moreToggle.setAttribute("aria-expanded", String(open));
+  }
+
+  function syncMoreMenuTools() {
+    const visibleDockTypes = new Set(
+      [...elements.dockTools.querySelectorAll("[data-dock-priority][data-widget-type]")]
+        .filter((button) => window.getComputedStyle(button).display !== "none")
+        .map((button) => button.dataset.widgetType)
+    );
+
+    elements.moreMenu.querySelectorAll(".smart-board-more-tool[data-widget-type]").forEach((moreTool) => {
+      moreTool.hidden = visibleDockTypes.has(moreTool.dataset.widgetType);
+    });
   }
 
   function updateDrawingSettings(changes) {
@@ -1593,7 +1619,6 @@ async function setupBoard(root) {
 async function setupStudentPoll(root) {
   const content = document.getElementById("studentPollContent");
   const status = document.getElementById("studentPollStatus");
-  const endpoint = root.dataset.endpoint;
   const responseEndpoint = root.dataset.responseEndpoint;
   let session = JSON.parse(root.dataset.session || "{}");
   let selected = null;
@@ -1630,18 +1655,6 @@ async function setupStudentPoll(root) {
       button.disabled = false;
     }
   });
-
-  window.setInterval(async () => {
-    if (document.hidden) return;
-    try {
-      const response = await fetch(endpoint, { headers: { Accept: "application/json" } });
-      const payload = await response.json();
-      if (response.ok && payload.data.version !== session.version) {
-        session = payload.data;
-        render();
-      }
-    } catch {}
-  }, 2000);
 
   function render() {
     if (session.status !== "active" || !session.poll) {
@@ -1736,18 +1749,6 @@ function toEmbedUrl(value) {
 
 function safeColor(value) {
   return /^#[\da-f]{6}$/i.test(String(value)) ? String(value) : "#312e81";
-}
-
-function safeBoardBackgroundImage(value) {
-  const source = String(value || "");
-  if (/^data:image\/(?:jpeg|png|webp);base64,[a-z\d+/=]+$/i.test(source)) return source;
-
-  try {
-    const url = new URL(source, window.location.origin);
-    return url.origin === window.location.origin ? url.href : "";
-  } catch {
-    return "";
-  }
 }
 
 function safeTextFontKey(value) {

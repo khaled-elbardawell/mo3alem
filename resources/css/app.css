@@ -594,10 +594,7 @@
         background: radial-gradient(circle at 20% 10%, #312e81, transparent 36%), #111827;
     }
 
-    [data-background="image-mountains"] .smart-board-stage,
-    [data-background="image-clouds"] .smart-board-stage,
-    [data-background="image-shapes"] .smart-board-stage,
-    [data-background="image-classroom"] .smart-board-stage,
+    [data-background^="image-"] .smart-board-stage,
     [data-background="custom-image"] .smart-board-stage {
         background-color: var(--board-background-color, #fff);
         background-position: center, center;
@@ -957,6 +954,8 @@
         font-size: 0.72rem;
         font-weight: 900;
     }
+
+    .smart-board-more-tool[hidden] { display: none; }
 
     .smart-board-more-tool i { font-size: 1.35rem; color: #6d28d9; }
     .smart-board-more-tool:hover { background: #ede9fe; color: #5b21b6; }
@@ -1387,10 +1386,12 @@
 
     .smart-board-poll { display: grid; width: 100%; height: 100%; align-content: center; gap: clamp(0.25rem, 2cqb, 0.6rem); }
     .smart-board-poll h3 { overflow-wrap: anywhere; text-align: center; font-size: clamp(0.8rem, min(5cqi, 6cqb), 1.15rem); font-weight: 900; }
-    .smart-board-poll > div { display: grid; gap: clamp(0.2rem, 1.5cqb, 0.5rem); }
+    .smart-board-poll-results { display: grid; gap: clamp(0.2rem, 1.5cqb, 0.5rem); }
+    .smart-board-poll-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.4rem; }
     .smart-board-poll p { display: flex; min-width: 0; align-items: center; justify-content: space-between; gap: 0.5rem; border-radius: 0.7rem; background: #f5f3ff; padding: clamp(0.25rem, 1.5cqb, 0.45rem) clamp(0.4rem, 2cqi, 0.65rem); font-size: clamp(0.7rem, min(4cqi, 4.5cqb), 1rem); font-weight: 800; }
     .smart-board-poll p span { min-width: 0; overflow-wrap: anywhere; }
     .smart-board-poll p strong { color: #6d28d9; }
+    .smart-board-poll button:disabled { cursor: wait; opacity: 0.7; }
 
     .smart-board-dialog {
         width: min(94vw, 570px);
@@ -1633,6 +1634,7 @@
     }
 
     .smart-board-background-upload-preview img { width: 100%; height: 100%; max-height: 180px; object-fit: cover; }
+    .smart-board-background-upload-preview > [hidden] { display: none; }
     .smart-board-background-upload-preview > div { display: grid; justify-items: center; gap: 0.4rem; color: #64748b; font-size: 0.78rem; font-weight: 800; }
     .smart-board-background-upload-preview i { font-size: 2rem; color: #8b5cf6; }
 

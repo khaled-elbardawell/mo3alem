@@ -12,6 +12,19 @@ export function fitImageDimensions(width, height, maximumDimension = DEFAULT_MAX
   };
 }
 
+export function safeBoardBackgroundImage(value, baseOrigin = globalThis.location?.origin) {
+  const source = String(value || "").trim();
+  if (!source || !baseOrigin) return "";
+  if (/^data:image\/(?:jpeg|png|webp);base64,[a-z\d+/=]+$/i.test(source)) return source;
+
+  try {
+    const url = new URL(source, baseOrigin);
+    return url.origin === baseOrigin ? url.href : "";
+  } catch {
+    return "";
+  }
+}
+
 export async function optimizeBackgroundImage(file) {
   const source = URL.createObjectURL(file);
 

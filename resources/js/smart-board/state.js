@@ -15,8 +15,15 @@ const defaultDrawing = {
 
 const boardBackgrounds = [
   "plain", "color", "aurora", "sky", "paper", "night",
-  "image-mountains", "image-clouds", "image-shapes", "image-classroom", "custom-image"
+  "image-school-supplies", "image-learning-journey", "image-creativity", "image-science", "custom-image"
 ];
+
+const legacyBoardBackgrounds = {
+  "image-mountains": "image-school-supplies",
+  "image-clouds": "image-learning-journey",
+  "image-shapes": "image-creativity",
+  "image-classroom": "image-science"
+};
 
 const defaultAppearance = {
   background: "plain",
@@ -173,6 +180,7 @@ export function migrateState(value) {
 }
 
 export function normalizeBoardAppearance(board = {}) {
+  const requestedBackground = legacyBoardBackgrounds[board?.background] || board?.background;
   const backgroundColor = typeof board?.backgroundColor === "string" && /^#[0-9a-f]{6}$/i.test(board.backgroundColor)
     ? board.backgroundColor
     : defaultAppearance.backgroundColor;
@@ -184,7 +192,7 @@ export function normalizeBoardAppearance(board = {}) {
     : null;
 
   return {
-    background: boardBackgrounds.includes(board?.background) ? board.background : defaultAppearance.background,
+    background: boardBackgrounds.includes(requestedBackground) ? requestedBackground : defaultAppearance.background,
     backgroundColor,
     backgroundImage,
     backgroundImageAssetId,

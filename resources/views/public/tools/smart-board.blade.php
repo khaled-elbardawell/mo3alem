@@ -140,11 +140,11 @@
                 <i class="fa-solid fa-angles-down" aria-hidden="true"></i>
             </button>
 
-            <section class="smart-board-more-menu" id="smartBoardMoreMenu" aria-label="كل أدوات السبورة" hidden>
+            <section class="smart-board-more-menu" id="smartBoardMoreMenu" aria-label="أدوات السبورة غير الظاهرة" hidden>
                 <div class="smart-board-more-heading">
                     <div>
-                        <strong>كل الأدوات</strong>
-                        <span>اختر أداة لإضافتها إلى منتصف السبورة</span>
+                        <strong>أدوات إضافية</strong>
+                        <span>تظهر هنا الأدوات غير الموجودة في الشريط حاليًا</span>
                     </div>
                     <button type="button" data-close-more aria-label="إغلاق قائمة الأدوات"><i
                             class="fa-solid fa-xmark" aria-hidden="true"></i></button>
@@ -235,10 +235,10 @@
                     <legend>خلفيات صور جاهزة</legend>
                     <div class="smart-board-image-background-grid">
                         @foreach([
-                            ['image-mountains', 'جبال هادئة', 'mountains.svg'],
-                            ['image-clouds', 'سماء وغيوم', 'clouds.svg'],
-                            ['image-shapes', 'أشكال مرحة', 'shapes.svg'],
-                            ['image-classroom', 'صف هادئ', 'classroom.svg'],
+                            ['image-school-supplies', 'أدوات مدرسية', 'board-bg-img1.png'],
+                            ['image-learning-journey', 'رحلة تعليمية', 'board-bg-img2.png'],
+                            ['image-creativity', 'تعلّم وإبداع', 'board-bg-img3.png'],
+                            ['image-science', 'علوم', 'board-bg-img4.png'],
                         ] as [$value, $label, $image])
                             <label class="smart-board-image-background-choice">
                                 <input type="radio" name="board_background" value="{{ $value }}">
