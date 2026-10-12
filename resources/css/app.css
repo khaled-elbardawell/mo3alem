@@ -1479,9 +1479,46 @@
     .smart-board-dialog-actions { display: flex; flex-wrap: wrap; gap: 0.55rem; }
     .smart-board-inline-action { min-height: 44px; border: 1px dashed #a78bfa; border-radius: 0.8rem; background: #f5f3ff; padding: 0.6rem; font-weight: 900; color: #6d28d9; }
 
-    .smart-board-background-options { display: grid; gap: 0.55rem; padding-block: 1rem; }
-    .smart-board-background-options label { display: flex; align-items: center; gap: 0.55rem; font-weight: 800; }
-    .smart-board-background-options span { flex: 1; border: 1px solid #e2e8f0; border-radius: 0.75rem; padding: 0.7rem; }
+    .smart-board-saved-list-picker {
+        display: grid;
+        gap: 0.6rem;
+        border: 1px solid #ddd6fe;
+        border-radius: 0.9rem;
+        background: #fafaff;
+        padding: 0.7rem;
+    }
+
+    .smart-board-saved-list-picker[hidden] { display: none; }
+    .smart-board-saved-list-picker > p { font-size: 0.78rem; font-weight: 800; color: #475569; }
+
+    .smart-board-saved-list-options {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 0.5rem;
+    }
+
+    .smart-board-saved-list-options button {
+        display: flex;
+        min-width: 0;
+        min-height: 58px;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.65rem;
+        border: 1px solid #e2e8f0;
+        border-radius: 0.75rem;
+        background: white;
+        padding: 0.6rem 0.7rem;
+        text-align: start;
+        color: #334155;
+    }
+
+    .smart-board-saved-list-options button:is(:hover, :focus-visible) { border-color: #a78bfa; background: #f5f3ff; outline: none; }
+    .smart-board-saved-list-options button:disabled { cursor: wait; opacity: 0.6; }
+    .smart-board-saved-list-options button.is-loading { border-color: #7c3aed; background: #ede9fe; }
+    .smart-board-saved-list-options button > span { display: grid; min-width: 0; gap: 0.12rem; }
+    .smart-board-saved-list-options strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .smart-board-saved-list-options small { font-size: 0.7rem; font-weight: 700; color: #64748b; }
+    .smart-board-saved-list-options i { flex: 0 0 auto; color: #7c3aed; }
 
     #appearanceDialog { width: min(96vw, 820px); }
 
@@ -1616,8 +1653,7 @@
         gap: 0.65rem;
     }
 
-    .smart-board-range-setting,
-    .smart-board-toggle-setting {
+    .smart-board-range-setting {
         display: flex;
         min-height: 58px;
         align-items: center;
@@ -1632,9 +1668,6 @@
 
     .smart-board-range-setting input { min-width: 0; flex: 1; accent-color: #7c3aed; }
     .smart-board-range-setting output { min-width: 2.5rem; color: #6d28d9; }
-    .smart-board-toggle-setting input { width: 20px; height: 20px; accent-color: #7c3aed; }
-    .smart-board-toggle-setting span { display: grid; gap: 0.1rem; }
-    .smart-board-toggle-setting small { color: #64748b; font-weight: 700; }
 
     .smart-board-onboarding { text-align: center; }
     .smart-board-onboarding h2 { margin-top: 0.6rem; font-size: 1.5rem; font-weight: 900; }

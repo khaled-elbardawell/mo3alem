@@ -20,14 +20,23 @@ test('the smart board opens for guests with classroom widgets and full board dra
         ->assertSee('id="boardBackgroundColor"', false)
         ->assertSee('id="boardBackgroundSize"', false)
         ->assertSee('id="boardBackgroundOverlay"', false)
-        ->assertSee('id="boardShowGrid"', false)
+        ->assertDontSee('id="boardShowGrid"', false)
+        ->assertDontSee('شبكة إرشادية')
+        ->assertDontSee('قالب بداية')
+        ->assertDontSee('data-board-template', false)
         ->assertSee('value="image-mountains"', false)
         ->assertSee('value="custom-image"', false)
         ->assertSee('aria-controls="smartBoardDockTools"', false)
         ->assertSee('aria-expanded="true"', false)
-        ->assertSee('data-board-mode="move"', false)
-        ->assertSee('data-board-mode="draw"', false)
+        ->assertSeeInOrder([
+            'id="boardAppearanceBtn"',
+            'data-board-mode="move"',
+            'data-board-mode="draw"',
+            'id="smartBoardMoreMenu"',
+        ], false)
         ->assertDontSee('data-widget-type="drawing"', false);
+
+    expect(substr_count($response->getContent(), 'id="boardAppearanceBtn"'))->toBe(1);
 
     foreach ([
         'text', 'clock', 'timer', 'stopwatch', 'traffic-light', 'scoreboard',

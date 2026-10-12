@@ -2,7 +2,6 @@ import {
   boardKeyboardCommand,
   calculatePointerGeometry,
   clamp,
-  createBoardTemplate,
   commitHistory,
   createDefaultBoard,
   createHistory,
@@ -16,6 +15,7 @@ import {
   shouldWidgetScroll,
   undoHistory
 } from "./state.js";
+import { decodeImageSource, optimizeBackgroundImage } from "./image.js";
 import { loadDraft, saveDraft } from "./storage.js";
 
 const joinRoot = document.querySelector("[data-smart-board-join]");
@@ -49,6 +49,7 @@ async function setupBoard(root) {
     settingsContent: document.getElementById("widgetSettingsContent"),
     settingsTitle: document.getElementById("widgetSettingsTitle"),
     appearanceDialog: document.getElementById("appearanceDialog"),
+    appearanceApply: document.getElementById("applyAppearanceBtn"),
     appearanceImageInput: document.getElementById("boardBackgroundImageInput"),
     appearanceImagePreview: document.getElementById("boardBackgroundImagePreview"),
     appearanceImageEmpty: document.getElementById("boardBackgroundImageEmpty"),
@@ -73,6 +74,10 @@ async function setupBoard(root) {
   let selectionActionsEnabledAt = 0;
   let armedSelectionAction = null;
   let pendingAppearanceImage = "";
+  let pendingAppearancePreviewImage = "";
+  let pendingAppearanceBackground = "plain";
+  let appearanceImageProcessing = null;
+  let appearanceImageVersion = 0;
   const draft = config.board ? null : await loadDraft().catch(() => null);
   let history = createHistory(migrateState(config.board?.state || draft || createDefaultBoard()));
 
@@ -249,11 +254,11 @@ async function setupBoard(root) {
     setMoreMenuOpen(false);
     openAppearance();
   });
-  document.getElementById("applyAppearanceBtn").addEventListener("click", applyAppearance);
+  elements.appearanceApply.addEventListener("click", applyAppearance);
   elements.appearanceImageInput.addEventListener("change", handleAppearanceImage);
   document.getElementById("removeBoardBackgroundImageBtn").addEventListener("click", removeAppearanceImage);
   document.getElementById("boardBackgroundColor").addEventListener("input", () => {
-    elements.appearanceDialog.querySelector('[name="board_background"][value="color"]').checked = true;
+    selectAppearanceBackground("color");
     updateAppearanceControls();
     previewAppearanceSelection();
   });
@@ -263,26 +268,23 @@ async function setupBoard(root) {
   });
   document.getElementById("boardBackgroundSize").addEventListener("change", previewAppearanceSelection);
   document.getElementById("boardAspectRatio").addEventListener("change", previewAppearanceSelection);
-  document.getElementById("boardShowGrid").addEventListener("change", previewAppearanceSelection);
   elements.appearanceDialog.querySelectorAll('[name="board_background"]').forEach((input) => {
     input.addEventListener("change", () => {
-      if (input.checked && (input.value.startsWith("image-") || input.value === "custom-image")) {
+      if (!input.checked) return;
+      pendingAppearanceBackground = input.value;
+      if (input.value.startsWith("image-") || input.value === "custom-image") {
         document.getElementById("boardBackgroundSize").value = "contain";
       }
       updateAppearanceControls();
       previewAppearanceSelection();
     });
   });
-  elements.appearanceDialog.addEventListener("close", renderBoardAppearance);
-  elements.appearanceDialog.querySelectorAll("[data-board-template]").forEach((button) => {
-    button.addEventListener("click", () => {
-      history = commitHistory(history, createBoardTemplate(button.dataset.boardTemplate));
-      elements.title.value = history.present.board.title;
-      selectedId = null;
-      render();
-      schedulePersistence();
-      elements.appearanceDialog.close();
-    });
+  elements.appearanceDialog.addEventListener("close", () => {
+    appearanceImageVersion += 1;
+    appearanceImageProcessing = null;
+    elements.appearanceApply.disabled = false;
+    releaseAppearancePreviewImage();
+    renderBoardAppearance();
   });
   document.getElementById("applyWidgetSettingsBtn").addEventListener("click", applySettings);
   document.addEventListener("fullscreenchange", updateFullscreenIcon);
@@ -674,7 +676,7 @@ async function setupBoard(root) {
     if (widget.type === "timer") return field("المدة بالدقائق", "minutes", Math.max(1, Math.round(value.duration / 60)), "number");
     if (widget.type === "scoreboard") return field("أسماء الفرق، كل فريق في سطر", "teams", value.teams.map((team) => team.name).join("\n"), "textarea");
     if (["randomizer", "groups"].includes(widget.type)) {
-      return `${field("الأسماء، كل اسم في سطر", "names", value.names.join("\n"), "textarea")}${widget.type === "groups" ? field("عدد المجموعات", "groupCount", value.groupCount, "number") : ""}<button class="smart-board-inline-action" type="button" id="loadSavedNamesBtn"><i class="fa-solid fa-list"></i> استيراد قائمة محفوظة</button>`;
+      return `${field("الأسماء، كل اسم في سطر", "names", value.names.join("\n"), "textarea")}${widget.type === "groups" ? field("عدد المجموعات", "groupCount", value.groupCount, "number") : ""}<button class="smart-board-inline-action" type="button" id="loadSavedNamesBtn" aria-controls="savedNamesPicker" aria-expanded="false"><i class="fa-solid fa-list"></i> استيراد قائمة محفوظة</button><div class="smart-board-saved-list-picker" id="savedNamesPicker" hidden><p data-saved-list-status role="status"></p><div class="smart-board-saved-list-options" data-saved-list-options></div></div>`;
     }
     if (widget.type === "image") return '<button class="smart-board-inline-action" type="button" id="replaceImageBtn"><i class="fa-solid fa-image"></i> استبدال الصورة</button>';
     if (widget.type === "embed") return field("رابط YouTube أو Vimeo أو Canva أو Google Slides", "url", value.url, "url");
@@ -798,7 +800,16 @@ async function setupBoard(root) {
       elements.settingsDialog.close();
       elements.imageInput.click();
     }
-    if (event.target.closest("#loadSavedNamesBtn")) await loadSavedNames();
+    const savedListButton = event.target.closest("[data-saved-list-id]");
+    if (savedListButton) {
+      event.preventDefault();
+      await importSavedNames(savedListButton);
+      return;
+    }
+    if (event.target.closest("#loadSavedNamesBtn")) {
+      event.preventDefault();
+      await showSavedNamesPicker();
+    }
   });
 
   function applySettings(event) {
@@ -848,30 +859,87 @@ async function setupBoard(root) {
     elements.settingsDialog.close();
   }
 
-  async function loadSavedNames() {
+  async function showSavedNamesPicker() {
     if (!config.authenticated) return notify("سجّل الدخول لاستيراد قوائمك.", true);
-    const response = await fetch(config.routes.savedLists, { headers: { Accept: "application/json" } });
-    const payload = await response.json();
-    const first = payload.data?.[0];
-    if (!first) return notify("لا توجد قوائم محفوظة.", true);
-    const detail = await fetch(`${config.routes.savedLists}/${first.id}`, { headers: { Accept: "application/json" } });
-    const names = (await detail.json()).data?.names || [];
-    const textarea = elements.settingsContent.querySelector('[name="names"]');
-    if (textarea) textarea.value = names.join("\n");
-    notify(`تم تحميل قائمة «${first.title}».`);
+    const picker = elements.settingsContent.querySelector("#savedNamesPicker");
+    const status = picker?.querySelector("[data-saved-list-status]");
+    const options = picker?.querySelector("[data-saved-list-options]");
+    const trigger = elements.settingsContent.querySelector("#loadSavedNamesBtn");
+    if (!picker || !status || !options || !trigger) return;
+
+    picker.hidden = false;
+    picker.setAttribute("aria-busy", "true");
+    trigger.disabled = true;
+    trigger.setAttribute("aria-expanded", "true");
+    status.textContent = "جارٍ تحميل القوائم المحفوظة…";
+    options.replaceChildren();
+
+    try {
+      const response = await fetch(config.routes.savedLists, { headers: { Accept: "application/json" } });
+      const payload = await response.json();
+      if (!response.ok) throw new Error(firstError(payload) || "تعذر تحميل القوائم المحفوظة.");
+      const savedLists = Array.isArray(payload.data) ? payload.data : [];
+      if (!savedLists.length) {
+        status.textContent = "لا توجد قوائم محفوظة حتى الآن.";
+        return;
+      }
+
+      status.textContent = "اختر القائمة التي تريد استيرادها:";
+      options.innerHTML = savedLists.map(savedListOptionTemplate).join("");
+    } catch (error) {
+      status.textContent = error.message;
+      notify(error.message, true);
+    } finally {
+      picker.setAttribute("aria-busy", "false");
+      trigger.disabled = false;
+    }
+  }
+
+  async function importSavedNames(button) {
+    const listId = Number(button.dataset.savedListId);
+    if (!Number.isInteger(listId) || listId < 1) return;
+    const picker = elements.settingsContent.querySelector("#savedNamesPicker");
+    const status = picker?.querySelector("[data-saved-list-status]");
+    const title = String(button.dataset.savedListTitle || "القائمة");
+    const optionButtons = picker?.querySelectorAll("[data-saved-list-id]") || [];
+    optionButtons.forEach((option) => { option.disabled = true; });
+    button.classList.add("is-loading");
+    if (status) status.textContent = `جارٍ تحميل قائمة «${title}»…`;
+
+    try {
+      const response = await fetch(`${config.routes.savedLists}/${encodeURIComponent(listId)}`, { headers: { Accept: "application/json" } });
+      const payload = await response.json();
+      if (!response.ok) throw new Error(firstError(payload) || "تعذر تحميل القائمة.");
+      const names = Array.isArray(payload.data?.names)
+        ? payload.data.names.filter((name) => typeof name === "string").map((name) => name.trim()).filter(Boolean).slice(0, 2000)
+        : [];
+      const textarea = elements.settingsContent.querySelector('[name="names"]');
+      if (textarea) textarea.value = names.join("\n");
+      picker.hidden = true;
+      elements.settingsContent.querySelector("#loadSavedNamesBtn")?.setAttribute("aria-expanded", "false");
+      notify(`تم تحميل قائمة «${title}».`);
+    } catch (error) {
+      if (status) status.textContent = error.message;
+      notify(error.message, true);
+    } finally {
+      optionButtons.forEach((option) => { option.disabled = false; });
+      button.classList.remove("is-loading");
+    }
   }
 
   function openAppearance() {
     const board = history.present.board;
-    const backgroundInput = elements.appearanceDialog.querySelector(`[name="board_background"][value="${board.background}"]`)
-      || elements.appearanceDialog.querySelector('[name="board_background"][value="plain"]');
-    backgroundInput.checked = true;
+    appearanceImageVersion += 1;
+    appearanceImageProcessing = null;
+    elements.appearanceApply.disabled = false;
+    releaseAppearancePreviewImage();
+    selectAppearanceBackground(board.background || "plain");
     pendingAppearanceImage = board.backgroundImage || "";
+    pendingAppearancePreviewImage = pendingAppearanceImage;
     elements.appearanceImageInput.value = "";
     document.getElementById("boardBackgroundColor").value = safeColor(board.backgroundColor || "#ffffff");
     document.getElementById("boardBackgroundSize").value = board.backgroundSize || "cover";
     document.getElementById("boardBackgroundOverlay").value = String(board.backgroundOverlay ?? 18);
-    document.getElementById("boardShowGrid").checked = board.showGrid === true;
     document.getElementById("boardAspectRatio").value = board.aspectRatio;
     updateAppearanceImagePreview();
     updateAppearanceControls();
@@ -879,16 +947,20 @@ async function setupBoard(root) {
     elements.appearanceDialog.showModal();
   }
 
-  function applyAppearance(event) {
+  async function applyAppearance(event) {
     event.preventDefault();
+    if (appearanceImageProcessing) await appearanceImageProcessing;
+    if (pendingAppearanceBackground === "custom-image" && !pendingAppearanceImage) {
+      return notify("انتظر حتى يكتمل تجهيز صورة الخلفية.", true);
+    }
+
     const currentBoard = history.present.board;
-    const background = elements.appearanceDialog.querySelector('[name="board_background"]:checked')?.value || "plain";
     const backgroundImageChanged = pendingAppearanceImage !== (currentBoard.backgroundImage || "");
     const aspectRatio = document.getElementById("boardAspectRatio").value;
     commit(reduceBoard(history.present, {
       type: "appearance",
       changes: {
-        background,
+        background: pendingAppearanceBackground,
         backgroundColor: safeColor(document.getElementById("boardBackgroundColor").value),
         backgroundImage: pendingAppearanceImage,
         backgroundImageAssetId: backgroundImageChanged ? null : currentBoard.backgroundImageAssetId,
@@ -898,7 +970,7 @@ async function setupBoard(root) {
         backgroundSize: document.getElementById("boardBackgroundSize").value === "contain" ? "contain" : "cover",
         backgroundSizeCustomized: true,
         backgroundOverlay: clamp(Number(document.getElementById("boardBackgroundOverlay").value), 0, 70),
-        showGrid: document.getElementById("boardShowGrid").checked,
+        showGrid: false,
         aspectRatio
       }
     }));
@@ -919,26 +991,63 @@ async function setupBoard(root) {
       return notify("حجم صورة الخلفية يجب ألا يتجاوز 5MB.", true);
     }
 
-    pendingAppearanceImage = await readFile(file);
-    elements.appearanceDialog.querySelector('[name="board_background"][value="custom-image"]').checked = true;
+    const imageVersion = ++appearanceImageVersion;
+    releaseAppearancePreviewImage();
+    pendingAppearanceImage = "";
+    pendingAppearancePreviewImage = URL.createObjectURL(file);
+    selectAppearanceBackground("custom-image");
     document.getElementById("boardBackgroundSize").value = "contain";
-    elements.appearanceImageName.textContent = file.name;
+    elements.appearanceImageName.textContent = `جارٍ تجهيز ${file.name}…`;
+    elements.appearanceApply.disabled = true;
     updateAppearanceImagePreview();
     updateAppearanceControls();
     previewAppearanceSelection();
+
+    appearanceImageProcessing = optimizeBackgroundImage(file)
+      .catch(() => readFile(file))
+      .then(async (source) => {
+        if (imageVersion !== appearanceImageVersion) return;
+        await decodeImageSource(source);
+        if (imageVersion !== appearanceImageVersion) return;
+        releaseAppearancePreviewImage();
+        pendingAppearanceImage = source;
+        pendingAppearancePreviewImage = source;
+        elements.appearanceImageName.textContent = file.name;
+        updateAppearanceImagePreview();
+        previewAppearanceSelection();
+      })
+      .catch(() => {
+        if (imageVersion !== appearanceImageVersion) return;
+        releaseAppearancePreviewImage();
+        pendingAppearanceImage = "";
+        selectAppearanceBackground("plain");
+        updateAppearanceImagePreview();
+        updateAppearanceControls();
+        previewAppearanceSelection();
+        notify("تعذر تجهيز صورة الخلفية.", true);
+      })
+      .finally(() => {
+        if (imageVersion !== appearanceImageVersion) return;
+        appearanceImageProcessing = null;
+        elements.appearanceApply.disabled = false;
+      });
   }
 
   function removeAppearanceImage() {
+    appearanceImageVersion += 1;
+    appearanceImageProcessing = null;
+    elements.appearanceApply.disabled = false;
+    releaseAppearancePreviewImage();
     pendingAppearanceImage = "";
     elements.appearanceImageInput.value = "";
-    elements.appearanceDialog.querySelector('[name="board_background"][value="plain"]').checked = true;
+    selectAppearanceBackground("plain");
     updateAppearanceImagePreview();
     updateAppearanceControls();
     previewAppearanceSelection();
   }
 
   function updateAppearanceImagePreview() {
-    const source = safeBoardBackgroundImage(pendingAppearanceImage);
+    const source = safeBoardBackgroundImage(pendingAppearancePreviewImage || pendingAppearanceImage);
     elements.appearanceImagePreview.hidden = !source;
     elements.appearanceImageEmpty.hidden = Boolean(source);
     elements.appearanceImagePreview.src = source || "";
@@ -947,11 +1056,22 @@ async function setupBoard(root) {
     document.getElementById("removeBoardBackgroundImageBtn").hidden = !source;
   }
 
+  function releaseAppearancePreviewImage() {
+    if (pendingAppearancePreviewImage.startsWith("blob:")) URL.revokeObjectURL(pendingAppearancePreviewImage);
+    pendingAppearancePreviewImage = "";
+  }
+
   function updateAppearanceControls() {
-    const background = elements.appearanceDialog.querySelector('[name="board_background"]:checked')?.value || "plain";
-    const usesImage = background.startsWith("image-") || background === "custom-image";
+    const usesImage = pendingAppearanceBackground.startsWith("image-") || pendingAppearanceBackground === "custom-image";
     document.getElementById("boardImageDisplaySettings").hidden = !usesImage;
-    document.getElementById("boardCustomColorField").hidden = background !== "color";
+    document.getElementById("boardCustomColorField").hidden = pendingAppearanceBackground !== "color";
+  }
+
+  function selectAppearanceBackground(background) {
+    const input = elements.appearanceDialog.querySelector(`[name="board_background"][value="${background}"]`)
+      || elements.appearanceDialog.querySelector('[name="board_background"][value="plain"]');
+    pendingAppearanceBackground = input.value;
+    input.checked = true;
   }
 
   function updateAppearanceOverlayOutput() {
@@ -964,15 +1084,14 @@ async function setupBoard(root) {
   }
 
   function previewAppearanceSelection() {
-    const background = elements.appearanceDialog.querySelector('[name="board_background"]:checked')?.value || "plain";
     applyBoardAppearanceStyles({
       ...history.present.board,
-      background,
+      background: pendingAppearanceBackground,
       backgroundColor: safeColor(document.getElementById("boardBackgroundColor").value),
-      backgroundImage: pendingAppearanceImage,
+      backgroundImage: pendingAppearancePreviewImage || pendingAppearanceImage,
       backgroundSize: document.getElementById("boardBackgroundSize").value,
       backgroundOverlay: Number(document.getElementById("boardBackgroundOverlay").value),
-      showGrid: document.getElementById("boardShowGrid").checked,
+      showGrid: false,
       aspectRatio: document.getElementById("boardAspectRatio").value
     });
   }
@@ -1037,6 +1156,7 @@ async function setupBoard(root) {
       }
       if (pendingBackgroundImage) {
         const upload = await uploadImage(pendingBackgroundImage, "board-background");
+        await decodeImageSource(upload.url).catch(() => {});
         history.present = reduceBoard(history.present, {
           type: "appearance",
           changes: {
@@ -1664,6 +1784,15 @@ function escapeHtml(value) {
   return String(value ?? "").replace(/[&<>'"]/g, (character) => ({
     "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#039;", '"': "&quot;"
   })[character]);
+}
+
+function savedListOptionTemplate(savedList) {
+  const id = Number(savedList?.id);
+  if (!Number.isInteger(id) || id < 1) return "";
+  const title = String(savedList?.title || "قائمة بلا اسم").slice(0, 120);
+  const namesCount = Math.max(0, Number(savedList?.names_count) || 0);
+
+  return `<button type="button" data-saved-list-id="${id}" data-saved-list-title="${escapeHtml(title)}"><span><strong>${escapeHtml(title)}</strong><small>${new Intl.NumberFormat("en-GB").format(namesCount)} اسم</small></span><i class="fa-solid fa-arrow-left" aria-hidden="true"></i></button>`;
 }
 
 function cssEscape(value) {

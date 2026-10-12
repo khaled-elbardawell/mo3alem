@@ -91,6 +91,11 @@
         </div>
 
         <nav class="smart-board-dock" id="smartBoardDock" aria-label="أدوات السبورة">
+            <button class="smart-board-tool-button" id="boardAppearanceBtn" type="button"
+                aria-label="مظهر السبورة">
+                <i class="fa-solid fa-palette" aria-hidden="true"></i>
+                <span>المظهر</span>
+            </button>
             <div class="smart-board-mode-switch" role="group" aria-label="وضع التفاعل">
                 <button class="smart-board-tool-button is-active" type="button" data-board-mode="move"
                     aria-pressed="true" aria-label="وضع التحريك">
@@ -166,11 +171,6 @@
                             <span>{{ $label }}</span>
                         </button>
                     @endforeach
-                    <button class="smart-board-more-tool" id="boardAppearanceBtn" type="button"
-                        aria-label="مظهر السبورة">
-                        <i class="fa-solid fa-palette" aria-hidden="true"></i>
-                        <span>المظهر</span>
-                    </button>
                 </div>
             </section>
         </nav>
@@ -298,18 +298,6 @@
                             <input id="boardBackgroundOverlay" type="range" min="0" max="70" step="5" value="18">
                             <output id="boardBackgroundOverlayValue">18%</output>
                         </label>
-                        <label class="smart-board-toggle-setting">
-                            <input id="boardShowGrid" type="checkbox">
-                            <span><strong>شبكة إرشادية</strong><small>نقاط خفيفة تساعد في ترتيب الأدوات</small></span>
-                        </label>
-                    </div>
-                </fieldset>
-                <fieldset class="smart-board-background-options">
-                    <legend class="font-black text-slate-800">قالب بداية</legend>
-                    <div class="grid grid-cols-3 gap-2">
-                        <button class="smart-board-inline-action" type="button" data-board-template="welcome">ترحيب</button>
-                        <button class="smart-board-inline-action" type="button" data-board-template="activity">نشاط</button>
-                        <button class="smart-board-inline-action" type="button" data-board-template="quiz">اختبار</button>
                     </div>
                 </fieldset>
                 <div class="smart-board-dialog-actions">

@@ -136,21 +136,6 @@ export function createDefaultBoard() {
   };
 }
 
-export function createBoardTemplate(name) {
-  const board = createDefaultBoard();
-  if (name === "activity") {
-    board.board.title = "نشاط صفّي";
-    board.widgets = [createWidget("text", 0), createWidget("timer", 1), createWidget("groups", 2), createWidget("scoreboard", 3)];
-    board.widgets[0].config.content = "نشاط اليوم\nتعاونوا، فكّروا، ثم شاركوا";
-  }
-  if (name === "quiz") {
-    board.board.title = "اختبار سريع";
-    board.widgets = [createWidget("text", 0), createWidget("timer", 1), createWidget("traffic-light", 2), createWidget("poll", 3)];
-    board.widgets[0].config.content = "اختبار سريع\nاقرأ السؤال واختر الإجابة";
-  }
-  return board;
-}
-
 export function normalizeWidget(widget) {
   const width = clamp(Number(widget.width) || 20, 5, 100);
   const height = clamp(Number(widget.height) || 20, 5, 100);
@@ -209,7 +194,7 @@ export function normalizeBoardAppearance(board = {}) {
       : defaultAppearance.backgroundSize,
     backgroundSizeCustomized: board?.backgroundSizeCustomized === true,
     backgroundOverlay: clamp(Number(board?.backgroundOverlay ?? defaultAppearance.backgroundOverlay), 0, 70),
-    showGrid: board?.showGrid === true,
+    showGrid: false,
     aspectRatio: ["auto", "16/9", "4/3"].includes(board?.aspectRatio) ? board.aspectRatio : defaultAppearance.aspectRatio
   };
 }

@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
+import { fitImageDimensions } from "../../resources/js/smart-board/image.js";
 import {
   boardKeyboardCommand, calculatePointerGeometry, commitHistory, createDefaultBoard, createHistory, createWidget, formatDuration,
   migrateState, normalizeBoardAppearance, normalizeWidget, randomDiceValue, redoHistory, reduceBoard, shouldRunSelectionAction,
@@ -12,6 +13,29 @@ const boardInterfaceSource = readFileSync(new URL("../../resources/js/smart-boar
 test("widget creation listeners are limited to explicit add controls", () => {
   assert.match(boardInterfaceSource, /elements\.dock\.querySelectorAll\("\[data-add-widget\]"\)/);
   assert.doesNotMatch(boardInterfaceSource, /querySelectorAll\("\[data-widget-type\]"\)/);
+});
+
+test("uploaded background images replace a pending color selection", () => {
+  assert.match(boardInterfaceSource, /selectAppearanceBackground\("custom-image"\)/);
+  assert.match(boardInterfaceSource, /background: pendingAppearanceBackground/);
+  assert.match(boardInterfaceSource, /URL\.createObjectURL\(file\)/);
+  assert.match(boardInterfaceSource, /optimizeBackgroundImage\(file\)/);
+  assert.match(boardInterfaceSource, /await decodeImageSource\(source\)/);
+  assert.match(boardInterfaceSource, /await decodeImageSource\(upload\.url\)/);
+  assert.doesNotMatch(boardInterfaceSource, /const background = elements\.appearanceDialog\.querySelector\('\[name="board_background"\]:checked'\)/);
+});
+
+test("saved names are imported only after choosing a saved list", () => {
+  assert.match(boardInterfaceSource, /data-saved-list-id/);
+  assert.match(boardInterfaceSource, /await importSavedNames\(savedListButton\)/);
+  assert.match(boardInterfaceSource, /button\.dataset\.savedListId/);
+  assert.match(boardInterfaceSource, /encodeURIComponent\(listId\)/);
+  assert.doesNotMatch(boardInterfaceSource, /const first = payload\.data\?\.\[0\]/);
+});
+
+test("large background images are fitted to full HD before persistence", () => {
+  assert.deepEqual(fitImageDimensions(4000, 3000), { width: 1920, height: 1440 });
+  assert.deepEqual(fitImageDimensions(1200, 800), { width: 1200, height: 800 });
 });
 
 test("board keyboard shortcuts map to editing commands", () => {
@@ -58,7 +82,7 @@ test("board appearance settings are normalized safely", () => {
   assert.equal(appearance.backgroundSize, "contain");
   assert.equal(appearance.backgroundSizeCustomized, true);
   assert.equal(appearance.backgroundOverlay, 70);
-  assert.equal(appearance.showGrid, true);
+  assert.equal(appearance.showGrid, false);
   assert.equal(appearance.aspectRatio, "16/9");
 });
 

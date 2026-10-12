@@ -28,7 +28,7 @@
     "src": "_instrument-sans-600-normal-B9e8oLYv.woff"
   },
   "resources/css/app.css": {
-    "file": "assets/app-CapF3VOs.css",
+    "file": "assets/app-BiQbeSkz.css",
     "name": "app",
     "names": [
       "app.css"
@@ -49,7 +49,7 @@
     "src": "resources/fonts/rb/RB-Regular.ttf"
   },
   "resources/js/app.js": {
-    "file": "assets/app-f-RSTCi6.js",
+    "file": "assets/app-BrEc7O4Q.js",
     "name": "app",
     "src": "resources/js/app.js",
     "isEntry": true,
@@ -58,7 +58,7 @@
     ]
   },
   "resources/js/smart-board/index.js": {
-    "file": "assets/smart-board-BYbcx2XX.js",
+    "file": "assets/smart-board-EXcj56ud.js",
     "name": "smart-board",
     "src": "resources/js/smart-board/index.js",
     "isDynamicEntry": true
