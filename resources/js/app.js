@@ -2,6 +2,10 @@ import "./qr-tool";
 import "./certificate-tool";
 import "./short-links";
 
+if (document.querySelector("[data-smart-board], [data-smart-board-join]")) {
+  import("./smart-board/index.js");
+}
+
 function setupCampaignTracking() {
   const placements = [...document.querySelectorAll("[data-view-endpoint]")];
 

@@ -13,12 +13,14 @@
                 'qr' => route('tools.qr'),
                 'links' => route('tools.short-url'),
                 'certificates' => route('tools.certificates'),
+                'boards' => route('tools.smart-board'),
                 default => route('tools.wheel'),
             } }}">
             {{ match ($section) {
                 'qr' => 'إنشاء QR جديد',
                 'links' => 'اختصار رابط جديد',
                 'certificates' => 'إنشاء شهادة جديدة',
+                'boards' => 'إنشاء سبورة جديدة',
                 default => 'مسابقة جديدة',
             } }}
         </a>
@@ -39,6 +41,7 @@
             ['section' => 'links', 'label' => 'روابطي', 'icon' => 'fa-link'],
             ['section' => 'qr', 'label' => 'رموز QR', 'icon' => 'fa-qrcode'],
             ['section' => 'certificates', 'label' => 'شهاداتي', 'icon' => 'fa-award'],
+            ['section' => 'boards', 'label' => 'سبوراتي', 'icon' => 'fa-chalkboard'],
         ] as $tab)
             <a @class([
                 'inline-flex min-h-12 items-center justify-center gap-2 rounded-xl px-2 text-center text-sm font-black transition sm:px-4 sm:text-base',
@@ -59,6 +62,7 @@
                 'lists' => 'ابحث باسم القائمة',
                 'links' => 'ابحث باسم الرابط أو المقطع',
                 'qr' => 'ابحث باسم تصميم QR',
+                'boards' => 'ابحث باسم السبورة',
                 default => 'ابحث باسم الشهادة',
             } }}">
         <select class="rounded-xl border border-slate-200 px-4 py-3" name="sort">
@@ -86,6 +90,7 @@
                     'links' => 'fa-link',
                     'certificates' => 'fa-award',
                     'lists' => 'fa-list',
+                    'boards' => 'fa-chalkboard',
                     default => 'fa-trophy',
                 } }}" aria-hidden="true"></i>
             </span>
@@ -95,6 +100,7 @@
                     'lists' => 'لا توجد قوائم أسماء بعد',
                     'qr' => 'لم تحفظ أي رمز QR بعد',
                     'links' => 'لم تنشئ أي رابط مختصر بعد',
+                    'boards' => 'لم تحفظ أي سبورة بعد',
                     default => 'لم تحفظ أي شهادة بعد',
                 } }}
             </p>
@@ -103,6 +109,7 @@
                     'qr' => 'أنشئ رمزك الأول ثم اضغط حفظ لإبقائه داخل حسابك.',
                     'links' => 'اختصر رابطك الأول واختر له مقطعًا واضحًا وسهل المشاركة.',
                     'certificates' => 'صمّم شهادتك الأولى ثم احفظها لتعديلها أو طباعتها لاحقاً.',
+                    'boards' => 'أنشئ سبورتك الأولى وأضف أدوات حصتك ثم احفظها في حسابك.',
                     default => 'ابدأ من أدوات معلّم وأنشئ أول عنصر لك.',
                 } }}
             </p>
@@ -116,6 +123,7 @@
                         'lists' => route('user.saved-wheels.show', $item),
                         'links' => route('user.short-links.show', $item),
                         'qr' => route('tools.qr', ['qr' => $item]),
+                        'boards' => route('tools.smart-board', ['board' => $item]),
                         default => route('tools.certificates', ['certificate' => $item]),
                     };
                 @endphp
@@ -157,6 +165,8 @@
                             <span class="shrink-0 rounded-full bg-amber-50 px-2.5 py-1 text-xs font-black text-amber-700">
                                 {{ $item->template_key === 'custom' ? 'قالب مرفوع' : 'قالب '.str_replace('b', '', $item->template_key) }}
                             </span>
+                        @elseif($section === 'boards')
+                            <span class="shrink-0 rounded-full bg-violet-50 px-2.5 py-1 text-xs font-black text-violet-700">سبورة ذكية</span>
                         @endif
                     </div>
                     <div class="mt-3 flex flex-wrap justify-between gap-3 text-sm text-slate-500">
@@ -170,8 +180,10 @@
                         @elseif($section === 'links')
                             <span class="inline-flex items-center gap-1.5"><i class="fa-solid fa-chart-simple text-emerald-500" aria-hidden="true"></i> {{ number_format($item->visit_count) }} زيارة</span>
                             <span class="font-bold text-violet-700" dir="ltr">/short/{{ $item->slug }}</span>
-                        @else
+                        @elseif($section === 'certificates')
                             <span class="inline-flex items-center gap-1.5"><i class="fa-solid fa-font text-amber-500" aria-hidden="true"></i> {{ count($item->design['elements'] ?? []) }} عناصر نصية</span>
+                        @else
+                            <span class="inline-flex items-center gap-1.5"><i class="fa-solid fa-shapes text-violet-500" aria-hidden="true"></i> {{ count($item->state['widgets'] ?? []) }} أدوات</span>
                         @endif
                         @if($section === 'competitions')
                             <span>{{ number_format($item->results_count) }} لفة</span>
@@ -181,6 +193,7 @@
                     <div class="mt-5 grid gap-2">
                         <a class="rounded-xl bg-violet-700 px-4 py-2.5 text-center font-bold text-white hover:bg-violet-800" href="{{ $primaryUrl }}">
                             {{ in_array($section, ['qr', 'certificates'], true) ? 'فتح وتعديل التصميم' : ($section === 'links' ? 'الإحصائيات والتعديل' : 'عرض التفاصيل') }}
+                            {{ $section === 'boards' ? 'فتح السبورة' : (in_array($section, ['qr', 'certificates'], true) ? 'فتح وتعديل التصميم' : 'عرض التفاصيل') }}
                         </a>
                         @if(in_array($section, ['competitions', 'lists'], true))
                             <a class="rounded-xl border border-violet-200 px-4 py-2.5 text-center font-bold text-violet-700 hover:bg-violet-50"
@@ -202,6 +215,7 @@
                                 'lists' => route('saved-wheels.destroy', $item),
                                 'qr' => route('qr-codes.destroy', $item),
                                 'links' => route('short-links.destroy', $item),
+                                'boards' => route('smart-boards.destroy', $item),
                                 default => route('certificates.destroy', $item),
                             } }}" data-confirm="هل تريد حذف هذا العنصر؟">
                                 @csrf

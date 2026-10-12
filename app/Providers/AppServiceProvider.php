@@ -97,6 +97,31 @@ class AppServiceProvider extends ServiceProvider
             ];
         });
 
+        RateLimiter::for('smart-board-creation', function (Request $request): array {
+            return [
+                Limit::perMinute(10)->by('minute:'.$request->user()->id),
+                Limit::perDay(100)->by('day:'.$request->user()->id),
+            ];
+        });
+
+        RateLimiter::for('smart-board-session-creation', function (Request $request): array {
+            $identifier = $request->user()?->id ?? $request->ip();
+
+            return [
+                Limit::perMinute(5)->by("minute:{$identifier}"),
+                Limit::perDay(50)->by("day:{$identifier}"),
+            ];
+        });
+
+        RateLimiter::for('smart-board-session-updates', fn (Request $request): Limit => Limit::perMinute(60)
+            ->by($request->user()?->id ?? $request->ip()));
+        RateLimiter::for('smart-board-join', fn (Request $request): Limit => Limit::perMinute(60)
+            ->by($request->ip()));
+        RateLimiter::for('smart-board-polling', fn (Request $request): Limit => Limit::perMinute(60)
+            ->by($request->ip().':'.(string) $request->route('smartBoardSession')));
+        RateLimiter::for('smart-board-responses', fn (Request $request): Limit => Limit::perMinute(20)
+            ->by($request->ip().':'.(string) $request->route('smartBoardSession')));
+
         RateLimiter::for('trusted-user-creation', function (Request $request): array {
             $clientIdentifier = $request->user() instanceof ApiClient
                 ? $request->user()->getAuthIdentifier()

@@ -136,6 +136,23 @@
                             <i class="fa-solid fa-arrow-left text-xs" aria-hidden="true"></i>
                         </span>
                     </a>
+
+                    <a class="group flex h-fit flex-col rounded-2xl border border-violet-200 bg-white p-4 shadow-[0_16px_50px_rgba(49,46,129,0.08)] transition-[transform,box-shadow,border-color] hover:-translate-y-1 hover:border-violet-300 hover:shadow-[0_24px_65px_rgba(76,29,149,0.14)] focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-violet-600" href="{{ route('tools.smart-board') }}" data-tool-card="smart-board" data-reveal data-lift-card>
+                        <div class="flex items-center gap-3">
+                            <span class="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-fuchsia-100 text-xl text-fuchsia-700"><i class="fa-solid fa-chalkboard-user" aria-hidden="true"></i></span>
+                            <h3 class="text-lg font-black text-[#111a35]">السبورة الذكية</h3>
+                        </div>
+                        <p class="mt-2.5 text-sm font-medium leading-7 text-slate-500">أدِر حصتك من شاشة واحدة بالمؤقت والتعليمات والاختيار العشوائي والاستطلاع المباشر.</p>
+                        <div class="mt-3 mb-3 grid h-32 shrink-0 grid-cols-3 gap-2 overflow-hidden rounded-xl bg-linear-to-br from-violet-100 via-white to-sky-100 p-3 sm:h-36">
+                            @foreach([['fa-clock', 'الوقت'], ['fa-hourglass-half', 'المؤقت'], ['fa-square-poll-vertical', 'استطلاع'], ['fa-dice', 'النرد'], ['fa-traffic-light', 'الإشارة'], ['fa-users-rectangle', 'مجموعات']] as [$icon, $label])
+                                <span class="grid place-items-center rounded-lg bg-white text-center text-xs font-black text-violet-700 shadow-sm"><i class="fa-solid {{ $icon }} text-lg" aria-hidden="true"></i>{{ $label }}</span>
+                            @endforeach
+                        </div>
+                        <span class="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-xl bg-violet-700 px-5 font-black text-white transition-colors group-hover:bg-violet-800">
+                            افتح السبورة
+                            <i class="fa-solid fa-arrow-left text-xs" aria-hidden="true"></i>
+                        </span>
+                    </a>
                 </div>
 
                 @if($campaigns['side'])
