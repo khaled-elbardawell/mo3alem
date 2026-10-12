@@ -94,6 +94,23 @@ test("new boards use a clean white background by default", () => {
   assert.equal(board.backgroundSize, "contain");
 });
 
+test("new boards place a welcome message between a left calendar and right clock", () => {
+  const widgets = createDefaultBoard().widgets;
+  const welcome = widgets.find((widget) => widget.type === "text");
+  const calendar = widgets.find((widget) => widget.type === "calendar");
+  const clock = widgets.find((widget) => widget.type === "clock");
+
+  assert.deepEqual(widgets.map((widget) => widget.type), ["text", "calendar", "clock"]);
+  assert.equal(welcome.config.content, "أهلًا بكم 👋\nلنبدأ حصة رائعة");
+  assert.equal(welcome.x + welcome.width / 2, 50);
+  assert.equal(calendar.x, 2);
+  assert.equal(calendar.x + calendar.width, 36);
+  assert.equal(welcome.x - (calendar.x + calendar.width), 2);
+  assert.equal(clock.x, 80);
+  assert.equal(clock.x + clock.width, 96);
+  assert.equal(clock.x - (welcome.x + welcome.width), 18);
+});
+
 test("board appearance settings are normalized safely", () => {
   const appearance = normalizeBoardAppearance({
     background: "custom-image",

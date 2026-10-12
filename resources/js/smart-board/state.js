@@ -162,25 +162,27 @@ export function createWidget(type, index = 0) {
 
 export function createDefaultBoard() {
   const welcome = createWidget("text", 0);
-  welcome.x = 22;
-  welcome.y = 10;
-  welcome.width = 56;
-  welcome.height = 19;
+  welcome.x = 38;
+  welcome.y = 37;
+  welcome.width = 24;
+  welcome.height = 20;
   welcome.config.content = "أهلًا بكم 👋\nلنبدأ حصة رائعة";
   welcome.config.fontSize = 34;
 
-  const clock = createWidget("clock", 1);
-  clock.x = 6;
-  clock.y = 9;
+  const calendar = createWidget("calendar", 1);
+  calendar.x = 2;
+  calendar.y = 24;
+  calendar.width = 34;
+  calendar.height = 46;
 
-  const timer = createWidget("timer", 2);
-  timer.x = 66;
-  timer.y = 57;
+  const clock = createWidget("clock", 2);
+  clock.x = 80;
+  clock.y = 29;
 
   return {
     schemaVersion: 1,
     board: { ...structuredClone(defaultAppearance), title: "سبورتي الذكية", drawing: structuredClone(defaultDrawing) },
-    widgets: [welcome, clock, timer]
+    widgets: [welcome, calendar, clock]
   };
 }
 

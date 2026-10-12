@@ -49,7 +49,7 @@
     "src": "resources/fonts/rb/RB-Regular.ttf"
   },
   "resources/js/app.js": {
-    "file": "assets/app-CVUVNHpD.js",
+    "file": "assets/app-DPSu0sr4.js",
     "name": "app",
     "src": "resources/js/app.js",
     "isEntry": true,
@@ -58,7 +58,7 @@
     ]
   },
   "resources/js/smart-board/index.js": {
-    "file": "assets/smart-board-I7W0ma-s.js",
+    "file": "assets/smart-board-TBkYT0w8.js",
     "name": "smart-board",
     "src": "resources/js/smart-board/index.js",
     "isDynamicEntry": true
