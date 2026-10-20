@@ -16,6 +16,7 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call(ToolTemplateSeeder::class);
+        $this->call(TypingPassageSeeder::class);
 
         // User::factory(10)->create();
 

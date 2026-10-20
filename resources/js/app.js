@@ -6,6 +6,10 @@ if (document.querySelector("[data-smart-board], [data-smart-board-join]")) {
   import("./smart-board/index.js");
 }
 
+if (document.querySelector("[data-typing-trainer], [data-typing-passage-form]")) {
+  import("./typing-trainer/index.js");
+}
+
 function setupCampaignTracking() {
   const placements = [...document.querySelectorAll("[data-view-endpoint]")];
 

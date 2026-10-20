@@ -101,6 +101,7 @@ test('the home hero and tool cards link directly to the three tools', function (
     }
 
     $response->assertSee('data-tool-card="short-url"', false);
+    $response->assertSee('data-tool-card="typing-trainer"', false);
 
     expect(substr_count($response->getContent(), 'motion-safe:animate-hero-tool-pulse'))->toBe(3);
 });

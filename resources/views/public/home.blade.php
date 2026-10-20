@@ -72,7 +72,7 @@
             </div>
 
             <div @class(['mt-10 grid gap-5', 'lg:grid-cols-[1fr_260px]' => $campaigns['side']])>
-                <div class="grid items-start gap-5 sm:grid-cols-2 xl:grid-cols-4" data-reveal-group>
+                <div class="grid items-start gap-5 sm:grid-cols-2 xl:grid-cols-3" data-reveal-group>
                     <a class="group flex h-fit flex-col rounded-2xl border border-violet-200 bg-white p-4 shadow-[0_16px_50px_rgba(49,46,129,0.08)] transition-[transform,box-shadow,border-color] hover:-translate-y-1 hover:border-violet-300 hover:shadow-[0_24px_65px_rgba(76,29,149,0.14)] focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-violet-600" href="{{ route('tools.wheel') }}" data-tool-card="wheel" data-reveal data-lift-card>
                         <div class="flex items-center gap-3">
                             <span class="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-violet-100 text-xl text-violet-700"><i class="fa-solid fa-dharmachakra" aria-hidden="true"></i></span>
@@ -150,6 +150,26 @@
                         </div>
                         <span class="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-xl bg-violet-700 px-5 font-black text-white transition-colors group-hover:bg-violet-800">
                             افتح السبورة
+                            <i class="fa-solid fa-arrow-left text-xs" aria-hidden="true"></i>
+                        </span>
+                    </a>
+
+                    <a class="group flex h-fit flex-col rounded-2xl border border-violet-200 bg-white p-4 shadow-[0_16px_50px_rgba(49,46,129,0.08)] transition-[transform,box-shadow,border-color] hover:-translate-y-1 hover:border-violet-300 hover:shadow-[0_24px_65px_rgba(76,29,149,0.14)] focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-violet-600" href="{{ route('tools.typing-trainer') }}" data-tool-card="typing-trainer" data-reveal data-lift-card>
+                        <div class="flex items-center gap-3">
+                            <span class="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-sky-100 text-xl text-sky-700"><i class="fa-solid fa-keyboard" aria-hidden="true"></i></span>
+                            <h3 class="text-lg font-black text-[#111a35]">مدرب الطباعة</h3>
+                        </div>
+                        <p class="mt-2.5 text-sm font-medium leading-7 text-slate-500">درّب طلابك على سرعة ودقة الكتابة بالعربية والإنجليزية مع نتائج فورية.</p>
+                        <div class="mt-3 mb-3 flex h-32 shrink-0 flex-col justify-center gap-3 overflow-hidden rounded-xl bg-linear-to-br from-sky-50 via-white to-violet-50 p-4 sm:h-36" dir="ltr">
+                            <div class="flex flex-wrap justify-center gap-1.5">
+                                @foreach(['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I'] as $key)
+                                    <span class="grid size-8 place-items-center rounded-lg border border-sky-100 bg-white text-xs font-black text-sky-700 shadow-sm">{{ $key }}</span>
+                                @endforeach
+                            </div>
+                            <div class="mx-auto h-8 w-3/4 rounded-lg border border-violet-100 bg-white shadow-sm"></div>
+                        </div>
+                        <span class="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-xl bg-violet-700 px-5 font-black text-white transition-colors group-hover:bg-violet-800">
+                            ابدأ التدريب
                             <i class="fa-solid fa-arrow-left text-xs" aria-hidden="true"></i>
                         </span>
                     </a>

@@ -27,6 +27,7 @@
                     <a class="hover:text-white" href="{{ route('tools.short-url') }}">اختصار الروابط</a>
                     <a class="hover:text-white" href="{{ route('tools.certificates') }}">إنشاء الشهادات</a>
                     <a class="hover:text-white" href="{{ route('tools.smart-board') }}">السبورة الذكية</a>
+                    <a class="hover:text-white" href="{{ route('tools.typing-trainer') }}">مدرب الطباعة</a>
                 </div>
             </div>
             <div>

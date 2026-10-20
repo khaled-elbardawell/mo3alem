@@ -24,8 +24,10 @@ use App\Http\Controllers\ShortUrlAuthRedirectController;
 use App\Http\Controllers\Site\CertificateToolController;
 use App\Http\Controllers\Site\HomeController;
 use App\Http\Controllers\Site\QrToolController;
+use App\Http\Controllers\Site\RandomTypingPassageController;
 use App\Http\Controllers\Site\ShortUrlToolController;
 use App\Http\Controllers\Site\SmartBoardToolController;
+use App\Http\Controllers\Site\TypingTrainerController;
 use App\Http\Controllers\Site\WheelController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\SmartBoardAssetController;
@@ -59,6 +61,10 @@ Route::get('/tools/short-url/auth/{action}', ShortUrlAuthRedirectController::cla
     ->whereIn('action', ['login', 'register'])
     ->name('tools.short-url.auth');
 Route::get('/tools/smart-board', SmartBoardToolController::class)->name('tools.smart-board');
+Route::get('/tools/typing-trainer', TypingTrainerController::class)->name('tools.typing-trainer');
+Route::get('/tools/typing-trainer/passages/random', RandomTypingPassageController::class)
+    ->middleware('throttle:120,1')
+    ->name('tools.typing-trainer.passages.random');
 Route::get('/board/join/{smartBoardSession:public_code}', SmartBoardJoinController::class)
     ->middleware('throttle:smart-board-join')
     ->name('smart-board.join');
@@ -239,6 +245,14 @@ Route::prefix('admin')
         Route::resource('api-clients', Admin\ApiClientController::class)
             ->parameters(['api-clients' => 'apiClient'])
             ->only(['index', 'create', 'store', 'edit', 'update']);
+
+        Route::patch('/typing-passages/{typingPassage}/restore', [Admin\TypingPassageController::class, 'restore'])
+            ->withTrashed()
+            ->name('typing-passages.restore');
+        Route::resource('typing-passages', Admin\TypingPassageController::class)
+            ->parameters(['typing-passages' => 'typingPassage'])
+            ->only(['index', 'create', 'store', 'edit', 'update', 'destroy'])
+            ->withTrashed();
 
         Route::get('/analytics', Admin\AnalyticsController::class)->name('analytics');
         Route::get('/settings', [Admin\SiteSettingController::class, 'edit'])->name('settings.edit');

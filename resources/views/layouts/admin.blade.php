@@ -44,6 +44,12 @@
             'label' => 'قوالب الشهادات',
         ],
         [
+            'route' => 'admin.typing-passages.index',
+            'active' => 'admin.typing-passages.*',
+            'icon' => 'fa-keyboard',
+            'label' => 'فقرات الطباعة',
+        ],
+        [
             'route' => 'admin.api-clients.index',
             'active' => 'admin.api-clients.*',
             'icon' => 'fa-shield-halved',
