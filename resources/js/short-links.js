@@ -209,10 +209,17 @@ function initializeShortLinkTools(tools) {
   const qrCustomizer = tools.querySelector("[data-qr-customizer]");
   const slugToggle = tools.querySelector("[data-toggle-slug-editor]");
   const qrToggle = tools.querySelector("[data-toggle-qr-customizer]");
+  const resultSection = tools.closest("[data-short-link-result]");
+  const createForm = document.querySelector("[data-short-link-create]");
   const panelIsHidden = (panel) => panel.hidden || panel.classList.contains("hidden");
+  const syncPageScroll = () => {
+    const panelOpen = !panelIsHidden(slugEditor) || !panelIsHidden(qrCustomizer);
+    document.documentElement.classList.toggle("overflow-hidden", panelOpen);
+  };
   const setPanelOpen = (panel, open) => {
     panel.hidden = !open;
     panel.classList.toggle("hidden", !open);
+    syncPageScroll();
   };
 
   tools.querySelectorAll("[data-copy-short-link]").forEach((button) => {
@@ -233,19 +240,45 @@ function initializeShortLinkTools(tools) {
     if (opening) slugEditor.querySelector("[data-short-link-slug]")?.focus();
   });
 
+  const closeSlugEditor = () => {
+    setPanelOpen(slugEditor, false);
+    slugToggle?.setAttribute("aria-expanded", "false");
+    slugToggle?.focus();
+  };
+
+  tools.querySelector("[data-close-slug-editor]")?.addEventListener("click", closeSlugEditor);
+
   const setQrCustomizerOpen = (open) => {
     setPanelOpen(qrCustomizer, open);
     qrToggle?.setAttribute("aria-expanded", String(open));
-    if (open) qrCustomizer.scrollIntoView({
-      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
-      block: "nearest"
-    });
+    if (open) tools.querySelector("[data-close-qr-customizer]")?.focus();
+    else qrToggle?.focus();
   };
 
   qrToggle?.addEventListener("click", () => setQrCustomizerOpen(panelIsHidden(qrCustomizer)));
   tools.querySelector("[data-close-qr-customizer]")?.addEventListener("click", () => setQrCustomizerOpen(false));
 
+  tools.querySelector("[data-create-another-short-link]")?.addEventListener("click", () => {
+    closeSlugEditor();
+    setQrCustomizerOpen(false);
+    resultSection.hidden = true;
+    createForm.hidden = false;
+    createForm.classList.remove("hidden");
+    createForm.reset();
+    createForm.querySelector("[data-creation-mode]:checked")?.dispatchEvent(new Event("change", { bubbles: true }));
+    createForm.querySelector("[data-expiry-toggle]")?.dispatchEvent(new Event("change", { bubbles: true }));
+    createForm.querySelector("[data-short-link-create-status]").hidden = true;
+    createForm.querySelector("[data-short-link-destination]")?.focus();
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key !== "Escape") return;
+    if (!panelIsHidden(slugEditor)) closeSlugEditor();
+    if (!panelIsHidden(qrCustomizer)) setQrCustomizerOpen(false);
+  });
+
   initializeQrCustomizer(tools);
+  tools.closeSlugEditor = closeSlugEditor;
 
   tools.querySelectorAll("[data-download-qr]").forEach((button) => {
     button.addEventListener("click", async () => {
@@ -301,6 +334,11 @@ async function applyShortLinkResult(result, message, { copy = false } = {}) {
   managementLink.href = result.management_url;
   managementLink.hidden = false;
   resultSection.hidden = false;
+  const createForm = document.querySelector("[data-short-link-create]");
+  if (createForm) {
+    createForm.hidden = true;
+    createForm.classList.add("hidden");
+  }
 
   initializeShortLinkTools(tools);
   tools.applyQrDesign?.(result.qr_design);
@@ -414,11 +452,6 @@ document.querySelectorAll("[data-short-link-create]").forEach((form) => {
       form.reset();
       syncMode();
       syncExpiry();
-
-      document.querySelector("[data-short-link-result]")?.scrollIntoView({
-        behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
-        block: "start"
-      });
     } catch (error) {
       setFeedback(status, error.message, "error");
     } finally {
@@ -461,8 +494,7 @@ document.querySelectorAll("[data-short-link-slug-form]").forEach((form) => {
       if (!response.ok) throw new Error(firstError(payload, "تعذر حفظ المقطع الجديد."));
 
       await applyShortLinkResult(payload.data, payload.message, { copy: true });
-      form.hidden = true;
-      resultSection.querySelector("[data-toggle-slug-editor]")?.setAttribute("aria-expanded", "false");
+      resultSection.querySelector("[data-short-link-tools]")?.closeSlugEditor?.();
     } catch (error) {
       setFeedback(status, error.message, "error");
     } finally {

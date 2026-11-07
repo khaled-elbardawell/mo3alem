@@ -38,7 +38,7 @@
                         <p class="mx-auto mt-2 max-w-xl text-sm font-medium leading-7 text-slate-500 sm:text-base">ألصق الرابط، اختر الطريقة التي تناسبك، وسننشئه وننسخه مباشرة.</p>
                     </div>
 
-                    <div class="p-5 sm:p-8 lg:p-10">
+                    <div class="p-5 sm:p-8 lg:p-10" data-short-link-workspace>
                         @auth
                             @unless(auth()->user()->hasVerifiedEmail())
                                 <div class="mx-auto max-w-2xl rounded-2xl border border-amber-200 bg-amber-50 p-5 text-center text-amber-950">
@@ -57,7 +57,8 @@
                                 data-short-link-create
                                 data-can-create="{{ $canCreate ? 'true' : 'false' }}"
                                 data-login-url="{{ route('tools.short-url.auth', 'login') }}"
-                                data-draft-key="muallem-short-link-draft-v1">
+                                data-draft-key="muallem-short-link-draft-v1"
+                                @if($shortLink) hidden @endif>
                                 @csrf
                                 <input type="hidden" name="is_active" value="1">
 
@@ -153,7 +154,7 @@
                         @endif
 
                         @if($canCreate)
-                            <section class="mx-auto mt-8 max-w-4xl border-t border-slate-200 pt-8" data-short-link-result @if(! $shortLink) hidden @endif>
+                            <section class="mx-auto max-w-4xl" data-short-link-result @if(! $shortLink) hidden @endif>
                                 <div
                                     data-short-link-tools
                                     data-short-url="{{ $shortUrl }}"
@@ -182,25 +183,40 @@
                                             <a class="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-emerald-200 bg-white px-4 text-sm font-black text-slate-700 transition hover:border-violet-300 hover:text-violet-800" href="{{ $managementUrl ?: '#' }}" @if(! $shortLink) hidden @endif data-short-link-management><i class="fa-solid fa-chart-column" aria-hidden="true"></i>الإدارة والإحصائيات</a>
                                         </div>
 
-                                        <form class="mt-4 rounded-2xl border border-emerald-200 bg-white p-4" method="POST" action="{{ $updateSlugUrl }}" data-short-link-slug-form hidden novalidate>
+                                        <button class="mt-4 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-dashed border-emerald-300 px-4 text-sm font-black text-emerald-800 transition hover:border-violet-400 hover:bg-white hover:text-violet-800" type="button" data-create-another-short-link>
+                                            <i class="fa-solid fa-plus" aria-hidden="true"></i>
+                                            اختصار رابط جديد
+                                        </button>
+
+                                        <form class="fixed inset-0 z-100 grid items-end bg-slate-950/45 sm:justify-items-end" method="POST" action="{{ $updateSlugUrl }}" data-short-link-slug-form role="dialog" aria-modal="true" aria-labelledby="short-link-slug-title" hidden novalidate>
                                             @csrf
                                             @method('PATCH')
-                                            <input type="hidden" name="version" value="{{ $shortLink?->version }}" data-short-link-version>
-                                            <label class="text-sm font-black text-slate-800" for="short-link-slug">المقطع الجديد</label>
-                                            <div class="mt-2 flex min-w-0 flex-col overflow-hidden rounded-xl border border-slate-200 focus-within:border-violet-500 focus-within:ring-3 focus-within:ring-violet-100 sm:flex-row" dir="ltr">
-                                                <span class="flex min-h-12 shrink-0 items-center border-b border-slate-100 bg-slate-50 px-3 text-sm font-bold text-slate-500 sm:border-r sm:border-b-0">{{ $shortUrlPrefix }}</span>
-                                                <input id="short-link-slug" class="min-h-12 min-w-0 flex-1 px-3 text-left font-black text-slate-900 outline-none" type="text" name="slug" value="{{ $shortLink?->slug }}" maxlength="50" autocomplete="off" autocapitalize="none" spellcheck="false" required data-short-link-slug>
-                                                <button class="min-h-12 bg-slate-900 px-5 font-black text-white transition hover:bg-slate-800 disabled:opacity-60" type="submit" data-save-short-link-slug>حفظ ونسخ</button>
+                                            <div class="max-h-[85vh] w-full overflow-y-auto rounded-t-3xl bg-white p-5 shadow-2xl sm:h-full sm:max-h-none sm:w-[430px] sm:rounded-none sm:p-7">
+                                                <div class="flex items-start justify-between gap-4">
+                                                    <div>
+                                                        <h3 class="text-xl font-black text-slate-900" id="short-link-slug-title">تعديل الرابط</h3>
+                                                        <p class="mt-1 text-sm font-medium text-slate-500">اختر مقطعًا قصيرًا وسهل التذكّر.</p>
+                                                    </div>
+                                                    <button class="grid size-10 shrink-0 place-items-center rounded-full bg-slate-100 text-slate-500 hover:text-violet-700" type="button" data-close-slug-editor aria-label="إغلاق تعديل الرابط"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+                                                </div>
+                                                <input type="hidden" name="version" value="{{ $shortLink?->version }}" data-short-link-version>
+                                                <label class="mt-7 block text-sm font-black text-slate-800" for="short-link-slug">المقطع الجديد</label>
+                                                <div class="mt-2 flex min-w-0 flex-col overflow-hidden rounded-xl border border-slate-200 focus-within:border-violet-500 focus-within:ring-3 focus-within:ring-violet-100" dir="ltr">
+                                                    <span class="flex min-h-12 items-center border-b border-slate-100 bg-slate-50 px-3 text-sm font-bold text-slate-500">{{ $shortUrlPrefix }}</span>
+                                                    <input id="short-link-slug" class="min-h-12 min-w-0 px-3 text-left font-black text-slate-900 outline-none" type="text" name="slug" value="{{ $shortLink?->slug }}" maxlength="50" autocomplete="off" autocapitalize="none" spellcheck="false" required data-short-link-slug>
+                                                </div>
+                                                <button class="mt-5 min-h-12 w-full rounded-xl bg-slate-900 px-5 font-black text-white transition hover:bg-slate-800 disabled:opacity-60" type="submit" data-save-short-link-slug>حفظ ونسخ</button>
                                             </div>
                                         </form>
 
                                         <div class="mt-4 hidden rounded-2xl border px-4 py-3 text-sm font-bold" data-short-link-status role="status" aria-live="polite"></div>
                                     </div>
 
-                                    <section class="mt-5 rounded-3xl border border-violet-100 bg-slate-50 p-5 sm:p-7" data-qr-customizer hidden>
+                                    <section class="fixed inset-0 z-100 flex items-end bg-slate-950/45 sm:justify-end" data-qr-customizer role="dialog" aria-modal="true" aria-labelledby="short-link-qr-title" hidden>
+                                        <div class="max-h-[92vh] w-full overflow-y-auto rounded-t-3xl bg-slate-50 p-5 shadow-2xl sm:h-full sm:max-h-none sm:w-[min(780px,92vw)] sm:rounded-none sm:p-7">
                                         <div class="flex items-start justify-between gap-4">
                                             <div>
-                                                <h3 class="text-xl font-black text-slate-900">صمّم رمز QR</h3>
+                                                <h3 class="text-xl font-black text-slate-900" id="short-link-qr-title">صمّم رمز QR</h3>
                                                 <p class="mt-1 text-sm font-medium text-slate-500">اختر الشكل والألوان، وشاهد النتيجة مباشرة.</p>
                                             </div>
                                             <button class="grid size-10 shrink-0 place-items-center rounded-full bg-white text-slate-500 shadow-sm hover:text-violet-700" type="button" data-close-qr-customizer aria-label="إغلاق تخصيص QR"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
@@ -251,6 +267,7 @@
                                                 </div>
                                                 <p class="hidden rounded-xl border px-3 py-2 text-xs font-bold" data-qr-design-status role="status" aria-live="polite"></p>
                                             </div>
+                                        </div>
                                         </div>
                                     </section>
                                 </div>
