@@ -86,7 +86,7 @@ class ShortLinkController extends Controller
             ->with('status', 'تم حذف الرابط مع إبقاء مقطعه محجوزًا.');
     }
 
-    /** @return array<string, int|string> */
+    /** @return array<string, mixed> */
     private function resultData(ShortLink $shortLink): array
     {
         return [
@@ -95,8 +95,10 @@ class ShortLinkController extends Controller
             'short_url' => route('short-links.redirect', $shortLink->slug),
             'qr_url' => route('short-links.qr', $shortLink),
             'update_slug_url' => route('short-links.slug.update', $shortLink),
+            'update_qr_design_url' => route('short-links.qr-design.update', $shortLink),
             'management_url' => route('user.short-links.show', $shortLink),
             'version' => $shortLink->version,
+            'qr_design' => $shortLink->resolvedQrDesign(),
             'filename' => 'muallem-'.$shortLink->slug,
         ];
     }

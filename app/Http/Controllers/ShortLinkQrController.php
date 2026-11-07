@@ -16,12 +16,10 @@ class ShortLinkQrController extends Controller
     {
         Gate::authorize('view', $shortLink);
 
-        $svg = $renderer->render(route('short-links.redirect', $shortLink->slug), [
-            'style' => 'classic',
-            'foreground_color' => '#111827',
-            'eye_color' => '#6d28d9',
-            'background_color' => '#ffffff',
-        ]);
+        $svg = $renderer->render(
+            route('short-links.redirect', $shortLink->slug),
+            $shortLink->resolvedQrDesign(),
+        );
 
         return response($svg, 200, [
             'Cache-Control' => 'private, no-store',

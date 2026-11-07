@@ -4,15 +4,23 @@ use App\Models\ShortLink;
 use App\Models\ShortLinkDailyStat;
 use App\Models\User;
 
-test('the public short url page explains the tool and asks guests to sign in', function () {
+test('the public short url page lets guests prepare a link before signing in', function () {
     $this->get(route('tools.short-url'))
         ->assertSuccessful()
         ->assertViewIs('public.tools.short-url')
         ->assertSee('data-tool-page-header', false)
         ->assertSee('أداة اختصار الروابط')
+        ->assertSee('data-short-link-create', false)
+        ->assertSee('data-can-create="false"', false)
+        ->assertSee('data-creation-mode', false)
+        ->assertSee('data-custom-alias-fields', false)
+        ->assertSee('تلقائي وسريع')
+        ->assertSee('رابط مخصص')
+        ->assertSee('تسجيل الدخول والمتابعة')
         ->assertSee(route('tools.short-url.auth', 'login'), false)
         ->assertSee(route('tools.short-url.auth', 'register'), false)
-        ->assertDontSee('action="'.route('short-links.store').'"', false);
+        ->assertSee('action="'.route('short-links.store').'"', false)
+        ->assertDontSee('data-short-link-result', false);
 });
 
 test('short url authentication actions remember the tool as the intended destination', function (string $action) {
@@ -60,13 +68,23 @@ test('a verified user sees the creation form and its latest result', function ()
         ->assertSuccessful()
         ->assertSee('action="'.route('short-links.store').'"', false)
         ->assertSee('data-short-link-create', false)
+        ->assertSee('data-can-create="true"', false)
+        ->assertSee('data-creation-mode', false)
+        ->assertSee('data-custom-alias-fields', false)
         ->assertSee('data-expiry-toggle', false)
         ->assertSee('data-short-link-result', false)
-        ->assertSee('data-short-link-combined-result', false)
         ->assertSee('action="'.route('short-links.slug.update', $shortLink).'"', false)
         ->assertSee('data-short-link-slug', false)
         ->assertSee('data-save-short-link-slug', false)
-        ->assertSee('نسخ الرابط')
+        ->assertSee('data-toggle-slug-editor', false)
+        ->assertSee('data-toggle-qr-customizer', false)
+        ->assertSee('data-short-link-slug-form hidden', false)
+        ->assertSee('data-qr-customizer hidden', false)
+        ->assertSee('data-qr-customizer', false)
+        ->assertSee('data-save-qr-design', false)
+        ->assertSee('data-qr-style', false)
+        ->assertSee('data-qr-color', false)
+        ->assertSee('نسخ')
         ->assertSee(route('short-links.redirect', $shortLink->slug), false)
         ->assertSee(route('short-links.qr', $shortLink), false)
         ->assertSee('data-download-qr="png"', false)
@@ -142,6 +160,8 @@ test('the short link javascript shares qr conversion helpers with the qr tool', 
         ->toContain('data-download-qr')
         ->toContain('data-short-link-create')
         ->toContain('data-short-link-slug-form')
+        ->toContain('panelIsHidden')
+        ->toContain('setPanelOpen')
         ->toContain('applyShortLinkResult')
         ->and($qrToolScript)
         ->toContain('from "./qr-downloads"')

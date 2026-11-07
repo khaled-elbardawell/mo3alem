@@ -28,8 +28,10 @@ class StoreShortLinkRequest extends FormRequest
     {
         return [
             ...$this->editableRules(),
+            'creation_mode' => ['required', Rule::in(['automatic', 'custom'])],
             'custom_alias' => [
-                'nullable',
+                'exclude_unless:creation_mode,custom',
+                'required_if:creation_mode,custom',
                 'string',
                 'min:4',
                 'max:50',
@@ -76,6 +78,9 @@ class StoreShortLinkRequest extends FormRequest
             'custom_alias.max' => 'المقطع المخصص يجب ألا يزيد عن 50 حرفًا.',
             'custom_alias.regex' => 'استخدم أحرفًا إنجليزية صغيرة وأرقامًا، ويمكن الفصل بشرطة.',
             'custom_alias.unique' => 'هذا المقطع مستخدم أو محجوز سابقًا.',
+            'creation_mode.required' => 'اختر إنشاء رابط تلقائي أو رابط مخصص.',
+            'creation_mode.in' => 'خيار إنشاء الرابط غير صالح.',
+            'custom_alias.required_if' => 'اكتب المقطع المخصص الذي تريده.',
             'expires_at.after' => 'اختر تاريخ انتهاء في المستقبل.',
         ];
     }
@@ -83,6 +88,8 @@ class StoreShortLinkRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         $this->merge([
+            'creation_mode' => $this->string('creation_mode')->toString()
+                ?: ($this->filled('custom_alias') ? 'custom' : 'automatic'),
             'title' => $this->filled('title') ? $this->string('title')->trim()->toString() : null,
             'destination_url' => $this->string('destination_url')->trim()->toString(),
             'custom_alias' => $this->filled('custom_alias')

@@ -18,9 +18,18 @@ use Illuminate\Database\Eloquent\SoftDeletes;
     'is_active',
     'expires_at',
     'version',
+    'qr_design',
 ])]
 class ShortLink extends Model
 {
+    /** @var array{style: string, foreground_color: string, eye_color: string, background_color: string} */
+    public const DEFAULT_QR_DESIGN = [
+        'style' => 'classic',
+        'foreground_color' => '#111827',
+        'eye_color' => '#6d28d9',
+        'background_color' => '#ffffff',
+    ];
+
     /** @use HasFactory<ShortLinkFactory> */
     use HasFactory, SoftDeletes;
 
@@ -51,6 +60,12 @@ class ShortLink extends Model
         return ! $this->trashed() && $this->is_active && ! $this->isExpired();
     }
 
+    /** @return array{style: string, foreground_color: string, eye_color: string, background_color: string} */
+    public function resolvedQrDesign(): array
+    {
+        return [...self::DEFAULT_QR_DESIGN, ...($this->qr_design ?? [])];
+    }
+
     protected function casts(): array
     {
         return [
@@ -58,6 +73,7 @@ class ShortLink extends Model
             'is_active' => 'boolean',
             'expires_at' => 'datetime',
             'last_visited_at' => 'datetime',
+            'qr_design' => 'array',
         ];
     }
 }

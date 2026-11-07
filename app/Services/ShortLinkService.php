@@ -105,6 +105,21 @@ class ShortLinkService
         return $updated === 1 ? $shortLink->refresh() : null;
     }
 
+    /** @param array{design: array<string, string>, version: int} $data */
+    public function updateQrDesign(ShortLink $shortLink, array $data): ?ShortLink
+    {
+        $updated = ShortLink::query()
+            ->whereKey($shortLink)
+            ->where('version', $data['version'])
+            ->update([
+                'qr_design' => $data['design'],
+                'version' => DB::raw('version + 1'),
+                'updated_at' => now(),
+            ]);
+
+        return $updated === 1 ? $shortLink->refresh() : null;
+    }
+
     private function title(?string $title, string $destinationUrl): string
     {
         if (filled($title)) {

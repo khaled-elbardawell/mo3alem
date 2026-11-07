@@ -76,6 +76,29 @@ test('the short url tool can create a link without optional fields using json', 
         ->and($shortLink->expires_at)->toBeNull();
 });
 
+test('custom mode requires an alias and automatic mode ignores a supplied alias', function () {
+    $user = User::factory()->create();
+
+    $this->actingAs($user)
+        ->postJson(route('short-links.store'), [
+            'creation_mode' => 'custom',
+            'destination_url' => 'https://example.com/custom',
+        ])
+        ->assertInvalid(['custom_alias']);
+
+    $response = $this->actingAs($user)
+        ->postJson(route('short-links.store'), [
+            'creation_mode' => 'automatic',
+            'destination_url' => 'https://example.com/automatic',
+            'custom_alias' => 'should-be-ignored',
+        ])
+        ->assertCreated();
+
+    expect($response->json('data.slug'))
+        ->toHaveLength(7)
+        ->not->toBe('should-be-ignored');
+});
+
 test('custom aliases are validated globally and remain reserved after deletion', function () {
     $owner = User::factory()->create();
     $otherUser = User::factory()->create();
@@ -286,6 +309,72 @@ test('an owner can download an svg qr for the short url', function () {
         ->assertSuccessful()
         ->assertHeader('Content-Type', 'image/svg+xml; charset=UTF-8')
         ->assertSee('<svg', false);
+});
+
+test('an owner can save a custom qr design for a short link', function () {
+    $user = User::factory()->create();
+    $shortLink = ShortLink::factory()->for($user)->create(['version' => 1]);
+    $design = [
+        'style' => 'dots',
+        'foreground_color' => '#123456',
+        'eye_color' => '#654321',
+        'background_color' => '#fefefe',
+    ];
+
+    $this->actingAs($user)
+        ->patchJson(route('short-links.qr-design.update', $shortLink), [
+            'design' => $design,
+            'version' => 1,
+        ])
+        ->assertSuccessful()
+        ->assertJsonPath('data.design', $design)
+        ->assertJsonPath('data.version', 2);
+
+    expect($shortLink->refresh()->qr_design)->toBe($design)
+        ->and($shortLink->resolvedQrDesign())->toBe($design);
+
+    $this->actingAs($user)
+        ->get(route('short-links.qr', $shortLink))
+        ->assertSuccessful()
+        ->assertHeader('Content-Type', 'image/svg+xml; charset=UTF-8')
+        ->assertSee('#123456', false)
+        ->assertSee('#654321', false);
+});
+
+test('qr design updates validate input ownership and version', function () {
+    $owner = User::factory()->create();
+    $otherUser = User::factory()->create();
+    $shortLink = ShortLink::factory()->for($owner)->create(['version' => 3]);
+    $design = [
+        'style' => 'invalid',
+        'foreground_color' => '#111827',
+        'eye_color' => '#6d28d9',
+        'background_color' => '#ffffff',
+    ];
+
+    $this->actingAs($owner)
+        ->patchJson(route('short-links.qr-design.update', $shortLink), [
+            'design' => $design,
+            'version' => 3,
+        ])
+        ->assertInvalid(['design.style']);
+
+    $design['style'] = 'rounded';
+
+    $this->actingAs($owner)
+        ->patchJson(route('short-links.qr-design.update', $shortLink), [
+            'design' => $design,
+            'version' => 2,
+        ])
+        ->assertConflict()
+        ->assertJsonPath('errors.version.0', 'تم تعديل الرابط من جلسة أخرى. حدّث الصفحة ثم أعد المحاولة.');
+
+    $this->actingAs($otherUser)
+        ->patchJson(route('short-links.qr-design.update', $shortLink), [
+            'design' => $design,
+            'version' => 3,
+        ])
+        ->assertForbidden();
 });
 
 test('deleting a link soft deletes it and its public slug returns gone', function () {

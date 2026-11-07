@@ -19,6 +19,7 @@ use App\Http\Controllers\RobotsController;
 use App\Http\Controllers\SavedWheelController;
 use App\Http\Controllers\ShortLinkController;
 use App\Http\Controllers\ShortLinkQrController;
+use App\Http\Controllers\ShortLinkQrDesignController;
 use App\Http\Controllers\ShortLinkRedirectController;
 use App\Http\Controllers\ShortUrlAuthRedirectController;
 use App\Http\Controllers\Site\CertificateToolController;
@@ -151,6 +152,9 @@ Route::middleware(['auth', 'active', 'password.changed'])->group(function (): vo
     Route::get('/short-links/{shortLink}/qr', ShortLinkQrController::class)
         ->middleware('verified')
         ->name('short-links.qr');
+    Route::patch('/short-links/{shortLink}/qr-design', ShortLinkQrDesignController::class)
+        ->middleware('verified')
+        ->name('short-links.qr-design.update');
     Route::patch('/short-links/{shortLink}/slug', [ShortLinkController::class, 'updateSlug'])
         ->middleware('verified')
         ->name('short-links.slug.update');
