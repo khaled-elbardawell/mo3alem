@@ -208,7 +208,7 @@
                             class="fa-solid fa-xmark" aria-hidden="true"></i></button>
                 </div>
                 <fieldset class="smart-board-appearance-section">
-                    <legend>الخلفيات الأساسية</legend>
+                    <legend>الخلفية</legend>
                     <div class="smart-board-background-grid">
                         @foreach([
                             ['plain', 'أبيض', 'fa-square'],
@@ -218,23 +218,31 @@
                             ['paper', 'ورق مربعات', 'fa-border-all'],
                             ['night', 'ليلي', 'fa-moon'],
                         ] as [$value, $label, $icon])
-                            <label class="smart-board-background-choice" data-background-choice="{{ $value }}">
-                                <input type="radio" name="board_background" value="{{ $value }}">
-                                <span class="smart-board-background-swatch" data-background-preview="{{ $value }}">
-                                    <i class="fa-solid {{ $icon }}" aria-hidden="true"></i>
-                                </span>
-                                <strong>{{ $label }}</strong>
-                            </label>
+                            @if($value === 'color')
+                                <div class="smart-board-background-choice smart-board-custom-color-choice"
+                                    data-background-choice="color">
+                                    <input type="radio" name="board_background" value="color">
+                                    <label for="boardBackgroundColor">
+                                        <span class="smart-board-background-swatch" data-background-preview="color">
+                                            <i class="fa-solid {{ $icon }}" aria-hidden="true"></i>
+                                            <input id="boardBackgroundColor" type="color" value="#ffffff"
+                                                aria-label="اختيار لون مخصص">
+                                        </span>
+                                        <strong>{{ $label }}</strong>
+                                    </label>
+                                </div>
+                            @else
+                                <label class="smart-board-background-choice" data-background-choice="{{ $value }}">
+                                    <input type="radio" name="board_background" value="{{ $value }}">
+                                    <span class="smart-board-background-swatch" data-background-preview="{{ $value }}">
+                                        <i class="fa-solid {{ $icon }}" aria-hidden="true"></i>
+                                    </span>
+                                    <strong>{{ $label }}</strong>
+                                </label>
+                            @endif
                         @endforeach
                     </div>
-                    <label class="smart-board-color-setting" id="boardCustomColorField" hidden>
-                        <span>اختر لون الخلفية</span>
-                        <input id="boardBackgroundColor" type="color" value="#ffffff">
-                    </label>
-                </fieldset>
-
-                <fieldset class="smart-board-appearance-section">
-                    <legend>خلفيات صور جاهزة</legend>
+                    <p class="smart-board-appearance-subheading">خلفيات صور جاهزة</p>
                     <div class="smart-board-image-background-grid">
                         @foreach([
                             ['image-school-supplies', 'أدوات مدرسية', 'board-bg-img1.png'],
@@ -249,38 +257,35 @@
                                 <strong>{{ $label }}</strong>
                             </label>
                         @endforeach
-                    </div>
-                </fieldset>
-
-                <fieldset class="smart-board-appearance-section">
-                    <legend>صورة من جهازك</legend>
-                    <input class="sr-only" type="radio" name="board_background" value="custom-image">
-                    <div class="smart-board-background-upload">
-                        <div class="smart-board-background-upload-preview">
-                            <img id="boardBackgroundImagePreview" alt="معاينة صورة الخلفية" hidden>
-                            <div id="boardBackgroundImageEmpty">
-                                <i class="fa-regular fa-image" aria-hidden="true"></i>
-                                <span>ارفع صورة لتظهر هنا</span>
-                            </div>
-                        </div>
-                        <div class="smart-board-background-upload-actions">
-                            <label class="smart-board-primary-button" for="boardBackgroundImageInput">
-                                <i class="fa-solid fa-arrow-up-from-bracket" aria-hidden="true"></i>
-                                اختيار صورة
+                        <div class="smart-board-image-background-choice smart-board-image-upload-choice"
+                            id="boardBackgroundImageChoice">
+                            <input type="radio" name="board_background" value="custom-image">
+                            <label class="smart-board-image-upload-trigger" for="boardBackgroundImageInput">
+                                <span class="smart-board-background-upload-preview">
+                                    <img id="boardBackgroundImagePreview" alt="معاينة صورة الخلفية" hidden>
+                                    <span id="boardBackgroundImageEmpty">
+                                        <i class="fa-solid fa-plus" aria-hidden="true"></i>
+                                        <span>من جهازك</span>
+                                    </span>
+                                </span>
+                                <strong id="boardBackgroundImageName">رفع صورة</strong>
                             </label>
                             <input class="sr-only" id="boardBackgroundImageInput" type="file"
                                 accept="image/jpeg,image/png,image/webp">
-                            <button class="smart-board-secondary-button" id="removeBoardBackgroundImageBtn" type="button" hidden>
-                                إزالة الصورة
+                            <button id="removeBoardBackgroundImageBtn" type="button" hidden
+                                aria-label="إزالة صورة الخلفية">
+                                <i class="fa-solid fa-xmark" aria-hidden="true"></i>
                             </button>
-                            <small id="boardBackgroundImageName">لم تُرفع صورة بعد</small>
-                            <small>JPG أو PNG أو WebP، بحد أقصى 5MB.</small>
+                            <small class="sr-only">JPG أو PNG أو WebP، بحد أقصى 5MB.</small>
                         </div>
                     </div>
                 </fieldset>
 
-                <fieldset class="smart-board-appearance-section">
-                    <legend>إعدادات الخلفية العامة</legend>
+                <details class="smart-board-appearance-advanced" id="boardAppearanceAdvanced">
+                    <summary>
+                        <span>خيارات متقدمة</span>
+                        <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+                    </summary>
                     <div class="smart-board-general-settings">
                         <label class="smart-board-field">نسبة العرض
                             <select id="boardAspectRatio">
@@ -301,8 +306,8 @@
                             <output id="boardBackgroundOverlayValue">18%</output>
                         </label>
                     </div>
-                </fieldset>
-                <div class="smart-board-dialog-actions">
+                </details>
+                <div class="smart-board-dialog-actions smart-board-appearance-actions">
                     <button class="smart-board-primary-button" id="applyAppearanceBtn" value="default">تطبيق</button>
                     <button class="smart-board-secondary-button" value="cancel">إلغاء</button>
                 </div>

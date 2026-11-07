@@ -25,6 +25,13 @@ test("uploaded background images replace a pending color selection", () => {
   assert.doesNotMatch(boardInterfaceSource, /const background = elements\.appearanceDialog\.querySelector\('\[name="board_background"\]:checked'\)/);
 });
 
+test("the custom color tile opens the picker and previews its selected color", () => {
+  assert.match(boardInterfaceSource, /getElementById\("boardBackgroundColor"\)\.addEventListener\("click"/);
+  assert.match(boardInterfaceSource, /selectAppearanceBackground\("color"\)/);
+  assert.match(boardInterfaceSource, /style\.setProperty\("--custom-board-color"/);
+  assert.doesNotMatch(boardInterfaceSource, /boardCustomColorField/);
+});
+
 test("saved names are imported only after choosing a saved list", () => {
   assert.match(boardInterfaceSource, /data-saved-list-id/);
   assert.match(boardInterfaceSource, /await importSavedNames\(savedListButton\)/);

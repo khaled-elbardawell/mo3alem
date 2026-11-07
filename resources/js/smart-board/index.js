@@ -266,6 +266,11 @@ async function setupBoard(root) {
     elements.appearanceImageEmpty.hidden = false;
   });
   document.getElementById("removeBoardBackgroundImageBtn").addEventListener("click", removeAppearanceImage);
+  document.getElementById("boardBackgroundColor").addEventListener("click", () => {
+    selectAppearanceBackground("color");
+    updateAppearanceControls();
+    previewAppearanceSelection();
+  });
   document.getElementById("boardBackgroundColor").addEventListener("input", () => {
     selectAppearanceBackground("color");
     updateAppearanceControls();
@@ -1072,7 +1077,7 @@ async function setupBoard(root) {
     if (source) elements.appearanceImagePreview.src = source;
     else elements.appearanceImagePreview.removeAttribute("src");
     if (source && !elements.appearanceImageInput.files?.[0]) elements.appearanceImageName.textContent = "صورة الخلفية الحالية";
-    if (!source) elements.appearanceImageName.textContent = "لم تُرفع صورة بعد";
+    if (!source) elements.appearanceImageName.textContent = "رفع صورة";
     document.getElementById("removeBoardBackgroundImageBtn").hidden = !source;
   }
 
@@ -1084,7 +1089,10 @@ async function setupBoard(root) {
   function updateAppearanceControls() {
     const usesImage = pendingAppearanceBackground.startsWith("image-") || pendingAppearanceBackground === "custom-image";
     document.getElementById("boardImageDisplaySettings").hidden = !usesImage;
-    document.getElementById("boardCustomColorField").hidden = pendingAppearanceBackground !== "color";
+    const colorInput = document.getElementById("boardBackgroundColor");
+    colorInput.closest("[data-background-choice]")
+      ?.querySelector("[data-background-preview]")
+      ?.style.setProperty("--custom-board-color", safeColor(colorInput.value));
   }
 
   function selectAppearanceBackground(background) {
