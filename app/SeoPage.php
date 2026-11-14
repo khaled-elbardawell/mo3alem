@@ -10,6 +10,7 @@ enum SeoPage: string
     case ShortUrl = 'short_url';
     case Certificates = 'certificates';
     case SmartBoard = 'smart_board';
+    case TypingTrainer = 'typing_trainer';
 
     public function label(): string
     {
@@ -20,6 +21,7 @@ enum SeoPage: string
             self::ShortUrl => 'اختصار الروابط',
             self::Certificates => 'إنشاء الشهادات',
             self::SmartBoard => 'السبورة الذكية',
+            self::TypingTrainer => 'مدرب الطباعة',
         };
     }
 
@@ -32,6 +34,7 @@ enum SeoPage: string
             self::ShortUrl => 'أداة اختصار الروابط وإنشاء QR وتتبع الزيارات.',
             self::Certificates => 'أداة تصميم الشهادات وطباعتها.',
             self::SmartBoard => 'مساحة صفية عربية تفاعلية تجمع أدوات إدارة الحصة في شاشة واحدة.',
+            self::TypingTrainer => 'تدريب تفاعلي على الطباعة السريعة والدقيقة بالعربية والإنجليزية.',
         };
     }
 
@@ -44,6 +47,7 @@ enum SeoPage: string
             self::ShortUrl => 'fa-link',
             self::Certificates => 'fa-award',
             self::SmartBoard => 'fa-chalkboard-user',
+            self::TypingTrainer => 'fa-keyboard',
         };
     }
 
@@ -56,6 +60,7 @@ enum SeoPage: string
             self::ShortUrl => 'tools.short-url',
             self::Certificates => 'tools.certificates',
             self::SmartBoard => 'tools.smart-board',
+            self::TypingTrainer => 'tools.typing-trainer',
         };
     }
 
@@ -86,6 +91,7 @@ enum SeoPage: string
             self::ShortUrl => 'اختصار الروابط وإنشاء QR | معلم',
             self::Certificates => 'إنشاء شهادات احترافية | معلم',
             self::SmartBoard => 'السبورة الذكية للمعلمين | معلم',
+            self::TypingTrainer => 'تعلم الطباعة بالعربية والإنجليزية | معلم',
         };
     }
 
@@ -98,6 +104,7 @@ enum SeoPage: string
             self::ShortUrl => 'اختصر روابطك بمقطع مخصص، أنشئ رمز QR، وتابع الزيارات بإحصائيات تحافظ على الخصوصية.',
             self::Certificates => 'صمم شهادات احترافية بقوالب جاهزة، وخصص النصوص ثم نزّلها أو اطبعها بجودة عالية.',
             self::SmartBoard => 'سبورة ذكية عربية لإدارة الحصة بالمؤقت والتعليمات والاختيار العشوائي والاستطلاع المباشر وأدوات صفية سهلة.',
+            self::TypingTrainer => 'تدرب على الطباعة السريعة بالعربية والإنجليزية عبر دروس تفاعلية ولوحة مفاتيح مرئية وتقارير فورية للسرعة والدقة.',
         };
     }
 
@@ -110,6 +117,7 @@ enum SeoPage: string
             self::ShortUrl => 'اختصار الروابط، رابط قصير، إنشاء QR للرابط، إحصائيات الروابط',
             self::Certificates => 'إنشاء شهادات، تصميم شهادات، شهادات تقدير، قوالب شهادات',
             self::SmartBoard => 'سبورة ذكية، أدوات المعلم، إدارة الصف، مؤقت صفّي، استطلاع طلابي',
+            self::TypingTrainer => 'تعلم الطباعة، الطباعة السريعة، الكتابة على الكيبورد، تدريب عربي، typing trainer',
         };
     }
 }

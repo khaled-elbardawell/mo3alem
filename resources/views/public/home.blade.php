@@ -72,7 +72,7 @@
             </div>
 
             <div @class(['mt-10 grid gap-5', 'lg:grid-cols-[1fr_260px]' => $campaigns['side']])>
-                <div class="grid items-start gap-5 sm:grid-cols-2 xl:grid-cols-4" data-reveal-group>
+                <div class="grid items-start gap-5 sm:grid-cols-2 xl:grid-cols-3" data-reveal-group>
                     <a class="group flex h-fit flex-col rounded-2xl border border-violet-200 bg-white p-4 shadow-[0_16px_50px_rgba(49,46,129,0.08)] transition-[transform,box-shadow,border-color] hover:-translate-y-1 hover:border-violet-300 hover:shadow-[0_24px_65px_rgba(76,29,149,0.14)] focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-violet-600" href="{{ route('tools.wheel') }}" data-tool-card="wheel" data-reveal data-lift-card>
                         <div class="flex items-center gap-3">
                             <span class="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-violet-100 text-xl text-violet-700"><i class="fa-solid fa-dharmachakra" aria-hidden="true"></i></span>
@@ -150,6 +150,27 @@
                         </div>
                         <span class="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-xl bg-violet-700 px-5 font-black text-white transition-colors group-hover:bg-violet-800">
                             افتح السبورة
+                            <i class="fa-solid fa-arrow-left text-xs" aria-hidden="true"></i>
+                        </span>
+                    </a>
+
+                    <a class="group flex h-fit flex-col rounded-2xl border border-sky-200 bg-white p-4 shadow-[0_16px_50px_rgba(49,46,129,0.08)] transition-[transform,box-shadow,border-color] hover:-translate-y-1 hover:border-violet-300 hover:shadow-[0_24px_65px_rgba(76,29,149,0.14)] focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-violet-600" href="{{ route('tools.typing-trainer') }}" data-tool-card="typing-trainer" data-reveal data-lift-card>
+                        <div class="flex items-center gap-3">
+                            <span class="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-sky-100 text-xl text-sky-700"><i class="fa-solid fa-keyboard" aria-hidden="true"></i></span>
+                            <h3 class="text-lg font-black text-[#111a35]">مدرب الطباعة</h3>
+                        </div>
+                        <p class="mt-2.5 text-sm font-medium leading-7 text-slate-500">دروس عربية وإنجليزية متدرجة مع قياس فوري للسرعة والدقة ولوحة مفاتيح تفاعلية.</p>
+                        <div class="mt-3 mb-3 grid h-32 shrink-0 content-center gap-2 overflow-hidden rounded-xl bg-linear-to-br from-sky-50 via-white to-violet-50 p-4 sm:h-36" aria-hidden="true">
+                            @foreach([['ض','ص','ث','ق','ف','غ','ع'], ['ش','س','ي','ب','ل','ا','ت'], ['ئ','ء','ؤ','ر','ى','ة','و']] as $keyboardRow)
+                                <div class="flex justify-center gap-1.5">
+                                    @foreach($keyboardRow as $key)
+                                        <span class="grid size-7 place-items-center rounded-md border border-sky-200 border-b-3 bg-white text-[10px] font-black text-slate-600 shadow-sm transition-transform duration-300 group-hover:-translate-y-0.5 sm:size-8">{{ $key }}</span>
+                                    @endforeach
+                                </div>
+                            @endforeach
+                        </div>
+                        <span class="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-xl bg-violet-700 px-5 font-black text-white transition-colors group-hover:bg-violet-800">
+                            ابدأ التدريب
                             <i class="fa-solid fa-arrow-left text-xs" aria-hidden="true"></i>
                         </span>
                     </a>
@@ -273,7 +294,7 @@
                         ما الأدوات المتوفرة في منصة معلم، ومتى أستخدم كل أداة؟
                         <span class="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-violet-100 text-sm text-violet-700 transition-[transform,background-color,color] duration-300 group-open:rotate-45 group-open:bg-violet-700 group-open:text-white [.is-closing_&]:rotate-0"><i class="fa-solid fa-plus" aria-hidden="true"></i></span>
                     </summary>
-                    <p class="mt-4 overflow-hidden border-t border-violet-100 pt-4 font-medium leading-8 text-slate-600">استخدم عجلة الأسماء للاختيارات والمسابقات الصفية العشوائية، وأداة QR لتحويل الروابط والنصوص إلى رموز قابلة للمسح، وأداة الشهادات لإنشاء شهادات عربية جاهزة للطباعة أو المشاركة.</p>
+                    <p class="mt-4 overflow-hidden border-t border-violet-100 pt-4 font-medium leading-8 text-slate-600">استخدم عجلة الأسماء للاختيارات الصفية، وأداة QR واختصار الروابط للمشاركة، والشهادات للتكريم، والسبورة الذكية لإدارة الحصة، ومدرب الطباعة لبناء سرعة ودقة الكتابة بالعربية والإنجليزية.</p>
                 </details>
                 <details class="group overflow-hidden rounded-2xl border border-violet-100 bg-[#fbfbff] p-5 transition-[transform,border-color,background-color,box-shadow] duration-300 open:-translate-y-0.5 open:border-violet-200 open:bg-white open:shadow-[0_16px_38px_rgba(76,29,149,0.09)]" data-reveal>
                     <summary class="flex cursor-pointer list-none items-center justify-between gap-4 font-black text-[#111a35] select-none [&::-webkit-details-marker]:hidden">
@@ -284,10 +305,10 @@
                 </details>
                 <details class="group overflow-hidden rounded-2xl border border-violet-100 bg-[#fbfbff] p-5 transition-[transform,border-color,background-color,box-shadow] duration-300 open:-translate-y-0.5 open:border-violet-200 open:bg-white open:shadow-[0_16px_38px_rgba(76,29,149,0.09)]" data-reveal>
                     <summary class="flex cursor-pointer list-none items-center justify-between gap-4 font-black text-[#111a35] select-none [&::-webkit-details-marker]:hidden">
-                        هل أستطيع استخدام الأدوات الثلاث بدون حساب؟
+                        هل أستطيع استخدام الأدوات بدون حساب؟
                         <span class="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-violet-100 text-sm text-violet-700 transition-[transform,background-color,color] duration-300 group-open:rotate-45 group-open:bg-violet-700 group-open:text-white [.is-closing_&]:rotate-0"><i class="fa-solid fa-plus" aria-hidden="true"></i></span>
                     </summary>
-                    <p class="mt-4 overflow-hidden border-t border-violet-100 pt-4 font-medium leading-8 text-slate-600">نعم، يمكنك فتح عجلة الأسماء وأداة QR وأداة الشهادات وتجربتها مباشرة. تحتاج إلى تسجيل الدخول عندما تريد حفظ عملك في حسابك والعودة إليه لاحقًا.</p>
+                    <p class="mt-4 overflow-hidden border-t border-violet-100 pt-4 font-medium leading-8 text-slate-600">نعم، يمكنك تجربة الأدوات العامة مباشرة، ويُحفظ تقدم مدرب الطباعة محليًا على جهازك. تحتاج إلى تسجيل الدخول فقط عندما تريد حفظ الأعمال المدعومة في حسابك والعودة إليها لاحقًا.</p>
                 </details>
                 <details class="group overflow-hidden rounded-2xl border border-violet-100 bg-[#fbfbff] p-5 transition-[transform,border-color,background-color,box-shadow] duration-300 open:-translate-y-0.5 open:border-violet-200 open:bg-white open:shadow-[0_16px_38px_rgba(76,29,149,0.09)]" data-reveal>
                     <summary class="flex cursor-pointer list-none items-center justify-between gap-4 font-black text-[#111a35] select-none [&::-webkit-details-marker]:hidden">

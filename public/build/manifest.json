@@ -28,7 +28,7 @@
     "src": "_instrument-sans-600-normal-B9e8oLYv.woff"
   },
   "resources/css/app.css": {
-    "file": "assets/app-D5B5AwYb.css",
+    "file": "assets/app-veeyOgd6.css",
     "name": "app",
     "names": [
       "app.css"
@@ -49,11 +49,12 @@
     "src": "resources/fonts/rb/RB-Regular.ttf"
   },
   "resources/js/app.js": {
-    "file": "assets/app-CAtXPTyT.js",
+    "file": "assets/app-DDqqPCLC.js",
     "name": "app",
     "src": "resources/js/app.js",
     "isEntry": true,
     "dynamicImports": [
+      "resources/js/typing-trainer/index.js",
       "resources/js/smart-board/index.js"
     ]
   },
@@ -61,6 +62,12 @@
     "file": "assets/smart-board-_GdShzCs.js",
     "name": "smart-board",
     "src": "resources/js/smart-board/index.js",
+    "isDynamicEntry": true
+  },
+  "resources/js/typing-trainer/index.js": {
+    "file": "assets/typing-trainer-BWzFe2-w.js",
+    "name": "typing-trainer",
+    "src": "resources/js/typing-trainer/index.js",
     "isDynamicEntry": true
   }
 }

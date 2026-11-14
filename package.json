@@ -5,7 +5,7 @@
     "scripts": {
         "build": "vite build",
         "dev": "vite",
-        "test:js": "node tests/js/smart-board-state.test.js"
+        "test:js": "node tests/js/run.js"
     },
     "devDependencies": {
         "@tailwindcss/vite": "^4.0.0",
