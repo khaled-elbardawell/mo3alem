@@ -6,6 +6,10 @@ if (document.querySelector("[data-smart-board], [data-smart-board-join]")) {
   import("./smart-board/index.js");
 }
 
+if (document.querySelector("[data-screen-recorder]")) {
+  import("./screen-recorder/index.js");
+}
+
 function setupCampaignTracking() {
   const placements = [...document.querySelectorAll("[data-view-endpoint]")];
 

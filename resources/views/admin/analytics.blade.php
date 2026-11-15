@@ -19,6 +19,9 @@
             'qr_saved' => ['label' => 'رموز QR المحفوظة', 'short' => 'QR محفوظ', 'icon' => 'fa-floppy-disk'],
             'certificate_generated' => ['label' => 'الشهادات المُنشأة', 'short' => 'شهادات مُنشأة', 'icon' => 'fa-wand-magic-sparkles'],
             'certificate_saved' => ['label' => 'الشهادات المحفوظة', 'short' => 'شهادات محفوظة', 'icon' => 'fa-certificate'],
+            'screen_recordings_started' => ['label' => 'تسجيلات الشاشة التي بدأت', 'short' => 'بدأ التسجيل', 'icon' => 'fa-circle-record'],
+            'screen_recordings_exported' => ['label' => 'تسجيلات الشاشة المصدّرة', 'short' => 'تصدير تسجيل', 'icon' => 'fa-file-export'],
+            'screen_recordings_failed' => ['label' => 'محاولات تسجيل الشاشة المتعثرة', 'short' => 'تعثر التسجيل', 'icon' => 'fa-triangle-exclamation'],
             'ad_impressions' => ['label' => 'ظهور الإعلانات', 'short' => 'ظهور', 'icon' => 'fa-eye'],
             'ad_clicks' => ['label' => 'نقرات الإعلانات', 'short' => 'نقر', 'icon' => 'fa-arrow-pointer'],
         ];

@@ -10,6 +10,7 @@ enum SeoPage: string
     case ShortUrl = 'short_url';
     case Certificates = 'certificates';
     case SmartBoard = 'smart_board';
+    case ScreenRecorder = 'screen_recorder';
 
     public function label(): string
     {
@@ -20,6 +21,7 @@ enum SeoPage: string
             self::ShortUrl => 'اختصار الروابط',
             self::Certificates => 'إنشاء الشهادات',
             self::SmartBoard => 'السبورة الذكية',
+            self::ScreenRecorder => 'مسجل الشاشة',
         };
     }
 
@@ -32,6 +34,7 @@ enum SeoPage: string
             self::ShortUrl => 'أداة اختصار الروابط وإنشاء QR وتتبع الزيارات.',
             self::Certificates => 'أداة تصميم الشهادات وطباعتها.',
             self::SmartBoard => 'مساحة صفية عربية تفاعلية تجمع أدوات إدارة الحصة في شاشة واحدة.',
+            self::ScreenRecorder => 'تسجيل الشاشة وتحرير الفيديو وحفظه محليًا على جهاز المستخدم.',
         };
     }
 
@@ -44,6 +47,7 @@ enum SeoPage: string
             self::ShortUrl => 'fa-link',
             self::Certificates => 'fa-award',
             self::SmartBoard => 'fa-chalkboard-user',
+            self::ScreenRecorder => 'fa-display',
         };
     }
 
@@ -56,6 +60,7 @@ enum SeoPage: string
             self::ShortUrl => 'tools.short-url',
             self::Certificates => 'tools.certificates',
             self::SmartBoard => 'tools.smart-board',
+            self::ScreenRecorder => 'tools.screen-recorder',
         };
     }
 
@@ -86,6 +91,7 @@ enum SeoPage: string
             self::ShortUrl => 'اختصار الروابط وإنشاء QR | معلم',
             self::Certificates => 'إنشاء شهادات احترافية | معلم',
             self::SmartBoard => 'السبورة الذكية للمعلمين | معلم',
+            self::ScreenRecorder => 'تسجيل الشاشة وتحرير الفيديو محليًا | معلم',
         };
     }
 
@@ -98,6 +104,7 @@ enum SeoPage: string
             self::ShortUrl => 'اختصر روابطك بمقطع مخصص، أنشئ رمز QR، وتابع الزيارات بإحصائيات تحافظ على الخصوصية.',
             self::Certificates => 'صمم شهادات احترافية بقوالب جاهزة، وخصص النصوص ثم نزّلها أو اطبعها بجودة عالية.',
             self::SmartBoard => 'سبورة ذكية عربية لإدارة الحصة بالمؤقت والتعليمات والاختيار العشوائي والاستطلاع المباشر وأدوات صفية سهلة.',
+            self::ScreenRecorder => 'سجّل شاشة جهازك مع الميكروفون والكاميرا، عدّل الفيديو ثم احفظه محليًا دون رفع التسجيل إلى السيرفر.',
         };
     }
 
@@ -110,6 +117,7 @@ enum SeoPage: string
             self::ShortUrl => 'اختصار الروابط، رابط قصير، إنشاء QR للرابط، إحصائيات الروابط',
             self::Certificates => 'إنشاء شهادات، تصميم شهادات، شهادات تقدير، قوالب شهادات',
             self::SmartBoard => 'سبورة ذكية، أدوات المعلم، إدارة الصف، مؤقت صفّي، استطلاع طلابي',
+            self::ScreenRecorder => 'تسجيل الشاشة، تصوير الشاشة، تحرير الفيديو، مسجل شاشة للمعلمين، حفظ الفيديو محليًا',
         };
     }
 }

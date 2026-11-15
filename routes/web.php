@@ -25,6 +25,7 @@ use App\Http\Controllers\ShortUrlAuthRedirectController;
 use App\Http\Controllers\Site\CertificateToolController;
 use App\Http\Controllers\Site\HomeController;
 use App\Http\Controllers\Site\QrToolController;
+use App\Http\Controllers\Site\ScreenRecorderToolController;
 use App\Http\Controllers\Site\ShortUrlToolController;
 use App\Http\Controllers\Site\SmartBoardToolController;
 use App\Http\Controllers\Site\WheelController;
@@ -60,6 +61,7 @@ Route::get('/tools/short-url/auth/{action}', ShortUrlAuthRedirectController::cla
     ->whereIn('action', ['login', 'register'])
     ->name('tools.short-url.auth');
 Route::get('/tools/smart-board', SmartBoardToolController::class)->name('tools.smart-board');
+Route::get('/tools/screen-recorder', ScreenRecorderToolController::class)->name('tools.screen-recorder');
 Route::get('/board/join/{smartBoardSession:public_code}', SmartBoardJoinController::class)
     ->middleware('throttle:smart-board-join')
     ->name('smart-board.join');
