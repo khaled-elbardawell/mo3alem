@@ -11,6 +11,7 @@ enum SeoPage: string
     case Certificates = 'certificates';
     case SmartBoard = 'smart_board';
     case TypingTrainer = 'typing_trainer';
+    case ScreenRecorder = 'screen_recorder';
 
     public function label(): string
     {
@@ -22,6 +23,7 @@ enum SeoPage: string
             self::Certificates => 'إنشاء الشهادات',
             self::SmartBoard => 'السبورة الذكية',
             self::TypingTrainer => 'مدرب الطباعة',
+            self::ScreenRecorder => 'مسجل الشاشة',
         };
     }
 
@@ -35,6 +37,7 @@ enum SeoPage: string
             self::Certificates => 'أداة تصميم الشهادات وطباعتها.',
             self::SmartBoard => 'مساحة صفية عربية تفاعلية تجمع أدوات إدارة الحصة في شاشة واحدة.',
             self::TypingTrainer => 'تدريب تفاعلي على الطباعة السريعة والدقيقة بالعربية والإنجليزية.',
+            self::ScreenRecorder => 'تسجيل الشاشة وتحرير الفيديو وحفظه محليًا على جهاز المستخدم.',
         };
     }
 
@@ -48,6 +51,7 @@ enum SeoPage: string
             self::Certificates => 'fa-award',
             self::SmartBoard => 'fa-chalkboard-user',
             self::TypingTrainer => 'fa-keyboard',
+            self::ScreenRecorder => 'fa-display',
         };
     }
 
@@ -61,6 +65,7 @@ enum SeoPage: string
             self::Certificates => 'tools.certificates',
             self::SmartBoard => 'tools.smart-board',
             self::TypingTrainer => 'tools.typing-trainer',
+            self::ScreenRecorder => 'tools.screen-recorder',
         };
     }
 
@@ -92,6 +97,7 @@ enum SeoPage: string
             self::Certificates => 'إنشاء شهادات احترافية | معلم',
             self::SmartBoard => 'السبورة الذكية للمعلمين | معلم',
             self::TypingTrainer => 'تعلم الطباعة بالعربية والإنجليزية | معلم',
+            self::ScreenRecorder => 'تسجيل الشاشة وتحرير الفيديو محليًا | معلم',
         };
     }
 
@@ -105,6 +111,7 @@ enum SeoPage: string
             self::Certificates => 'صمم شهادات احترافية بقوالب جاهزة، وخصص النصوص ثم نزّلها أو اطبعها بجودة عالية.',
             self::SmartBoard => 'سبورة ذكية عربية لإدارة الحصة بالمؤقت والتعليمات والاختيار العشوائي والاستطلاع المباشر وأدوات صفية سهلة.',
             self::TypingTrainer => 'تدرب على الطباعة السريعة بالعربية والإنجليزية عبر دروس تفاعلية ولوحة مفاتيح مرئية وتقارير فورية للسرعة والدقة.',
+            self::ScreenRecorder => 'سجّل شاشة جهازك مع الميكروفون والكاميرا، عدّل الفيديو ثم احفظه محليًا دون رفع التسجيل إلى السيرفر.',
         };
     }
 
@@ -118,6 +125,7 @@ enum SeoPage: string
             self::Certificates => 'إنشاء شهادات، تصميم شهادات، شهادات تقدير، قوالب شهادات',
             self::SmartBoard => 'سبورة ذكية، أدوات المعلم، إدارة الصف، مؤقت صفّي، استطلاع طلابي',
             self::TypingTrainer => 'تعلم الطباعة، الطباعة السريعة، الكتابة على الكيبورد، تدريب عربي، typing trainer',
+            self::ScreenRecorder => 'تسجيل الشاشة، تصوير الشاشة، تحرير الفيديو، مسجل شاشة للمعلمين، حفظ الفيديو محليًا',
         };
     }
 }

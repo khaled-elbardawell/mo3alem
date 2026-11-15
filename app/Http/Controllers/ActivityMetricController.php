@@ -15,6 +15,9 @@ class ActivityMetricController extends Controller
             'import' => 'imports',
             'qr_generate' => 'qr_generated',
             'certificate_generate' => 'certificate_generated',
+            'screen_recording_started' => 'screen_recordings_started',
+            'screen_recording_exported' => 'screen_recordings_exported',
+            'screen_recording_failed' => 'screen_recordings_failed',
         };
 
         $metrics->increment($metric);

@@ -72,8 +72,8 @@
             </div>
 
             <div @class(['mt-10 grid gap-5', 'lg:grid-cols-[1fr_260px]' => $campaigns['side']])>
-                <div class="grid items-start gap-5 sm:grid-cols-2 xl:grid-cols-3" data-reveal-group>
-                    <a class="group flex h-fit flex-col rounded-2xl border border-violet-200 bg-white p-4 shadow-[0_16px_50px_rgba(49,46,129,0.08)] transition-[transform,box-shadow,border-color] hover:-translate-y-1 hover:border-violet-300 hover:shadow-[0_24px_65px_rgba(76,29,149,0.14)] focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-violet-600" href="{{ route('tools.wheel') }}" data-tool-card="wheel" data-reveal data-lift-card>
+                <div class="grid items-stretch gap-5 sm:grid-cols-2 xl:grid-cols-4" data-reveal-group>
+                    <a class="group flex h-full flex-col rounded-2xl border border-violet-200 bg-white p-4 shadow-[0_16px_50px_rgba(49,46,129,0.08)] transition-[transform,box-shadow,border-color] hover:-translate-y-1 hover:border-violet-300 hover:shadow-[0_24px_65px_rgba(76,29,149,0.14)] focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-violet-600" href="{{ route('tools.wheel') }}" data-tool-card="wheel" data-reveal data-lift-card>
                         <div class="flex items-center gap-3">
                             <span class="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-violet-100 text-xl text-violet-700"><i class="fa-solid fa-dharmachakra" aria-hidden="true"></i></span>
                             <h3 class="text-lg font-black text-[#111a35]">عجلة الأسماء العشوائية</h3>
@@ -82,13 +82,13 @@
                         <div class="mt-3 mb-3 grid h-32 shrink-0 place-items-center overflow-hidden rounded-xl bg-slate-50/70 p-2 sm:h-36">
                             <img class="block h-auto max-h-28 w-auto max-w-full object-contain transition-transform duration-300 group-hover:scale-[1.03] sm:max-h-32" src="{{ asset('assets/wheel-small-card.png') }}" alt="واجهة عجلة الأسماء العشوائية" loading="lazy">
                         </div>
-                        <span class="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-xl bg-violet-700 px-5 font-black text-white transition-colors group-hover:bg-violet-800">
+                        <span class="mt-auto inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-xl bg-violet-700 px-5 font-black text-white transition-colors group-hover:bg-violet-800">
                             استخدم الأداة
                             <i class="fa-solid fa-arrow-left text-xs" aria-hidden="true"></i>
                         </span>
                     </a>
 
-                    <a class="group flex h-fit flex-col rounded-2xl border border-violet-100 bg-white p-4 shadow-[0_16px_50px_rgba(49,46,129,0.06)] transition-[transform,box-shadow,border-color] hover:-translate-y-1 hover:border-violet-300 hover:shadow-[0_24px_65px_rgba(76,29,149,0.14)] focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-violet-600" href="{{ route('tools.qr') }}" data-tool-card="qr" data-reveal data-lift-card>
+                    <a class="group flex h-full flex-col rounded-2xl border border-violet-100 bg-white p-4 shadow-[0_16px_50px_rgba(49,46,129,0.06)] transition-[transform,box-shadow,border-color] hover:-translate-y-1 hover:border-violet-300 hover:shadow-[0_24px_65px_rgba(76,29,149,0.14)] focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-violet-600" href="{{ route('tools.qr') }}" data-tool-card="qr" data-reveal data-lift-card>
                         <div class="flex items-center gap-3">
                             <span class="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-indigo-100 text-xl text-indigo-700"><i class="fa-solid fa-qrcode" aria-hidden="true"></i></span>
                             <h3 class="text-lg font-black text-[#111a35]">إنشاء QR احترافي</h3>
@@ -97,13 +97,13 @@
                         <div class="mt-3 mb-3 grid h-32 shrink-0 place-items-center overflow-hidden rounded-xl bg-slate-50/70 p-2 sm:h-36">
                             <img class="block h-auto max-h-28 w-auto max-w-full object-contain transition-transform duration-300 group-hover:scale-[1.03] sm:max-h-32" src="{{ asset('assets/qr-small-card.png') }}" alt="واجهة أداة إنشاء رمز QR" loading="lazy">
                         </div>
-                        <span class="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-xl bg-violet-700 px-5 font-black text-white transition-colors group-hover:bg-violet-800">
+                        <span class="mt-auto inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-xl bg-violet-700 px-5 font-black text-white transition-colors group-hover:bg-violet-800">
                             استخدم الأداة
                             <i class="fa-solid fa-arrow-left text-xs" aria-hidden="true"></i>
                         </span>
                     </a>
 
-                    <a class="group flex h-fit flex-col rounded-2xl border border-violet-100 bg-white p-4 shadow-[0_16px_50px_rgba(49,46,129,0.06)] transition-[transform,box-shadow,border-color] hover:-translate-y-1 hover:border-violet-300 hover:shadow-[0_24px_65px_rgba(76,29,149,0.14)] focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-violet-600" href="{{ route('tools.short-url') }}" data-tool-card="short-url" data-reveal data-lift-card>
+                    <a class="group flex h-full flex-col rounded-2xl border border-violet-100 bg-white p-4 shadow-[0_16px_50px_rgba(49,46,129,0.06)] transition-[transform,box-shadow,border-color] hover:-translate-y-1 hover:border-violet-300 hover:shadow-[0_24px_65px_rgba(76,29,149,0.14)] focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-violet-600" href="{{ route('tools.short-url') }}" data-tool-card="short-url" data-reveal data-lift-card>
                         <div class="flex items-center gap-3">
                             <span class="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-emerald-100 text-xl text-emerald-700"><i class="fa-solid fa-link" aria-hidden="true"></i></span>
                             <h3 class="text-lg font-black text-[#111a35]">اختصار الروابط</h3>
@@ -116,13 +116,13 @@
                                 <div class="mt-3 flex gap-1.5" aria-hidden="true"><span class="h-2 flex-1 rounded-full bg-emerald-200"></span><span class="h-2 w-10 rounded-full bg-violet-200"></span></div>
                             </div>
                         </div>
-                        <span class="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-xl bg-violet-700 px-5 font-black text-white transition-colors group-hover:bg-violet-800">
+                        <span class="mt-auto inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-xl bg-violet-700 px-5 font-black text-white transition-colors group-hover:bg-violet-800">
                             استخدم الأداة
                             <i class="fa-solid fa-arrow-left text-xs" aria-hidden="true"></i>
                         </span>
                     </a>
 
-                    <a class="group flex h-fit flex-col rounded-2xl border border-violet-100 bg-white p-4 shadow-[0_16px_50px_rgba(49,46,129,0.06)] transition-[transform,box-shadow,border-color] hover:-translate-y-1 hover:border-violet-300 hover:shadow-[0_24px_65px_rgba(76,29,149,0.14)] focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-violet-600" href="{{ route('tools.certificates') }}" data-tool-card="certificates" data-reveal data-lift-card>
+                    <a class="group flex h-full flex-col rounded-2xl border border-violet-100 bg-white p-4 shadow-[0_16px_50px_rgba(49,46,129,0.06)] transition-[transform,box-shadow,border-color] hover:-translate-y-1 hover:border-violet-300 hover:shadow-[0_24px_65px_rgba(76,29,149,0.14)] focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-violet-600" href="{{ route('tools.certificates') }}" data-tool-card="certificates" data-reveal data-lift-card>
                         <div class="flex items-center gap-3">
                             <span class="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-amber-100 text-xl text-amber-600"><i class="fa-solid fa-award" aria-hidden="true"></i></span>
                             <h3 class="text-lg font-black text-[#111a35]">إنشاء الشهادات</h3>
@@ -131,13 +131,13 @@
                         <div class="mt-3 mb-3 grid h-32 shrink-0 place-items-center overflow-hidden rounded-xl bg-slate-50/70 p-2 sm:h-36">
                             <img class="block h-auto max-h-28 w-auto max-w-full object-contain transition-transform duration-300 group-hover:scale-[1.03] sm:max-h-32" src="{{ asset('assets/certificate-small-card.png') }}" alt="واجهة أداة إنشاء الشهادات" loading="lazy">
                         </div>
-                        <span class="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-xl bg-violet-700 px-5 font-black text-white transition-colors group-hover:bg-violet-800">
+                        <span class="mt-auto inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-xl bg-violet-700 px-5 font-black text-white transition-colors group-hover:bg-violet-800">
                             استخدم الأداة
                             <i class="fa-solid fa-arrow-left text-xs" aria-hidden="true"></i>
                         </span>
                     </a>
 
-                    <a class="group flex h-fit flex-col rounded-2xl border border-violet-200 bg-white p-4 shadow-[0_16px_50px_rgba(49,46,129,0.08)] transition-[transform,box-shadow,border-color] hover:-translate-y-1 hover:border-violet-300 hover:shadow-[0_24px_65px_rgba(76,29,149,0.14)] focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-violet-600" href="{{ route('tools.smart-board') }}" data-tool-card="smart-board" data-reveal data-lift-card>
+                    <a class="group flex h-full flex-col rounded-2xl border border-violet-200 bg-white p-4 shadow-[0_16px_50px_rgba(49,46,129,0.08)] transition-[transform,box-shadow,border-color] hover:-translate-y-1 hover:border-violet-300 hover:shadow-[0_24px_65px_rgba(76,29,149,0.14)] focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-violet-600" href="{{ route('tools.smart-board') }}" data-tool-card="smart-board" data-reveal data-lift-card>
                         <div class="flex items-center gap-3">
                             <span class="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-fuchsia-100 text-xl text-fuchsia-700"><i class="fa-solid fa-chalkboard-user" aria-hidden="true"></i></span>
                             <h3 class="text-lg font-black text-[#111a35]">السبورة الذكية</h3>
@@ -148,13 +148,13 @@
                                 <span class="grid place-items-center rounded-lg bg-white text-center text-xs font-black text-violet-700 shadow-sm"><i class="fa-solid {{ $icon }} text-lg" aria-hidden="true"></i>{{ $label }}</span>
                             @endforeach
                         </div>
-                        <span class="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-xl bg-violet-700 px-5 font-black text-white transition-colors group-hover:bg-violet-800">
+                        <span class="mt-auto inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-xl bg-violet-700 px-5 font-black text-white transition-colors group-hover:bg-violet-800">
                             افتح السبورة
                             <i class="fa-solid fa-arrow-left text-xs" aria-hidden="true"></i>
                         </span>
                     </a>
 
-                    <a class="group flex h-fit flex-col rounded-2xl border border-sky-200 bg-white p-4 shadow-[0_16px_50px_rgba(49,46,129,0.08)] transition-[transform,box-shadow,border-color] hover:-translate-y-1 hover:border-violet-300 hover:shadow-[0_24px_65px_rgba(76,29,149,0.14)] focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-violet-600" href="{{ route('tools.typing-trainer') }}" data-tool-card="typing-trainer" data-reveal data-lift-card>
+                    <a class="group flex h-full flex-col rounded-2xl border border-sky-200 bg-white p-4 shadow-[0_16px_50px_rgba(49,46,129,0.08)] transition-[transform,box-shadow,border-color] hover:-translate-y-1 hover:border-violet-300 hover:shadow-[0_24px_65px_rgba(76,29,149,0.14)] focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-violet-600" href="{{ route('tools.typing-trainer') }}" data-tool-card="typing-trainer" data-reveal data-lift-card>
                         <div class="flex items-center gap-3">
                             <span class="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-sky-100 text-xl text-sky-700"><i class="fa-solid fa-keyboard" aria-hidden="true"></i></span>
                             <h3 class="text-lg font-black text-[#111a35]">مدرب الطباعة</h3>
@@ -169,8 +169,28 @@
                                 </div>
                             @endforeach
                         </div>
-                        <span class="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-xl bg-violet-700 px-5 font-black text-white transition-colors group-hover:bg-violet-800">
+                        <span class="mt-auto inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-xl bg-violet-700 px-5 font-black text-white transition-colors group-hover:bg-violet-800">
                             ابدأ التدريب
+                            <i class="fa-solid fa-arrow-left text-xs" aria-hidden="true"></i>
+                        </span>
+                    </a>
+
+                    <a class="group flex h-full flex-col rounded-2xl border border-violet-100 bg-white p-4 shadow-[0_16px_50px_rgba(49,46,129,0.06)] transition-[transform,box-shadow,border-color] hover:-translate-y-1 hover:border-violet-300 hover:shadow-[0_24px_65px_rgba(76,29,149,0.14)] focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-violet-600" href="{{ route('tools.screen-recorder') }}" data-tool-card="screen-recorder" data-reveal data-lift-card>
+                        <div class="flex items-center gap-3">
+                            <span class="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-violet-100 text-xl text-violet-700"><i class="fa-solid fa-display" aria-hidden="true"></i></span>
+                            <h3 class="text-lg font-black text-[#111a35]">تسجيل الشاشة وتحرير الفيديو</h3>
+                        </div>
+                        <p class="mt-2.5 text-sm font-medium leading-7 text-slate-500">سجّل شرحك مع الصوت والكاميرا، قص الأجزاء وأضف التوضيحات ثم احفظ الفيديو محليًا بخصوصية كاملة.</p>
+                        <div class="mt-3 mb-3 grid h-32 shrink-0 place-items-center overflow-hidden rounded-xl bg-linear-to-br from-violet-100 via-white to-fuchsia-50 p-4 sm:h-36">
+                            <div class="relative aspect-video w-full max-w-52 overflow-hidden rounded-xl border-4 border-slate-800 bg-slate-900 shadow-xl transition-transform duration-300 group-hover:scale-[1.03]">
+                                <span class="absolute inset-3 rounded-md bg-linear-to-br from-violet-600/85 to-fuchsia-400/75"></span>
+                                <span class="absolute right-3 bottom-3 size-9 rounded-lg border-2 border-white bg-slate-700"></span>
+                                <span class="absolute top-2 left-2 size-3 rounded-full bg-rose-500 shadow-[0_0_0_4px_rgba(244,63,94,.18)]"></span>
+                                <span class="absolute right-8 bottom-1 left-8 h-1 rounded-full bg-white/50"></span>
+                            </div>
+                        </div>
+                        <span class="mt-auto inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-xl bg-violet-700 px-5 font-black text-white transition-colors group-hover:bg-violet-800">
+                            ابدأ التسجيل
                             <i class="fa-solid fa-arrow-left text-xs" aria-hidden="true"></i>
                         </span>
                     </a>

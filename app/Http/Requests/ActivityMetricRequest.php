@@ -24,7 +24,15 @@ class ActivityMetricRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'event' => ['required', Rule::in(['spin', 'import', 'qr_generate', 'certificate_generate'])],
+            'event' => ['required', Rule::in([
+                'spin',
+                'import',
+                'qr_generate',
+                'certificate_generate',
+                'screen_recording_started',
+                'screen_recording_exported',
+                'screen_recording_failed',
+            ])],
         ];
     }
 }

@@ -31,6 +31,9 @@ class DailyMetricFactory extends Factory
             'qr_saved' => fake()->numberBetween(0, 100),
             'certificate_generated' => fake()->numberBetween(0, 1000),
             'certificate_saved' => fake()->numberBetween(0, 100),
+            'screen_recordings_started' => fake()->numberBetween(0, 100),
+            'screen_recordings_exported' => fake()->numberBetween(0, 100),
+            'screen_recordings_failed' => fake()->numberBetween(0, 20),
             'ad_impressions' => fake()->numberBetween(0, 10000),
             'ad_clicks' => fake()->numberBetween(0, 500),
         ];
